@@ -1,0 +1,117 @@
+# -*- Mode: python; py-indent-offset: 4; indent-tabs-mode: nil; coding:
+# utf-8; -*-
+# @copyright &copy; 2010 - 2016, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V. All rights reserved.
+#
+# BSD 3-Clause License
+# Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
+# 1.  Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
+# 2.  Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
+# 3.  Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote products derived from this software without specific prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+#
+# We kindly request you to use one or more of the following phrases to refer to foxBMS in your hardware, software, documentation or advertising materials:
+#
+# &Prime;This product uses parts of foxBMS&reg;&Prime;
+#
+# &Prime;This product includes parts of foxBMS&reg;&Prime;
+#
+# &Prime;This product is derived from foxBMS&reg;&Prime;
+
+
+
+from waflib import Logs, Utils
+import sys
+
+def esig(tsk):
+    _tex = tsk.generator.path.find_or_declare('latex/foxbms-quickstart.tex')
+    _tex.sig=Utils.h_file(_tex.abspath())
+
+
+def patch_for_XeLaTeX(tsk):
+    for t in tsk.inputs:
+        _t = t.srcpath()
+        with open(_t, 'r') as f:
+            _old = f.read()
+        with open(_t, 'w') as f:
+            for l in _old.split('\n'):
+                if l.startswith(r'\usepackage[utf8]{inputenc}'):
+                    continue
+                if l.startswith(r'\usepackage[T1]{fontenc}'):
+                    continue
+                if l.startswith(r'\usepackage{bable}'):
+                    continue
+                f.write(l + '\n')
+
+
+def sphinx(bld):
+    if not bld.env.SPHINX_BUILD:
+        bld.fatal("ERROR: cannot build documentation (`sphinx-build' is not found in $PATH)")
+    else:
+        d = bld(features="sphinx",
+            outdir="html",
+            source=bld.path.ant_glob("**/*.rst"),
+            config="conf.py",
+            VERSION=bld.env.version,
+            RELEASE=bld.env.version,
+            )
+
+        #bld.install_files('${DATADIR}', bld.path.ant_glob("html/**/*.rst"))
+
+        if bld.options.enable_latex:
+            txt = bld.bldnode.make_node('doc/sphinx/latex/foxbms-quickstart.tex')
+
+            dl = bld(features="sphinx",
+                name='qs_sphinx',
+                outdir="latex",
+                builder="latex",
+                source=bld.path.ant_glob("**/*.rst"),
+                config="gettingstarted/conf.py",
+                srcdir=bld.path.abspath(),
+                VERSION=bld.env.version,
+                RELEASE=bld.env.version,
+                )
+
+            bld.add_group() 
+
+            bld( name   = 'copy_cover',
+                 rule   = 'cp ${SRC} ${TGT[0].abspath()}',
+                 source = 'gettingstarted/cover.pdf',
+                 target = 'latex/cover.pdf',
+                 always   = True,
+                 shell = True,
+                 after = 'sphinx'
+               )
+
+            bld.add_group() 
+
+            bld( name   = 'copy_cover_png',
+                 rule   = 'cp ${SRC} ${TGT[0].abspath()}',
+                 source = 'gettingstarted/cover.png',
+                 target = 'latex/cover.png',
+                 always   = True,
+                 shell = True,
+                 after = 'sphinx'
+               )
+
+
+            bld.add_group() 
+
+            bld(name  = 'esig', rule = esig, always = True, after = 'copy_cover')
+
+            bld.add_group() 
+            bld(name  = 'patch_for_XeLaTeX', source = txt.get_bld(), rule = patch_for_XeLaTeX, always = True, after = 'esig')
+            bld.add_group() 
+
+            d = bld(features = 'tex', 
+                type     = 'xelatex', # pdflatex or xelatex
+                source   = txt.get_bld(),
+                outs     = 'pdf',
+                prompt   =  1, # 0 for the batch mode
+                always   = True,
+                after    = ['esig', 'patch_for_XeLaTeX'],
+                shell = True
+                )    
+
+
+

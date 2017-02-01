@@ -1,0 +1,603 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="366.85562mm"
+   height="127.39799mm"
+   viewBox="0 0 1299.8821 451.4102"
+   id="svg2"
+   version="1.1"
+   inkscape:version="0.91 r13725"
+   sodipodi:docname="leds.svg"
+   inkscape:export-filename="/home/data/bms/sandbox/2016-04-29-foxbms/doc/sphinx/gettingstarted/_figures/leds_01.png"
+   inkscape:export-xdpi="90.010002"
+   inkscape:export-ydpi="90.010002">
+  <defs
+     id="defs4">
+    <linearGradient
+       inkscape:collect="always"
+       id="linearGradient4240">
+      <stop
+         style="stop-color:#ffffff;stop-opacity:1"
+         offset="0"
+         id="stop4242" />
+      <stop
+         style="stop-color:#e2001a;stop-opacity:1"
+         offset="1"
+         id="stop4244" />
+    </linearGradient>
+    <linearGradient
+       inkscape:collect="always"
+       id="linearGradient4184">
+      <stop
+         style="stop-color:#b1c800;stop-opacity:0"
+         offset="0"
+         id="stop4170" />
+      <stop
+         style="stop-color:#b1c800;stop-opacity:1"
+         offset="1"
+         id="stop4172" />
+    </linearGradient>
+    <radialGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient4184"
+       id="radialGradient4176"
+       cx="181.32787"
+       cy="176.27269"
+       fx="181.32787"
+       fy="176.27269"
+       r="50"
+       gradientUnits="userSpaceOnUse" />
+    <radialGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient4184"
+       id="radialGradient4222"
+       gradientUnits="userSpaceOnUse"
+       cx="181.32787"
+       cy="176.27269"
+       fx="181.32787"
+       fy="176.27269"
+       r="50" />
+    <radialGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient4240"
+       id="radialGradient4246"
+       cx="601.32788"
+       cy="176.27269"
+       fx="601.32788"
+       fy="176.27269"
+       r="50"
+       gradientUnits="userSpaceOnUse" />
+    <radialGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient4184"
+       id="radialGradient4286"
+       gradientUnits="userSpaceOnUse"
+       cx="181.32787"
+       cy="176.27269"
+       fx="181.32787"
+       fy="176.27269"
+       r="50" />
+    <radialGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient4184"
+       id="radialGradient4250"
+       gradientUnits="userSpaceOnUse"
+       cx="181.32787"
+       cy="176.27269"
+       fx="181.32787"
+       fy="176.27269"
+       r="50" />
+    <radialGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient4184"
+       id="radialGradient4285"
+       gradientUnits="userSpaceOnUse"
+       cx="181.32787"
+       cy="176.27269"
+       fx="181.32787"
+       fy="176.27269"
+       r="50" />
+  </defs>
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="0.78300234"
+     inkscape:cx="415.7637"
+     inkscape:cy="3.5722472"
+     inkscape:document-units="px"
+     inkscape:current-layer="layer6"
+     showgrid="false"
+     fit-margin-top="0"
+     fit-margin-left="0"
+     fit-margin-right="0"
+     fit-margin-bottom="0"
+     inkscape:window-width="2560"
+     inkscape:window-height="1315"
+     inkscape:window-x="0"
+     inkscape:window-y="1"
+     inkscape:window-maximized="1" />
+  <metadata
+     id="metadata7">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(-101.48154,81.729551)"
+     style="display:inline">
+    <rect
+       style="opacity:1;fill:#4c636f;fill-opacity:1;stroke:none;stroke-width:3;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:3, 3;stroke-dashoffset:0;stroke-opacity:1"
+       id="rect4136"
+       width="567.0929"
+       height="149.87393"
+       x="101.48154"
+       y="118.27045" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:40px;line-height:125%;font-family:Sans;letter-spacing:0px;word-spacing:0px;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       x="134.20872"
+       y="263.09253"
+       id="text4140"
+       sodipodi:linespacing="125%"><tspan
+         sodipodi:role="line"
+         id="tspan4142"
+         x="134.20872"
+         y="263.09253">PWR</tspan></text>
+    <circle
+       r="50"
+       cy="176.27269"
+       cx="461.32788"
+       id="circle4144"
+       style="opacity:1;fill:#b1c800;fill-opacity:1;stroke:none;stroke-width:3;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:3, 3;stroke-dashoffset:0;stroke-opacity:1" />
+    <text
+       sodipodi:linespacing="125%"
+       id="text4146"
+       y="263.09253"
+       x="442.20874"
+       style="font-style:normal;font-weight:normal;font-size:40px;line-height:125%;font-family:Sans;letter-spacing:0px;word-spacing:0px;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       xml:space="preserve"><tspan
+         y="263.09253"
+         x="442.20874"
+         id="tspan4148"
+         sodipodi:role="line">Indicator</tspan></text>
+    <circle
+       style="opacity:1;fill:#e2001a;fill-opacity:1;stroke:none;stroke-width:3;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:3, 3;stroke-dashoffset:0;stroke-opacity:1"
+       id="circle4150"
+       cx="601.32788"
+       cy="176.27269"
+       r="50" />
+    <rect
+       y="118.27045"
+       x="101.48154"
+       height="165.19955"
+       width="567.0929"
+       id="rect4152"
+       style="opacity:1;fill:#4c636f;fill-opacity:1;stroke:none;stroke-width:3;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:3, 3;stroke-dashoffset:0;stroke-opacity:1" />
+    <text
+       sodipodi:linespacing="125%"
+       id="text4156"
+       y="271.09253"
+       x="134.20872"
+       style="font-style:normal;font-weight:normal;font-size:40px;line-height:125%;font-family:Sans;letter-spacing:0px;word-spacing:0px;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       xml:space="preserve"><tspan
+         y="271.09253"
+         x="134.20872"
+         id="tspan4158"
+         sodipodi:role="line">PWR</tspan></text>
+    <circle
+       style="opacity:1;fill:#6a7341;fill-opacity:1;stroke:none;stroke-width:3;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:3, 3;stroke-dashoffset:0;stroke-opacity:1"
+       id="circle4160"
+       cx="461.32788"
+       cy="176.27269"
+       r="50" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:40px;line-height:125%;font-family:Sans;letter-spacing:0px;word-spacing:0px;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       x="442.20874"
+       y="271.09253"
+       id="text4162"
+       sodipodi:linespacing="125%"><tspan
+         sodipodi:role="line"
+         id="tspan4164"
+         x="442.20874"
+         y="271.09253">Indicator</tspan></text>
+    <circle
+       r="50"
+       cy="176.27269"
+       cx="601.32788"
+       id="circle4166"
+       style="opacity:1;fill:#9e1c22;fill-opacity:1;stroke:none;stroke-width:3;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:3, 3;stroke-dashoffset:0;stroke-opacity:1" />
+    <rect
+       y="118.27045"
+       x="834.27081"
+       height="149.87393"
+       width="567.0929"
+       id="rect4248"
+       style="opacity:1;fill:#4c636f;fill-opacity:1;stroke:none;stroke-width:3;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:3, 3;stroke-dashoffset:0;stroke-opacity:1" />
+    <text
+       sodipodi:linespacing="125%"
+       id="text4250"
+       y="263.09253"
+       x="866.99799"
+       style="font-style:normal;font-weight:normal;font-size:40px;line-height:125%;font-family:Sans;letter-spacing:0px;word-spacing:0px;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       xml:space="preserve"><tspan
+         y="263.09253"
+         x="866.99799"
+         id="tspan4252"
+         sodipodi:role="line">PWR</tspan></text>
+    <circle
+       style="opacity:1;fill:#b1c800;fill-opacity:1;stroke:none;stroke-width:3;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:3, 3;stroke-dashoffset:0;stroke-opacity:1"
+       id="circle4254"
+       cx="1194.1172"
+       cy="176.27269"
+       r="50" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:40px;line-height:125%;font-family:Sans;letter-spacing:0px;word-spacing:0px;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       x="1174.998"
+       y="263.09253"
+       id="text4256"
+       sodipodi:linespacing="125%"><tspan
+         sodipodi:role="line"
+         id="tspan4258"
+         x="1174.998"
+         y="263.09253">Indicator</tspan></text>
+    <circle
+       r="50"
+       cy="176.27269"
+       cx="1334.1172"
+       id="circle4260"
+       style="opacity:1;fill:#e2001a;fill-opacity:1;stroke:none;stroke-width:3;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:3, 3;stroke-dashoffset:0;stroke-opacity:1" />
+    <rect
+       style="opacity:1;fill:#4c636f;fill-opacity:1;stroke:none;stroke-width:3;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:3, 3;stroke-dashoffset:0;stroke-opacity:1"
+       id="rect4262"
+       width="567.0929"
+       height="165.19955"
+       x="834.27081"
+       y="118.27045" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:40px;line-height:125%;font-family:Sans;letter-spacing:0px;word-spacing:0px;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       x="866.99799"
+       y="271.09253"
+       id="text4264"
+       sodipodi:linespacing="125%"><tspan
+         sodipodi:role="line"
+         id="tspan4266"
+         x="866.99799"
+         y="271.09253">PWR</tspan></text>
+    <circle
+       r="50"
+       cy="176.27269"
+       cx="1194.1172"
+       id="circle4268"
+       style="opacity:1;fill:#6a7341;fill-opacity:1;stroke:none;stroke-width:3;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:3, 3;stroke-dashoffset:0;stroke-opacity:1" />
+    <text
+       sodipodi:linespacing="125%"
+       id="text4270"
+       y="271.09253"
+       x="1174.998"
+       style="font-style:normal;font-weight:normal;font-size:40px;line-height:125%;font-family:Sans;letter-spacing:0px;word-spacing:0px;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       xml:space="preserve"><tspan
+         y="271.09253"
+         x="1174.998"
+         id="tspan4272"
+         sodipodi:role="line">Indicator</tspan></text>
+    <circle
+       style="opacity:1;fill:#9e1c22;fill-opacity:1;stroke:none;stroke-width:3;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:3, 3;stroke-dashoffset:0;stroke-opacity:1"
+       id="circle4274"
+       cx="1334.1172"
+       cy="176.27269"
+       r="50" />
+    <text
+       sodipodi:linespacing="125%"
+       id="text4288"
+       y="361.36035"
+       x="286.05338"
+       style="font-style:normal;font-weight:normal;font-size:40px;line-height:125%;font-family:Sans;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       xml:space="preserve"><tspan
+         y="361.36035"
+         x="286.05338"
+         id="tspan4290"
+         sodipodi:role="line">Operation</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:40px;line-height:125%;font-family:Sans;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       x="1034.2723"
+       y="361.36035"
+       id="text4292"
+       sodipodi:linespacing="125%"><tspan
+         sodipodi:role="line"
+         id="tspan4294"
+         x="1034.2723"
+         y="361.36035">Flashing</tspan></text>
+  </g>
+  <g
+     inkscape:groupmode="layer"
+     id="layer6"
+     inkscape:label="I static"
+     style="display:inline"
+     transform="translate(6.3134766e-5,200)">
+    <rect
+       transform="translate(-101.4816,-118.27044)"
+       y="-81.729561"
+       x="101.48154"
+       height="149.87393"
+       width="567.0929"
+       id="rect4202"
+       style="display:inline;opacity:1;fill:#4c636f;fill-opacity:1;stroke:none;stroke-width:3;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:3, 3;stroke-dashoffset:0;stroke-opacity:1" />
+    <text
+       transform="translate(-101.4816,-118.27044)"
+       sodipodi:linespacing="125%"
+       id="text4204"
+       y="63.092529"
+       x="134.20872"
+       style="font-style:normal;font-weight:normal;font-size:40px;line-height:125%;font-family:Sans;letter-spacing:0px;word-spacing:0px;display:inline;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       xml:space="preserve"><tspan
+         y="63.092529"
+         x="134.20872"
+         id="tspan4206"
+         sodipodi:role="line">PWR</tspan></text>
+    <circle
+       transform="translate(-101.4816,-118.27044)"
+       style="display:inline;opacity:1;fill:#b1c800;fill-opacity:1;stroke:none;stroke-width:3;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:3, 3;stroke-dashoffset:0;stroke-opacity:1"
+       id="circle4208"
+       cx="461.32788"
+       cy="-23.727314"
+       r="50" />
+    <text
+       transform="translate(-101.4816,-118.27044)"
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:40px;line-height:125%;font-family:Sans;letter-spacing:0px;word-spacing:0px;display:inline;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       x="442.20874"
+       y="63.092529"
+       id="text4210"
+       sodipodi:linespacing="125%"><tspan
+         sodipodi:role="line"
+         id="tspan4212"
+         x="442.20874"
+         y="63.092529">Indicator</tspan></text>
+    <circle
+       transform="translate(-101.4816,-118.27044)"
+       r="50"
+       cy="-23.727314"
+       cx="601.32788"
+       id="circle4214"
+       style="display:inline;opacity:1;fill:#e2001a;fill-opacity:1;stroke:none;stroke-width:3;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:3, 3;stroke-dashoffset:0;stroke-opacity:1" />
+    <rect
+       transform="translate(-101.4816,-118.27044)"
+       style="display:inline;opacity:1;fill:#4c636f;fill-opacity:1;stroke:none;stroke-width:3;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:3, 3;stroke-dashoffset:0;stroke-opacity:1"
+       id="rect4216"
+       width="567.0929"
+       height="165.19955"
+       x="101.48154"
+       y="-81.729561" />
+    <text
+       transform="translate(-101.4816,-118.27044)"
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:40px;line-height:125%;font-family:Sans;letter-spacing:0px;word-spacing:0px;display:inline;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       x="134.20872"
+       y="71.092529"
+       id="text4218"
+       sodipodi:linespacing="125%"><tspan
+         sodipodi:role="line"
+         id="tspan4220"
+         x="134.20872"
+         y="71.092529">PWR</tspan></text>
+    <circle
+       transform="translate(-101.4816,-118.27044)"
+       r="50"
+       cy="-23.727314"
+       cx="461.32788"
+       id="circle4222"
+       style="display:inline;opacity:1;fill:#6a7341;fill-opacity:1;stroke:none;stroke-width:3;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:3, 3;stroke-dashoffset:0;stroke-opacity:1" />
+    <text
+       transform="translate(-101.4816,-118.27044)"
+       sodipodi:linespacing="125%"
+       id="text4224"
+       y="71.092529"
+       x="442.20874"
+       style="font-style:normal;font-weight:normal;font-size:40px;line-height:125%;font-family:Sans;letter-spacing:0px;word-spacing:0px;display:inline;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       xml:space="preserve"><tspan
+         y="71.092529"
+         x="442.20874"
+         id="tspan4226"
+         sodipodi:role="line">Indicator</tspan></text>
+    <circle
+       transform="translate(-101.4816,-118.27044)"
+       style="display:inline;opacity:1;fill:#9e1c22;fill-opacity:1;stroke:none;stroke-width:3;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:3, 3;stroke-dashoffset:0;stroke-opacity:1"
+       id="circle4228"
+       cx="601.32788"
+       cy="-23.727314"
+       r="50" />
+    <circle
+       transform="translate(-101.4816,-118.27044)"
+       style="display:inline;opacity:1;fill:#6a7341;fill-opacity:1;stroke:none;stroke-width:3;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:3, 3;stroke-dashoffset:0;stroke-opacity:1"
+       id="circle4238"
+       cx="181.32787"
+       cy="-23.727314"
+       r="50" />
+    <g
+       id="g4240"
+       style="display:inline"
+       transform="translate(-101.4816,-318.27044)">
+      <circle
+         r="50"
+         cy="176.27269"
+         cx="181.32787"
+         id="circle4242"
+         style="opacity:1;fill:#b1c800;fill-opacity:1;stroke:none;stroke-width:3;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:3, 3;stroke-dashoffset:0;stroke-opacity:1" />
+      <circle
+         r="50"
+         cy="176.27269"
+         cx="181.32787"
+         id="circle4244"
+         style="opacity:1;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:3;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:3, 3;stroke-dashoffset:0;stroke-opacity:1" />
+      <circle
+         style="opacity:1;fill:url(#radialGradient4250);fill-opacity:1;stroke:none;stroke-width:3;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:3, 3;stroke-dashoffset:0;stroke-opacity:1"
+         id="circle4246"
+         cx="181.32787"
+         cy="176.27269"
+         r="50" />
+    </g>
+    <g
+       transform="translate(178.51842,-318.27044)"
+       id="g4276"
+       style="display:inline">
+      <circle
+         style="opacity:1;fill:#b1c800;fill-opacity:1;stroke:none;stroke-width:3;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:3, 3;stroke-dashoffset:0;stroke-opacity:1"
+         id="circle4278"
+         cx="181.32787"
+         cy="176.27269"
+         r="50" />
+      <circle
+         style="opacity:1;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:3;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:3, 3;stroke-dashoffset:0;stroke-opacity:1"
+         id="circle4281"
+         cx="181.32787"
+         cy="176.27269"
+         r="50" />
+      <circle
+         r="50"
+         cy="176.27269"
+         cx="181.32787"
+         id="circle4283"
+         style="opacity:1;fill:url(#radialGradient4285);fill-opacity:1;stroke:none;stroke-width:3;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:3, 3;stroke-dashoffset:0;stroke-opacity:1" />
+    </g>
+  </g>
+  <g
+     inkscape:groupmode="layer"
+     id="layer4"
+     inkscape:label="I l"
+     style="display:none"
+     transform="translate(-101.48154,81.729551)">
+    <g
+       style="display:inline"
+       id="g4195"
+       transform="translate(280.00002,0)">
+      <circle
+         r="50"
+         cy="176.27269"
+         cx="181.32787"
+         id="path4138"
+         style="opacity:1;fill:#b1c800;fill-opacity:1;stroke:none;stroke-width:3;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:3, 3;stroke-dashoffset:0;stroke-opacity:1" />
+      <circle
+         r="50"
+         cy="176.27269"
+         cx="181.32787"
+         id="circle4192"
+         style="opacity:1;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:3;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:3, 3;stroke-dashoffset:0;stroke-opacity:1" />
+      <circle
+         style="opacity:1;fill:url(#radialGradient4222);fill-opacity:1;stroke:none;stroke-width:3;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:3, 3;stroke-dashoffset:0;stroke-opacity:1"
+         id="circle4154"
+         cx="181.32787"
+         cy="176.27269"
+         r="50" />
+    </g>
+  </g>
+  <g
+     inkscape:groupmode="layer"
+     id="layer5"
+     inkscape:label="I r"
+     style="display:inline"
+     transform="translate(-101.48154,81.729551)">
+    <circle
+       style="opacity:1;fill:url(#radialGradient4246);fill-opacity:1;stroke:none;stroke-width:3;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:3, 3;stroke-dashoffset:0;stroke-opacity:1"
+       id="circle4237"
+       cx="601.32788"
+       cy="176.27269"
+       r="50" />
+  </g>
+  <g
+     inkscape:groupmode="layer"
+     id="layer3"
+     inkscape:label="PWR off"
+     style="display:inline"
+     transform="translate(-101.48154,81.729551)">
+    <circle
+       r="50"
+       cy="176.27269"
+       cx="181.32787"
+       id="circle4204"
+       style="opacity:1;fill:#6a7341;fill-opacity:1;stroke:none;stroke-width:3;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:3, 3;stroke-dashoffset:0;stroke-opacity:1" />
+    <circle
+       style="opacity:1;fill:#6a7341;fill-opacity:1;stroke:none;stroke-width:3;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:3, 3;stroke-dashoffset:0;stroke-opacity:1"
+       id="circle4276"
+       cx="914.11713"
+       cy="176.27269"
+       r="50" />
+  </g>
+  <g
+     inkscape:groupmode="layer"
+     id="layer2"
+     inkscape:label="PWR on"
+     style="display:inline"
+     transform="translate(-101.48154,81.729551)">
+    <g
+       style="display:inline"
+       id="g4209">
+      <circle
+         style="opacity:1;fill:#b1c800;fill-opacity:1;stroke:none;stroke-width:3;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:3, 3;stroke-dashoffset:0;stroke-opacity:1"
+         id="circle4211"
+         cx="181.32787"
+         cy="176.27269"
+         r="50" />
+      <circle
+         style="opacity:1;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:3;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:3, 3;stroke-dashoffset:0;stroke-opacity:1"
+         id="circle4213"
+         cx="181.32787"
+         cy="176.27269"
+         r="50" />
+      <circle
+         r="50"
+         cy="176.27269"
+         cx="181.32787"
+         id="circle4215"
+         style="opacity:1;fill:url(#radialGradient4176);fill-opacity:1;stroke:none;stroke-width:3;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:3, 3;stroke-dashoffset:0;stroke-opacity:1" />
+    </g>
+    <g
+       id="g4278"
+       style="display:inline"
+       transform="translate(732.78926,0)">
+      <circle
+         r="50"
+         cy="176.27269"
+         cx="181.32787"
+         id="circle4280"
+         style="opacity:1;fill:#b1c800;fill-opacity:1;stroke:none;stroke-width:3;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:3, 3;stroke-dashoffset:0;stroke-opacity:1" />
+      <circle
+         r="50"
+         cy="176.27269"
+         cx="181.32787"
+         id="circle4282"
+         style="opacity:1;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:3;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:3, 3;stroke-dashoffset:0;stroke-opacity:1" />
+      <circle
+         style="opacity:1;fill:url(#radialGradient4286);fill-opacity:1;stroke:none;stroke-width:3;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:3, 3;stroke-dashoffset:0;stroke-opacity:1"
+         id="circle4284"
+         cx="181.32787"
+         cy="176.27269"
+         r="50" />
+    </g>
+  </g>
+</svg>
