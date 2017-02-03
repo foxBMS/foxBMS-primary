@@ -16,5 +16,8 @@ This section contains a documentation of the most important software modules.
    ./can/can
    ./cansignal/cansignal
    ./ltc/ltc
+   ./com/com
+   ./uart/uart
+   ./chksum/chksum
    ./sox/sox
    ./isoguard/isoguard

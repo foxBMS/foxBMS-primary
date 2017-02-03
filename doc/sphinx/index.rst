@@ -67,6 +67,7 @@ Finally, the hardware documentation (:ref:`hw`) gives the details needed to unde
    software/modules/modules
    software/advanced_topics/advanced_topics
    software/faq/faq
+   software/tools/tools
 
 .. _hw:
 

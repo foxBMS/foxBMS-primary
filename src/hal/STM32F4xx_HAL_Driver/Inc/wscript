@@ -1,0 +1,22 @@
+# -*- Mode: python; py-indent-offset: 4; indent-tabs-mode: nil; coding:
+# utf-8; -*-
+
+from waflib import Logs, Utils, Context
+import os
+
+def build(bld):
+    srcs = bld.path.ant_glob('**/*.c')
+    includes = ' '.join([
+            '.',
+            os.path.join(bld.bldnode.abspath()),
+            os.path.join(bld.env.generalincludes),])
+
+
+    bld.stlib(
+              target='foxbms-STM32F4xx_HAL_Driver-inc',
+              source=srcs,
+              includes = includes
+              )
+    bld.recurse('Legacy')
+
+# vim: set ft=python : 

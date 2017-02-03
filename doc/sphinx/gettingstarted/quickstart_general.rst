@@ -30,5 +30,5 @@ it is explained how to prepare the other parts of the |foxBMS| hardware.
 Where can the layout and schematic files be found?
 --------------------------------------------------
 
-The layout and schematic are available for registered |foxBMS| users on the |foxBMS| repository.
+The layout and schematic are available in the HTML documentation in the section Hardware documentation, in :ref:`hw_layout_schematic`.
 
