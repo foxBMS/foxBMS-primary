@@ -2,8 +2,7 @@
 foxBMS
 ==================
 
-Build
-=====
+Documentation
+=============
 
-see ``doc/sphinx/build.rst``
-
+see http://foxbms.readthedocs.io/en/latest/
