@@ -6,9 +6,9 @@ foxBMS Schematic and Board Layout
 The following figures are giving information on the schematics of foxBMS. This includes the BMS-Master, the BMS-Extension, the
 BMS-Interface and the BMS-Slave. As the BMS-Master and BMS-Extension were designed as one unit, the schematic may include blank pages.
 
-Board layout and schematic files are available on their dedicated GitHub `repository <https://github.com/foxBMS/foxBMS-hardware>`_.
-This repositroy also contains the bill of material as csv files and a pdf version of the schematics.
-To open them, please download `CadSoft Eagle <http://www.cadsoftusa.com/>`_.
+Board layout and schematic files are available on their dedicated GitHub `repository <https://github.com/foxBMS/foxBMS-hardware>`_. To open them, please download `CadSoft Eagle <http://www.cadsoftusa.com/>`_.
+This repository also contains the bill of material as csv files and a pdf version of the schematics.
+
 
 
 
