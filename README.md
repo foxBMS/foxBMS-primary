@@ -11,3 +11,5 @@ The layout and schematic files for the foxBMS hardware are found in the foxBMS-h
 The foxConda-installer repository contains the installer for the foxConda environment. This environment provides all the tools necessary to generate the documentation, compile the code for the MCUs and flash the generated binaries on the MCUs.
 
 The documentation of foxBMS (Sphinx and Doxygen) is found in the foxBMS-primary repository, in the doc/sphinx and doc/doxygen directories. A generated version of the Sphinx documentation can be found at http://foxbms.readthedocs.io/en/latest/. It explains the structure of the foxBMS hardware, how to install the foxConda environment and how to use foxConda to compile and flash the sources.
+
+The documentation is also available in the foxBMS-documentation repository.
