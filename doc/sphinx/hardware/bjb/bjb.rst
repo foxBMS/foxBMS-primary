@@ -23,7 +23,7 @@ System Overview
 The BJB contains the Battery Management System (BMS) and all safety components. :numref:`Fig. %s <big_bjb>` shows a BJB integrated into a 19" enclosure with a 4U height.
 
 .. _big_bjb:
-.. figure:: big_bjb.png
+.. figure:: big_bjb.jpg
    :width: 100 %
 
    BJB top view
