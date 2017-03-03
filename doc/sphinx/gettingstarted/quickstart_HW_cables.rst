@@ -457,7 +457,7 @@ Hardware Related Frequently Asked Questions
 Are the layout files available?
 -------------------------------
 
-Yes, for registered |foxBMS| users on the |foxBMS| repository.
+Yes, in the HTML documentation, in the Hardware Documentation, in the section :ref:`hw_layout_schematic`.
 
 Have both primary MCU and secondry MCU to be connected?
 -------------------------------------------------------
