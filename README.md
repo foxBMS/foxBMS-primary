@@ -1,6 +1,5 @@
-﻿==================
-foxBMS
-==================
+﻿foxBMS
+======
 
 foxBMS is a free, open and flexible development environment for the design of battery management systems. It is the first universal BMS development environment.
 
