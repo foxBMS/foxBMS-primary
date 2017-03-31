@@ -94,6 +94,8 @@ SECTIONS
  _foxBMS_FLASH_end   = ORIGIN(FLASH)   + LENGTH(FLASH) + LENGTH(FLASH_HEADER);
  _foxBMS_FLASH_2_end = ORIGIN(FLASH_2) + LENGTH(FLASH_2);
 
+_sflash1 = ORIGIN(FLASH);
+
   .text :
   {
 /* input path: "...engine...",  section type: "text.<symbolname>"
@@ -249,10 +251,11 @@ SECTIONS
     _sccmram = .;       /* create a global symbol at ccmram start */
     *(.ccmram)
     *(.ccmram*)
-    
     . = ALIGN(4);
     _eccmram = .;       /* create a global symbol at ccmram end */
   } >CCMRAM AT> FLASH = 0xFF
+  
+  _eflash1 = _siccmram + (_eccmram - _sccmram);
 
   /* Uninitialized Backup SRAM section of type bss*/
   . = ALIGN(4);

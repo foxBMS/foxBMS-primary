@@ -72,14 +72,10 @@ uint32_t CHK_crc32(uint8_t* data, uint32_t len);
  *
  * @return (type: uint8_t)
  */
-
-STD_RETURN_TYPE_e CHK_Flashchecksum(const VER_ValidStruct_s *valid_struct)
-{
+STD_RETURN_TYPE_e CHK_Flashchecksum(const VER_ValidStruct_s *valid_struct) {
     STD_RETURN_TYPE_e retVal=E_NOT_OK;
-    uint32_t length = 0x100000 - 0x100; //valid_struct.endaddress - valid_struct.startaddress
-    uint32_t start = 0x08000000; // valid_struct.startaddress
-//    uint32_t length = valid_struct->endaddress - valid_struct->startaddress;
-//    uint32_t start = valid_struct->startaddress;
+    uint32_t length = valid_struct->endaddress - valid_struct->startaddress + 1;
+    uint32_t start = valid_struct->startaddress;
     uint32_t cs = CHK_crc32((uint8_t*)start, length);
     if(cs == valid_struct->Checksum_u32)
         retVal=E_OK;
