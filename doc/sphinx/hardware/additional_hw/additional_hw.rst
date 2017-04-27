@@ -19,7 +19,7 @@ For switching battery HV, contactors (power relays) should be used. Contactors w
 Current Sensor
 --------------
 
-For measuring the battery pack current, CAN based current sensors are supported. An Isabellenhuette IVT-Mod 300 shunt based current sensor is supplied with foxBMS. This automotive current sensor provides an current measurement range of +/-300A and in addition three voltage measurement inputs with an voltage measurement range of +/-600V. Current sensors with higher current measurement range are available, please check Isabellenhütte homepage or contact a sales person. Any other CAN based current sensor can be used, but foxBMS software might have to be adapted.
+For measuring the battery pack current, CAN based current sensors are supported. The Isabellenhütte IVT-Mod 300 shunt based current sensor was tested with foxBMS. This automotive current sensor provides a current measurement range of +/-300A and in addition three voltage measurement inputs with a voltage measurement range of +/-600V. Current sensors with higher current measurement ranges are available (please check Isabellenhütte homepage or contact a salesperson). If another CAN based current sensor is used, the foxBMS software must be adapted.
 
 --------------------
 DC Battery Pack Fuse
