@@ -412,10 +412,10 @@ with IDs 0x353 and 0x354. Again, details can be found in the part on CAN communi
 Current Sensor Configuration
 ----------------------------
 
-Further information on the current sensor is found in the `datasheet of the 
-current sensor <http://www.isabellenhuette.de/uploads/media/IVT_Modular_Brief_Datasheet_1.0_01.pdf>`_.
-To be used in |foxBMS|, the current sensor IVT-Mod from Isabellenhütte had to be reprogrammed.
-The current sensor in the bundle is already correctly reprogrammed. The changes compared to factory default are:
+Further information on the current sensor tested with |foxBMS| can be found in the `datasheet of the 
+current sensor <http://www.isabellenhuette.de/uploads/media/IVT_Modular_datasheet_1.20_02.pdf>`_.
+To be used in |foxBMS|, the current sensor IVT-Mod from Isabellenhütte was reprogrammed.
+The changes compared to factory default are:
 
  * The CAN Message IDs was changed 
  * The triggered measurement mode was activated
