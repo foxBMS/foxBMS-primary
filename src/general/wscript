@@ -1,6 +1,4 @@
-# -*- Mode: python; py-indent-offset: 4; indent-tabs-mode: nil; coding:
-# utf-8; -*-
-# @copyright &copy; 2010 - 2016, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V. All rights reserved.
+# @copyright &copy; 2010 - 2017, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V. All rights reserved.
 #
 # BSD 3-Clause License
 # Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -18,72 +16,106 @@
 #
 # &Prime;This product is derived from foxBMS&reg;&Prime;
 
+"""WAF script where the actual build of the binary file happens
+"""
+
 from waflib import Logs, Utils, Context
 import os
 
+
 def build(bld):
+    """Final instructions of waf function "build" for the binary file
 
+    waf "build" function uses the  libraries build for the modules
+     - application (libfoxbms-application.a)
+     - engine (libfoxbms-engine.a)
+     - hal (libfoxbms-CMSIS.a and libfoxbms-stmhal.a)
+     - module (libfoxbms-module.a)
+     - os (libfoxbms-os.a)
+     - test (libfoxbms-test.a)
 
-    srcs = bld.path.ant_glob('**/*.c')
+    The output is named as specified in APPNAME.
 
-    includes = ' '.join([
+    The waf feature function "hexgen" and "bingen" are exectued after linking.
+    """
+    #srcs = bld.path.ant_glob('**/*.c')
+    srcs = ' '.join([
+            os.path.join('config', 'nvic_cfg.c'),
+            os.path.join('config', 'stm32f4xx_hal_msp.c'),
+            os.path.join('config', 'stm32f4xx_it.c'),
+            os.path.join('config', 'system_stm32f4xx.c'),
+
+            os.path.join('main.c'),
+            os.path.join('nvic.c'),
+            os.path.join('version.c'),
+            ])
+    includes = os.path.join(bld.bldnode.abspath()) + ' '
+    includes += ' '.join([
         '.',
-        os.path.join(bld.bldnode.abspath()),
-        os.path.join(bld.srcnode.abspath(), 'src', 'application', 'sox'), 
-        os.path.join(bld.srcnode.abspath(), 'src', 'application', 'config'),         
-        os.path.join(bld.srcnode.abspath(), 'src', 'engine', 'config'), 
-        os.path.join(bld.srcnode.abspath(), 'src', 'engine', 'database'), 
-        os.path.join(bld.srcnode.abspath(), 'src', 'engine', 'task'), 
-        os.path.join(bld.srcnode.abspath(), 'src', 'engine', 'sysctrl'),
-        os.path.join(bld.srcnode.abspath(), 'src', 'engine', 'sox'),
-        os.path.join(bld.srcnode.abspath(), 'src', 'module', 'isoguard'),
-        os.path.join(bld.srcnode.abspath(), 'src', 'general'), 
-        os.path.join(bld.srcnode.abspath(), 'src', 'general', 'config'), 
-        os.path.join(bld.srcnode.abspath(), 'src', 'general', 'includes'), 
-        os.path.join(bld.srcnode.abspath(), 'src', 'hal', 'CMSIS', 'Device', 'ST', 'STM32F4xx', 'Include'), 
-        os.path.join(bld.srcnode.abspath(), 'src', 'hal', 'CMSIS', 'Include'), 
-        os.path.join(bld.srcnode.abspath(), 'src', 'hal', 'STM32F4xx_HAL_Driver', 'Inc'), 
-        os.path.join(bld.srcnode.abspath(), 'src', 'hal', 'STM32F4xx_HAL_Driver', 'Inc', 'Legacy'),
-        os.path.join(bld.srcnode.abspath(), 'src', 'module', 'timer'), 
-        os.path.join(bld.srcnode.abspath(), 'src', 'module', 'mcu'), 
-        os.path.join(bld.srcnode.abspath(), 'src', 'module', 'io'), 
-        os.path.join(bld.srcnode.abspath(), 'src', 'module', 'utils'),
-        os.path.join(bld.srcnode.abspath(), 'src', 'module', 'moduleinit'), 
-        os.path.join(bld.srcnode.abspath(), 'src', 'module', 'dma'), 
-        os.path.join(bld.srcnode.abspath(), 'src', 'module', 'int'), 
-        os.path.join(bld.srcnode.abspath(), 'src', 'module', 'irq'), 
-        os.path.join(bld.srcnode.abspath(), 'src', 'module', 'spi'), 
-        os.path.join(bld.srcnode.abspath(), 'src', 'module', 'rcc'),
-        os.path.join(bld.srcnode.abspath(), 'src', 'module', 'rtc'),        
-        os.path.join(bld.srcnode.abspath(), 'src', 'module', 'ltc'),
-        os.path.join(bld.srcnode.abspath(), 'src', 'module', 'adc'),
-        os.path.join(bld.srcnode.abspath(), 'src', 'module', 'bal'),
-        os.path.join(bld.srcnode.abspath(), 'src', 'module', 'can'),
-        os.path.join(bld.srcnode.abspath(), 'src', 'engine', 'diag'),         
-        os.path.join(bld.srcnode.abspath(), 'src', 'module', 'config'),
-        os.path.join(bld.srcnode.abspath(), 'src', 'module', 'uart'),
-        os.path.join(bld.srcnode.abspath(), 'src', 'module', 'contactor'),
-        os.path.join(bld.srcnode.abspath(), 'src', 'module', 'chksum'),
-        os.path.join(bld.srcnode.abspath(), 'src', 'module', 'com'),
-        os.path.join(bld.srcnode.abspath(), 'src', 'module', 'watchdog'),        
-        os.path.join(bld.srcnode.abspath(), 'src', 'test'), 
-            os.path.join(bld.env.generalincludes),])
+
+        os.path.join('..', 'application', 'bal'),
+        os.path.join('..', 'application', 'config'),
+        os.path.join('..', 'application', 'sox'),
+
+        os.path.join('..', 'engine', 'config'),
+        os.path.join('..', 'engine', 'database'),
+        os.path.join('..', 'engine', 'diag'),
+        os.path.join('..', 'engine', 'sox'),
+        os.path.join('..', 'engine', 'sysctrl'),
+        os.path.join('..', 'engine', 'task'),
+
+        os.path.join('..', 'general'),
+        os.path.join('config'),
+        os.path.join('includes'),
+
+        os.path.join('..', 'hal', 'CMSIS', 'Device', 'ST', 'STM32F4xx', 'Include'),
+        os.path.join('..', 'hal', 'CMSIS', 'Include'),
+        os.path.join('..', 'hal', 'STM32F4xx_HAL_Driver', 'Inc'),
+        os.path.join('..', 'hal', 'STM32F4xx_HAL_Driver', 'Inc', 'Legacy'),
+
+        os.path.join('..', 'module', 'adc'),
+        os.path.join('..', 'module', 'can'),
+        os.path.join('..', 'module', 'chksum'),
+        os.path.join('..', 'module', 'com'),
+        os.path.join('..', 'module', 'config'),
+        os.path.join('..', 'module', 'contactor'),
+        os.path.join('..', 'module', 'dma'),
+        os.path.join('..', 'module', 'int'),
+        os.path.join('..', 'module', 'intermcu'),
+        os.path.join('..', 'module', 'io'),
+        os.path.join('..', 'module', 'irq'),
+        os.path.join('..', 'module', 'isoguard'),
+        os.path.join('..', 'module', 'ltc'),
+        os.path.join('..', 'module', 'mcu'),
+        os.path.join('..', 'module', 'moduleinit'),
+        os.path.join('..', 'module', 'os'),
+        os.path.join('..', 'module', 'rcc'),
+        os.path.join('..', 'module', 'rtc'),
+        os.path.join('..', 'module', 'spi'),
+        os.path.join('..', 'module', 'timer'),
+        os.path.join('..', 'module', 'uart'),
+        os.path.join('..', 'module', 'utils'),
+        os.path.join('..', 'module', 'watchdog'),
+
+
+        os.path.join('..', 'os'),
+        os.path.join('..', 'os', 'FreeRTOS', 'Source', 'CMSIS_RTOS'),
+        os.path.join('..', 'os', 'FreeRTOS', 'Source', 'include'),
+        os.path.join('..', 'os', 'FreeRTOS', 'Source', 'portable', 'GCC', 'ARM_CM4F'),
+
+        os.path.join('..', 'test'),
+        ])
 
     use = [
         'foxbms-os',
         'foxbms-CMSIS',
         'foxbms-engine',
-        
+        'foxbms-application',
         'foxbms-module',
-        'foxbms-stmhal', 
+        'foxbms-stmhal',
+        'foxbms-test'
+        ]
 
-        'foxbms-application',  
-
-        'foxbms-test', 
-
-
-        ] 
-       
        # -Wl,-Map,"MAPNAME"
     _flags = ['-mthumb', '-mlittle-endian', '-fsigned-char',
         '-ffreestanding', '-fno-move-loop-invariants', '-fmessage-length=0',
@@ -91,23 +123,22 @@ def build(bld):
         '-mfloat-abi=softfp', '-std=c99', '-ffunction-sections',
         '-fdata-sections', '-Wall']
 
-    if bld.env.target  ==  'release':
-        bld.program(source   = srcs + [d],
-                    target   = bld.env.basename + '.elf',
-                    includes = includes,
+
+    startupscript = ' ' + os.path.join('config', 'startup_stm32f429xx.S')
+
+    if bld.env.target == 'release':
+        bld.program(source=srcs + [d],
+                    target=bld.env.basename + '.elf',
+                    includes=includes,
                     features='strip',
-                    linkflags= ['-T' + bld.env.ldscript, '-Xlinker', '--gc-sections', '--specs=nosys.specs', '--specs=nano.specs'],
-                    use      = use)
+                    linkflags=['-T' + bld.env.ldscript, '-Xlinker', '--gc-sections', '--specs=nosys.specs', '--specs=nano.specs'],
+                    use=use)
     else:
-        bld.program(source   = srcs + ['config/startup_stm32f429xx.S'],
-                    target   = 'foxbms.elf',
-                    includes = includes,
-                    features = [ 'hexgen','bingen'],
-                    linkflags= _flags + ['-T' + bld.env.ldscript, '-Wl,-Map,foxbms.map', '-Xlinker', '--gc-sections', '--specs=nosys.specs', '--specs=nano.specs'],
-                    use      = use)
+        bld.program(source=srcs + startupscript,
+                    target=bld.env.appname + '.elf',
+                    includes=includes,
+                    features=['hexgen', 'bingen', 'size', 'chksum'],
+                    linkflags=_flags + ['-T' + bld.env.ldscript, '-Wl,-Map,foxbms.map', '-Xlinker', '--gc-sections', '--specs=nosys.specs', '--specs=nano.specs'],
+                    use=use)
 
-
-
-
-
-
+# vim: set ft=python :

@@ -1,6 +1,4 @@
-# -*- Mode: python; py-indent-offset: 4; indent-tabs-mode: nil; coding:
-# utf-8; -*-
-# @copyright &copy; 2010 - 2016, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V. All rights reserved.
+# @copyright &copy; 2010 - 2017, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V. All rights reserved.
 #
 # BSD 3-Clause License
 # Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -18,12 +16,19 @@
 #
 # &Prime;This product is derived from foxBMS&reg;&Prime;
 
+"""WAF script lists the subdirectories of hal/ to be built
+"""
+
 from waflib import Logs, Utils, Context
 import os
 
+
 def build(bld):
+    """Directories listed in dir_build_list are built, when the waf function
+    "build" is called.
+    """
+    dir_build_list = ['STM32F4xx_HAL_Driver']
+    for dir in dir_build_list:
+        bld.recurse(dir)
 
-    bld.recurse('CMSIS')
-    bld.recurse('STM32F4xx_HAL_Driver')
-
-# vim: set ft=python : 
+# vim: set ft=python :

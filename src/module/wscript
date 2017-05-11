@@ -1,6 +1,4 @@
-# -*- Mode: python; py-indent-offset: 4; indent-tabs-mode: nil; coding:
-# utf-8; -*-
-# @copyright &copy; 2010 - 2016, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V. All rights reserved.
+# @copyright &copy; 2010 - 2017, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V. All rights reserved.
 #
 # BSD 3-Clause License
 # Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -18,52 +16,112 @@
 #
 # &Prime;This product is derived from foxBMS&reg;&Prime;
 
+"""WAF script for building "foxbms-module" library.
+location of this wscript:
+    /src/module/wscript
+"""
+
 from waflib import Logs, Utils, Context
 import os
 
+
 def build(bld):
-    srcs = bld.path.ant_glob('**/*.c')
-    includes = ' '.join([
+    #srcs = bld.path.ant_glob('**/*.c')
+    srcs = ' '.join([
+            os.path.join('adc', 'adc.c'),
+            os.path.join('bal', 'bal.c'),
+            os.path.join('can', 'can.c'),
+            os.path.join('cansignal', 'cansignal.c'),
+            os.path.join('chksum', 'chksum.c'),
+            os.path.join('com', 'com.c'),
+            os.path.join('config', 'adc_cfg.c'),
+            os.path.join('config', 'bkpsram_cfg.c'),
+            os.path.join('config', 'can_cfg.c'),
+            os.path.join('config', 'cansignal_cfg.c'),
+            os.path.join('config', 'contactor_cfg.c'),
+            os.path.join('config', 'dma_cfg.c'),
+            os.path.join('config', 'eepr_cfg.c'),
+            os.path.join('config', 'io_cfg.c'),
+            os.path.join('config', 'isoguard_cfg.c'),
+            os.path.join('config', 'ltc_cfg.c'),
+            os.path.join('config', 'rcc_cfg.c'),
+            #os.path.join('config', 'rtc_cfg.c'), #for future releases
+            #os.path.join('config', 'sdram_cfg.c'), #for future releases
+            os.path.join('config', 'spi_cfg.c'),
+            os.path.join('config', 'timer_cfg.c'),
+            os.path.join('config', 'uart_cfg.c'),
+            os.path.join('contactor', 'contactor.c'),
+            os.path.join('dma', 'dma.c'),
+            os.path.join('eeprom', 'eepr.c'),
+            os.path.join('intermcu', 'intermcu.c'),
+            os.path.join('io', 'io.c'),
+            #os.path.join('io', 'portcheck.c'), #for future releases
+            os.path.join('isoguard', 'ir155.c'),
+            os.path.join('isoguard', 'isoguard.c'),
+            os.path.join('ltc', 'ltc.c'),
+            os.path.join('ltc', 'ltc_pec.c'),
+            os.path.join('mcu', 'mcu.c'),
+            os.path.join('mcu', 'timing.c'),
+            os.path.join('rcc', 'rcc.c'),
+            os.path.join('rtc', 'bkpsram.c'),
+            os.path.join('rtc', 'rtc.c'),
+            os.path.join('spi', 'spi.c'),
+            os.path.join('timer', 'timer.c'),
+            os.path.join('uart', 'uart.c'),
+            os.path.join('utils', 'led.c'),
+            os.path.join('utils', 'misc.c'),
+            os.path.join('utils', 'sdram.c'),
+            os.path.join('watchdog', 'wdg.c'),
+            ])
+    includes = os.path.join(bld.bldnode.abspath()) + ' '
+    includes += ' '.join([
             '.',
-            os.path.join(bld.bldnode.abspath()),
-            os.path.join(bld.srcnode.abspath(), 'src', 'engine', 'config'), 
-            os.path.join(bld.srcnode.abspath(), 'src', 'engine', 'database'), 
-            os.path.join(bld.srcnode.abspath(), 'src', 'engine', 'sysctrl'),
-            os.path.join(bld.srcnode.abspath(), 'src', 'application', 'sox'), 
-            os.path.join(bld.srcnode.abspath(), 'src', 'application', 'config'),             
-            os.path.join(bld.srcnode.abspath(), 'src', 'engine', 'isoguard'),            
-            os.path.join(bld.srcnode.abspath(), 'src', 'general', 'config'), 
-            os.path.join(bld.srcnode.abspath(), 'src', 'general', 'includes'),
-            os.path.join(bld.srcnode.abspath(), 'src', 'os'),
-            os.path.join(bld.srcnode.abspath(), 'src', 'os', 'FreeRTOS', 'Source', 'CMSIS_RTOS'), 
-            os.path.join(bld.srcnode.abspath(), 'src', 'os', 'FreeRTOS', 'Source', 'include'), 
-            os.path.join(bld.srcnode.abspath(), 'src', 'os', 'FreeRTOS', 'Source', 'portable', 'GCC', 'ARM_CM4F'),
-            os.path.join(bld.srcnode.abspath(), 'src', 'hal', 'CMSIS', 'Device', 'ST', 'STM32F4xx', 'Include'),
-            os.path.join(bld.srcnode.abspath(), 'src', 'hal', 'CMSIS', 'Include'),
-            os.path.join(bld.srcnode.abspath(), 'src', 'hal', 'STM32F4xx_HAL_Driver', 'Inc'), 
-            os.path.join(bld.srcnode.abspath(), 'src', 'hal', 'STM32F4xx_HAL_Driver', 'Inc', 'Legacy'), 
-            os.path.join(bld.srcnode.abspath(), 'src', 'module', 'config'), 
-            os.path.join(bld.srcnode.abspath(), 'src', 'module', 'dma'),
-            os.path.join(bld.srcnode.abspath(), 'src', 'module', 'adc'),
-            os.path.join(bld.srcnode.abspath(), 'src', 'module', 'spi'),
-            os.path.join(bld.srcnode.abspath(), 'src', 'module', 'intermcu'),
-            os.path.join(bld.srcnode.abspath(), 'src', 'module', 'io'),
-            os.path.join(bld.srcnode.abspath(), 'src', 'module', 'rtc'),
-            os.path.join(bld.srcnode.abspath(), 'src', 'module', 'com'),
-            os.path.join(bld.srcnode.abspath(), 'src', 'module', 'mcu'),
-            os.path.join(bld.srcnode.abspath(), 'src', 'module', 'uart'),
-            os.path.join(bld.srcnode.abspath(), 'src', 'module', 'can'),
-            os.path.join(bld.srcnode.abspath(), 'src', 'module', 'cansignal'),
-            os.path.join(bld.srcnode.abspath(), 'src', 'module', 'utils'),
-            os.path.join(bld.srcnode.abspath(), 'src', 'module', 'timer'),
-            os.path.join(bld.env.generalincludes),
-        ])
+
+            os.path.join('..', 'application', 'config'),
+            os.path.join('..', 'application', 'sox'),
+
+            os.path.join('..', 'engine', 'config'),
+            os.path.join('..', 'engine', 'database'),
+            os.path.join('..', 'engine', 'diag'),
+            os.path.join('..', 'engine', 'sysctrl'),
+
+            os.path.join('..', 'general'),
+            os.path.join('..', 'general', 'config'),
+            os.path.join('..', 'general', 'includes'),
+
+            os.path.join('..', 'hal', 'CMSIS', 'Device', 'ST', 'STM32F4xx', 'Include'),
+            os.path.join('..', 'hal', 'CMSIS', 'Include'),
+            os.path.join('..', 'hal', 'STM32F4xx_HAL_Driver', 'Inc'),
+            os.path.join('..', 'hal', 'STM32F4xx_HAL_Driver', 'Inc', 'Legacy'),
+
+            os.path.join('can'),
+            os.path.join('com'),
+            os.path.join('config'),
+            os.path.join('contactor'),
+            os.path.join('dma'),
+            os.path.join('eeprom'),
+            os.path.join('intermcu'),
+            os.path.join('io'),
+            os.path.join('isoguard'),
+            os.path.join('mcu'),
+            os.path.join('rcc'),
+            os.path.join('rtc'),
+            os.path.join('spi'),
+            os.path.join('timer'),
+            os.path.join('uart'),
+            os.path.join('utils'),
+
+            os.path.join('..', 'os'),
+            os.path.join('..', 'os', 'FreeRTOS', 'Source', 'CMSIS_RTOS'),
+            os.path.join('..', 'os', 'FreeRTOS', 'Source', 'include'),
+            os.path.join('..', 'os', 'FreeRTOS', 'Source', 'portable', 'GCC', 'ARM_CM4F'),
+            ])
 
 
     bld.stlib(
               target='foxbms-module',
               source=srcs,
-              includes = includes
+              includes=includes
               )
 
-# vim: set ft=python : 
+# vim: set ft=python :

@@ -1,5 +1,3 @@
-# -*- Mode: python; py-indent-offset: 4; indent-tabs-mode: nil; coding:
-# utf-8; -*-
 # @copyright &copy; 2010 - 2016, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V. All rights reserved.
 #
 # BSD 3-Clause License
@@ -18,31 +16,43 @@
 #
 # &Prime;This product is derived from foxBMS&reg;&Prime;
 
+"""WAF script for building "foxbms-test" library.
+location of this wscript:
+    /src/test/wscript
+"""
+
 from waflib import Logs, Utils, Context
 import os
 
+
 def build(bld):
     srcs = bld.path.ant_glob('**/*.c')
-    includes = ' '.join([
+
+    includes = os.path.join(bld.bldnode.abspath()) + ' '
+    includes += ' '.join([
             '.',
-            os.path.join(bld.bldnode.abspath()),
-            os.path.join(bld.srcnode.abspath(), 'src', 'engine', 'config'), 
-            os.path.join(bld.srcnode.abspath(), 'src', 'engine', 'database'), 
-            os.path.join(bld.srcnode.abspath(), 'src', 'general', 'config'), 
-            os.path.join(bld.srcnode.abspath(), 'src', 'general', 'includes'), 
-            os.path.join(bld.srcnode.abspath(), 'src', 'hal', 'CMSIS', 'Device', 'ST', 'STM32F4xx', 'Include'), 
-            os.path.join(bld.srcnode.abspath(), 'src', 'hal', 'CMSIS', 'Include'), 
-            os.path.join(bld.srcnode.abspath(), 'src', 'hal', 'STM32F4xx_HAL_Driver', 'Inc'), 
-            os.path.join(bld.srcnode.abspath(), 'src', 'hal', 'STM32F4xx_HAL_Driver', 'Inc', 'Legacy'), 
-            os.path.join(bld.srcnode.abspath(), 'src', 'test'), 
-            os.path.join(bld.srcnode.abspath(), 'src', 'module', 'io'),
-            os.path.join(bld.env.generalincludes)])
+
+            os.path.join('..', 'engine', 'config'), 
+            os.path.join('..', 'engine', 'database'), 
+
+            os.path.join('..', 'general', 'config'), 
+            os.path.join('..', 'general', 'includes'), 
+
+            os.path.join('..', 'hal', 'CMSIS', 'Device', 'ST', 'STM32F4xx', 'Include'), 
+            os.path.join('..', 'hal', 'CMSIS', 'Include'), 
+            os.path.join('..', 'hal', 'STM32F4xx_HAL_Driver', 'Inc'), 
+            os.path.join('..', 'hal', 'STM32F4xx_HAL_Driver', 'Inc', 'Legacy'), 
+
+            os.path.join('..', 'module', 'io'),
+            
+            os.path.join('..', 'test'), 
+            ])
 
 
     bld.stlib(
               target='foxbms-test',
               source=srcs,
-              includes = includes
+              includes=includes
               )
 
-# vim: set ft=python : 
+# vim: set ft=python :
