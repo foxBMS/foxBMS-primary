@@ -1,6 +1,9 @@
+.. include:: ../../macros.rst
+
+
+
+========================
 Advanced Software Topics
 ========================
-
-.. include:: ../../macros.rst
 
 Section being drafted.

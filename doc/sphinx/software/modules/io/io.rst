@@ -1,42 +1,37 @@
+.. include:: ../../../macros.rst
+
+
+==
 IO
 ==
 
-.. include:: ../../../macros.rst
-
 .. highlight:: C
 
-This user manual describes the configuration of the pins of the foxbms microcontroller using 
-the |io module|. The |io module| allows an easy way to configure all pins of the microcontroller
-at a central position, reading the input signals and writing signals to the output pins of 
-the microcontroller.
+This section describes the configuration of the pins of the |foxbms| microcontrollers on the |BMS-Master| using the |mod_io|. The |mod_io| allows an easy way to configure all pins of the microcontroller at a central position, reading the input signals and writing signals to the output pins of the microcontroller.
 
-.. ignore .. sectnum::
 
-.. contents:: Table Of Contents
 
 Module Files
 ~~~~~~~~~~~~
 
 Driver:
- - src\\module\\io\\io.c
- - src\\module\\io\\io.h
+ - ``src\\module\\io\\io.c``
+ - ``src\\module\\io\\io.h``
  
 Driver Configuration:
- - src\\module\\config\\io_cfg.c
- - src\\module\\config\\io_cfg.h
- - src\\module\\config\\io_mcu0.h
- - src\\module\\config\\io_package_cfg.h
+ - ``src\\module\\config\\io_cfg.c``
+ - ``src\\module\\config\\io_cfg.h``
+ - ``src\\module\\config\\io_mcu0.h``
+ - ``src\\module\\config\\io_package_cfg.h``
 
 
-Configuration Of The GPIOs
+Configuration of the GPIOs
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Initialization Of The GPIOs
+Initialization of the GPIOs
 ---------------------------
 
-A short example shows how to configure pins at the CPU:
-Starting point is the following pin configuration:
-
+The following example shows how to configure the pins of the microcontrollers. The starting point is the following pin configuration:
 
 ===========    ========    ==================================  ================================
 Package Pin    Port-Pin    Signal name                         Alternative Function
@@ -50,7 +45,7 @@ Package Pin    Port-Pin    Signal name                         Alternative Funct
 ...
 ===========    ========    ==================================  ================================
 
-To define a signal one has to simply set a ``#define`` in ``io_cfg_foxbms.h`` describing the signal
+To define a signal, a ``#define`` has to be set in ``io_cfg_foxbms.h`` describing the signal:
 
 .. code-block:: C
    
@@ -62,8 +57,7 @@ To define a signal one has to simply set a ``#define`` in ``io_cfg_foxbms.h`` de
    #define PIN_MCU_0_ISO_GPIO_OUT_0           IO_PG_9
    ...
 
-The initialization of this configuration on the hardware is executed through the |io module|'s function ``IO_Init(*io_cfg)``.
-One has to configure the ``const IO_PIN_CFG_s io_cfg[]`` in ``io_cfg.h`` which looks for this example like this
+The initialization of this configuration on the hardware is executed through the |mod_io| function ``IO_Init(*io_cfg)``. The ``const IO_PIN_CFG_s io_cfg[]`` has to be configured in ``io_cfg.h``. In the given example, this looks like:
 
 .. code-block:: C
    
@@ -76,13 +70,9 @@ One has to configure the ``const IO_PIN_CFG_s io_cfg[]`` in ``io_cfg.h`` which l
    }
 
 
-The configuration options of each pin are documented in [1]_. The naming conventions of foxbms for setting the pin's (alternate) function is found in ``io_cfg.h``
-at ``IO_PIN_ALTERNATE_e``.
-The clocks of the ports are enabled automatically when the pins are initialized through ``IO_Init(&io_cfg)`` as this functions calls ``IO_ClkInit(void)``.
-In order to prevent other modules and functions to change the configuration of the pins the macro ``IO_PIN_LOCKING`` in ``io_cfg.h`` has to be defined. This macro 
-automatically calls ``IO_LockPin(pin)`` for every pin which has defined ``IO_PIN_LOCK_ENABLE`` in ``io_cfg[]`` and locks the configuration registers of the corresponding pin.
+The configuration options of each pin are documented in [1]_. The naming conventions of |foxbms| for setting the pin (alternate) function is found in ``io_cfg.h`` at ``IO_PIN_ALTERNATE_e``. The clocks of the ports are enabled automatically when the pins are initialized through ``IO_Init(&io_cfg)`` as this function calls ``IO_ClkInit(void)``. In order to prevent other modules and functions to change the configuration of the pins, the macro ``IO_PIN_LOCKING`` in ``io_cfg.h`` has to be defined. This macro automatically calls ``IO_LockPin(pin)`` for every pin which has defined ``IO_PIN_LOCK_ENABLE`` in ``io_cfg[]`` and locks the configuration registers of the corresponding pin.
 
-Reading And Writing The Pins
+Reading and Writing the Pins
 ----------------------------
 
 - Reading the digital input of ``PIN_MCU_0_ISO_GPIO_IN_1``
@@ -106,10 +96,10 @@ Reading And Writing The Pins
 
 Related Modules
 ~~~~~~~~~~~~~~~
-The contactor configuration is dependent on the |io module| configuration. The contactor configuration is found in the |contactor module|
+The contactor configuration is dependent on the |mod_io| configuration. The contactor configuration is found in the |mod_contactor|:
 
-  - src\\module\\config\\contactor_cfg.c
-  - src\\module\\config\\contactor_cfg.h
+  - ``src\\module\\config\\contactor_cfg.c``
+  - ``src\\module\\config\\contactor_cfg.h``
 
 ---------------------------------------------------------------------------
 

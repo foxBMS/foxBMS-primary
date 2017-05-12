@@ -1,14 +1,13 @@
+.. include:: ../../macros.rst
+
+
+===================
 Software Components
 ===================
 
-.. -----------------------------------------------
-.. General Documentation Macros
-.. -----------------------------------------------
-.. |foxBMS| replace:: foxBMS
-
 .. highlight:: C
 
-The |foxBMS| software is made out of the following components:
+The |foxbms| software is made out of the following components:
 
  - ``application``
  - ``engine``
@@ -25,7 +24,7 @@ The ``application`` directory contains the user applications.
 +-------------+-----------------------------------------------------------------------------------+
 | Element     | Description                                                                       |
 +=============+===================================================================================+
-| config      | Contains the configuration for the user applications (e.g. task configuration)    |
+| config      | Contains the configuration for the user applications (e.g., task configuration)   |
 +-------------+-----------------------------------------------------------------------------------+
 | sox         | Coulomb-counter (current integrator) and State-of-Function calculator             |
 +-------------+-----------------------------------------------------------------------------------+
@@ -42,13 +41,13 @@ The ``engine`` directory contains all the core functions of the BMS.
 +=============+====================================================================================+
 | bmsctrl     | Decision are taken here by the BMS (e.g., open contactors in case of a problem)    |
 +-------------+------------------------------------------------------------------------------------+
-| config      | Contains the configuration of engine components (e.g. task configuration)          |
+| config      | Contains the configuration of engine components (e.g., task configuration)         |
 +-------------+------------------------------------------------------------------------------------+
 | database    | Implementation of the asynchronous data exchange                                   |
 +-------------+------------------------------------------------------------------------------------+
-| diag        | With this SW-Module, other modules can report problems                             |
+| diag        | With this software module, other modules can report problems                       |
 +-------------+------------------------------------------------------------------------------------+
-| sysctrl     | Manages the contactors                                                             |
+| sysctrl     | Manages the power contactors                                                       |
 +-------------+------------------------------------------------------------------------------------+
 | task        | Cyclic engine tasks (1, 10 and 100ms) that call system related functions           |
 +-------------+------------------------------------------------------------------------------------+
@@ -77,14 +76,14 @@ The ``general`` directory contains the main function and configuration files.
 HAL
 ---
 
-``hal`` contains the Hardware Abstraction Layer. It is used by the system but is provided by the MCU manufacturer. It is used by |foxBMS| but not part of |foxBMS|.
+``hal`` contains the Hardware Abstraction Layer. It is used by the system but is provided by the MCU manufacturer, in this case ST-Microelectronics. It is used by |foxbms| but not part of |foxbms|.
 
 +-----------------------+--------------------------------------------------------------------------------+
 | Element               | Description                                                                    |
 +=======================+================================================================================+
-| CMSIS                 | Interface and Configuration of CMSIS                                           |
+| CMSIS                 | Interface and configuration of CMSIS                                           |
 +-----------------------+--------------------------------------------------------------------------------+
-| STM32F4xx_HAL_Driver  | STM32F4xx HAL-Driver                                                           |
+| STM32F4xx_HAL_Driver  | STM32F4xx family Hardware Abstraction Layer drivers                            |
 +-----------------------+--------------------------------------------------------------------------------+
 
 Module
@@ -101,7 +100,7 @@ The ``module`` directory contains all the software modules needed by the BMS.
 +-------------+-------------------------------------------------------------------------------------------+
 | cansignal   | Definition of CAN messages and signals                                                    |
 +-------------+-------------------------------------------------------------------------------------------+
-| chksum      | Checksum algorithms for modulo 32-Bit addition and CRC32                                  |
+| chksum      | Checksum algorithms for modulo 32-bit addition and CRC32                                  |
 +-------------+-------------------------------------------------------------------------------------------+
 | com         | Serial port communication layer (for debug purposes)                                      |
 +-------------+-------------------------------------------------------------------------------------------+
@@ -111,9 +110,9 @@ The ``module`` directory contains all the software modules needed by the BMS.
 +-------------+-------------------------------------------------------------------------------------------+
 | dma         | Configuration for Direct Memory Access (e.g. used for SPI Communication)                  |
 +-------------+-------------------------------------------------------------------------------------------+
-| eeprom      | Driver for non-volatile storage of data. Retains data even if backup Li-battery fails     |
+| eeprom      | Driver for non-volatile storage of data. Retains data even if the 3V button cell fails    |
 +-------------+-------------------------------------------------------------------------------------------+
-| intermcu    | Driver for communication between MCU0 (primary) and MCU1 (secondary)                      |
+| intermcu    | Driver for communication between |MCU0| (primary) and |MCU1| (secondary)                  |
 +-------------+-------------------------------------------------------------------------------------------+
 | io          | Driver and interfaces for I/O ports (control of output pins and read of input pins)       |
 +-------------+-------------------------------------------------------------------------------------------+

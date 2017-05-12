@@ -1,47 +1,44 @@
+.. include:: ../../../macros.rst
+
 .. _SYSCTRL:
 
+==============
 System Control
 ==============
 
-.. include:: ../../../macros.rst
-
 .. highlight:: C
 
-System Control (``SYSCTRL``) handles states request from BMS Control (``BMSCTRL``) 
-or error requests from the Diagnosis Module (``DIAG``). System Control drives 
-the contactors via the contactor module.
-
-.. contents:: Table of Contents
+SYS Control (|mod_sysctrl|) handles states request from BMS Control (|mod_bmsctrl|) or error requests from the Diagnosis Module (|mod_can|). System Control drives the contactors via the |mod_contactor|.
 
 
 Included Files
 ~~~~~~~~~~~~~~
 
 Driver:
- - src\\engine\\syscontrol.c
- - src\\engine\\syscontrol.h
+ - ``src\\engine\\syscontrol.c``
+ - ``src\\engine\\syscontrol.h``
  
 Driver Configuration:
- - src\\engine\\config\\syscontrol_cfg.c
- - src\\engine\\config\\syscontrol_cfg.h
+ - ``src\\engine\\config\\syscontrol_cfg.c``
+ - ``src\\engine\\config\\syscontrol_cfg.h``
 
 
 Dependencies
 ~~~~~~~~~~~~
 
 Contactor
- - src\\module\\config\\contactor_cfg.c
- - src\\module\\config\\contactor_cfg.h
+ - ``src\\module\\config\\contactor_cfg.c``
+ - ``src\\module\\config\\contactor_cfg.h``
 
 Database
- - src\\engine\\config\\database_cfg.c
- - src\\engine\\config\\database_cfg.h
+ - ``src\\engine\\config\\database_cfg.c``
+ - ``src\\engine\\config\\database_cfg.h``
  
 
 Diagnosis
- - src\\engine\\config\\diag_cfg.c
- - src\\engine\\config\\diag_cfg.h
- - src\\engine\\config\\diag_id.h
+ - ``src\\engine\\config\\diag_cfg.c``
+ - ``src\\engine\\config\\diag_cfg.h``
+ - ``src\\engine\\config\\diag_id.h``
 
 Detailed Description of SYSCTRL
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -57,7 +54,7 @@ Detailed Description of SYSCTRL
 Description of States
 ---------------------
 
-The main states of the statemachine are
+The main states of the statemachine are:
 
 +-----+-----------------------------------+-----------------------------------------------------------------------------------------------+
 | Nr. | State                             | Description                                                                                   |
@@ -87,16 +84,16 @@ The main states of the statemachine are
 Procedure in State NORMAL
 -------------------------
 
-Note: If the normal state (``SYSCTRL_STATE_NORMAL``) is left in the statemachine,
-one has to ensure that the contactors are opened in the next state. 
+.. note::
+
+		If the normal state (``SYSCTRL_STATE_NORMAL``) is left in the statemachine, it has to be ensured that the contactors are opened in the next state.
 
 Procedure in normal state:
-Check if interlock line is still closed. If not, open interlock and contactors at 
-software side to be in line with the hardware.
+Check if interlock line is still closed. If not, open interlock and contactors at software side to be in line with the hardware.
 
 If the interlock is closed, the following procedure is performed:
 
-1. close minus main contactor and wait and go to 2
+1. close minus main contactor, then wait and go to 2
 
 2. check if main minus contactor is closed
 
@@ -139,9 +136,7 @@ SYSCTRL Configuration
 .. Default Configuration
 .. ---------------------
 
-The configuration of timeouts, thresholds etc. is done in ``syscontrol_cfg.h``. All configurations are accessible with
-Foxygen.
-The macros of the contactor module are mapped to ``syscontrol`` macros. Finally new macros for switching the contactors are introduced.
+The configuration of timeouts, thresholds etc. is done in ``syscontrol_cfg.h``. All configurations are accessible with |foxygen|. The macros of the contactor module are mapped to ``syscontrol`` macros. Finally new macros for switching the contactors are introduced.
 
 
 Usage
@@ -150,16 +145,10 @@ Usage
 Initialization
 --------------
 
-The statemachine is initialized by ``SYSCTRL_Trigger(SYS_MODE_CYCLIC_EVENT)`` and the starting point of the syscontrol state 
-machine is ``SYSCTRL_STATE_UNINITIALIZED``. In this state the contactor initialization is called, and checks if all contactors
-are open.
+The statemachine is initialized by ``SYSCTRL_Trigger(SYS_MODE_CYCLIC_EVENT)`` and the starting point of the syscontrol state machine is ``SYSCTRL_STATE_UNINITIALIZED``. In this state the contactor initialization is called, and checks if all contactors are open.
 
 Functions
 ---------
 
-``static void SYSCTRL_StateControl(void)`` performs the state transitions with all needed sub-steps between the states. 
-It is important to know, that when entering the error state (``SYSCTRL_STATE_ERROR`` or ``SYSCTRL_STATE_PRECHARGE_ERROR``) the contactors
-have to be opened manually by using the macro ``SYSCTRL_ALL_CONTACTORS_OFF()``; Therefore, if the user adds another error, 
-this macro should be called in the added error state.
-For the other states it is referred to the Doxygen-documentation.
+``static void SYSCTRL_StateControl(void)`` performs the state transitions with all needed sub-steps between the states. It is important to know, that when entering the error state (``SYSCTRL_STATE_ERROR`` or ``SYSCTRL_STATE_PRECHARGE_ERROR``) the contactors have to be opened manually by using the macro ``SYSCTRL_ALL_CONTACTORS_OFF()``; Therefore, if the user adds another error, this macro should be called in the added error state. For the other states it is referred to the |doxygen| documentation.
  

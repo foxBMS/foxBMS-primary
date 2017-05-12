@@ -1,16 +1,17 @@
+.. include:: ../../../macros.rst
+
 .. _checksum_tool:
 
+
+=============
 Checksum Tool
 =============
 
-.. include:: ../../../macros.rst
-
 .. highlight:: python
 
-This is the documentation of the **build process** and **checksum integration into that process** of the checksum feature in |foxBMS|.
-For the setup (enabling/disabling) of the checksum verification on the microcontroller see :ref:`checksum_module`.
+This section of the documentation shows the software build process and the integration of the checksum into that process in |foxbms|. To setup and enabling/disabling the checksum verification on the microcontroller, see :ref:`checksum_module`.
 
-.. contents:: Table Of Contents
+
 
 Module Files
 ~~~~~~~~~~~~
@@ -35,12 +36,12 @@ Python modules used:
  - struct
  - argparse
 
-These modules usually are included in a `foxconda` python environment.
+These modules usually are included in a |foxconda| Python environment.
 
 Procedure
 ~~~~~~~~~
 
-Checksum is an after build prcoess.
+Checksum is an after-build process.
 
 .. code:: bash
 
@@ -71,6 +72,7 @@ How does it work
      - ``foxbms.hex``
      - ``foxbms_flash.bin``
      - ``foxbms_flashheader.bin``
+
 #. The step
 
     .. code:: bash
@@ -79,9 +81,9 @@ How does it work
     
     calls the waf function ``cksum(conf)``.
     
-        #. At first read the ``foxbms.hex`` file and calculates the checksum. The checksum is written back into the ``foxbms.hex`` file by the checksum script.
-        #. At next the gbd debugger is called and replaces the initial ``ver_sw_validation.Checksum_u32`` in ``foxbms.elf`` with the correct checksum.
-        #. After that the ``objcopy`` is called to regenerate the ``foxbms_flashheader.bin`` of ``foxbms.elf``.
+        #. Reads the ``foxbms.hex`` file and calculates the checksum. The checksum is written back into the ``foxbms.hex`` file by the checksum script.
+        #. Calls the GDB debugger and replaces the initial ``ver_sw_validation.Checksum_u32`` in ``foxbms.elf`` with the correct checksum.
+        #. Calls the ``objcopy`` to regenerate the ``foxbms_flashheader.bin`` of ``foxbms.elf``.
 
 Related Modules
 ~~~~~~~~~~~~~~~

@@ -1,24 +1,24 @@
+.. include:: ../macros.rst
+
 .. _CAN_communication:
 
 Communication via CAN
 =====================
 
-CAN Matrix
-~~~~~~~~~~
 
-.. foxBMS by Fraunhofer IISB
- 
-.. Copyright 2010-2016 by
-.. Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.,
-.. Munich, Germany (Fraunhofer IISB, Erlangen)
+CAN Matrix Description
+~~~~~~~~~~~~~~~~~~~~~~
 
-.. This file has been automatically generated. Do not modify!
+The table :ref:`CANMsgs` shows the CAN messages sent and received by the BMS with their respective names and IDs, the direction and a short comment.
 
-.. generated file            canmatrix.rst
-.. generation date:          2016-04-28
+The table :ref:`CANSgnls` gives the CAN signals sent and received in these messages.
+
+To add or change a signal it must be refered to the software FAQ: :ref:`faq_can_manually_add`. It must be kept in mind that the back annotation to the \*.dbc or \*.sym file is broken by coding it manually.
+
+To add or change a message with automatic code generation it must be refered to the software FAQ: :ref:`faq_can_program_add`.
 
 
-.. include:: canmatrix_description.rst 
+
 
 .. _CANMsgs:
 
@@ -26,10 +26,7 @@ CAN Messages
 ------------
 
 
-
-Contrary to the messages in the DBC file, message names are with the prefix \'CANS_MSG\_\' in the code 
-and in the documentation, in order to be compliant with the coding guidelines, whil complying with the 
-32 character limit of dbc files.
+Contrary to the messages in the DBC file, message names are with the prefix \'CANS_MSG\_\' in the code and in the documentation, in order to be compliant with the coding guidelines, while complying with the 32 character limit of DBC files.
 
 +---------------------+----------------+---------+---------------+-----------------------------------+
 | **Message Name**    | **Message ID** | **DLC** | **Direction** | **Description**                   |
@@ -92,15 +89,11 @@ CAN Signals
 | BMS0_Request               | 8                     | 8              | False           | 1.0        | 0.0        | 0.0     | 256.0   | Intel         |
 +----------------------------+-----------------------+----------------+-----------------+------------+------------+---------+---------+---------------+
 
-In the message described in the previous table, the signal ``BMS0_Request`` is used to change the state of the foxBMS control unit. This is on of the most import
-signals: it allows initiating the procedure to close the contactors. Possible request numbers in default configuration are 3 (Normal state) and 
-8 (Standby state), but can be configured using Foxygen (0 is No Request). More details can be found in the documentation of the module BMSControl.
+In the messages described in the previous table, the signal ``BMS0_Request`` is used to change the state of the |master|. This is one of the most important signals: it allows initiating the procedure to close the power contactors. Possible request numbers in default configuration are 3 (Normal state) and 8 (Standby state), but can be configured using |foxygen| (0 is No Request). More details can be found in the documentation of the module :ref:`BMSCTRL`.
 
-A state request has to be sent every 100 ms, otherwise the BMS goes into an error state.
-The requests must come in the window 95-105 ms to be valid. 
+A state request has to be sent every 100ms, otherwise the BMS enters into an error state. The requests must come in the window 95-105ms to be valid. 
 
-The signal ``BMS0_Overflow`` is not used in foxBMS embedded software. Its intended use is to
-have a feedback if the supervisory control unit is still alive (i.e., as a heartbeat signal). 
+The signal ``BMS0_Overflow`` is not used in the |foxbms| embedded software. Its intended use is to have a feedback if the supervisory control unit is still alive (i.e., as a heartbeat signal).
 
 --------------
 
@@ -140,9 +133,9 @@ have a feedback if the supervisory control unit is still alive (i.e., as a heart
 | BMS1_reserved                    | 56                    | 8              | False           | 1.0        | 0.0        | 0.0     | 0.0     | Intel         |
 +----------------------------------+-----------------------+----------------+-----------------+------------+------------+---------+---------+---------------+
 
-The signals of this message display status information of the foxBMS. 
+The signals of these messages display status information of the |master|.
 
-The status of contactors is represented as bitfield in ``BMS1_status_contactors`` (0: open, 1: closed):
+The status of contactors is represented as a bitfield in ``BMS1_status_contactors`` (0: open, 1: closed):
 
 * First bit: Precharge contactor
 * Second bit: (not used)
@@ -151,12 +144,7 @@ The status of contactors is represented as bitfield in ``BMS1_status_contactors`
 * Fifth bit: (not used)
 * Sixth bit: (not used)
 
-The various error signals ``BMS1_error_xxx`` give information about limit violations and internal errors. 
-In general, a value of 0 indicates no error and the higher the number the more hazardous is the error.
-The signal ``BMS1_general_error`` indicates the highest error level of all the errors occurring in the foxBMS.
-The signal ``BMS1_balancing_active`` is a simple flag to show if balancing is ON (1) or OFF (0).
-``BMS1_msg_overflow_cnt`` is a counter that is incremented every time the message is sent (not implemented right now in foxBMS embedded software). 
-This can help implementation in supervisory control units that have no possibility to get timestamps of CAN message reception.
+The various error signals ``BMS1_error_xxx`` give information about limit violations and internal errors. In general, a value of 0 indicates no error and the higher the number the more hazardous is the error. The signal ``BMS1_general_error`` indicates the highest error level of all the errors occurring in the |master|. The signal ``BMS1_balancing_active`` is a simple flag to show if balancing is ON (1) or OFF (0). ``BMS1_msg_overflow_cnt`` is a counter that is incremented every time the message is sent (not implemented right now in the |foxbms| embedded software). This can help implementation in supervisory control units that have no possibility to get timestamps of CAN message reception.
 
 The current state signal in ``BMS1_current_state`` is currently not filled with information.
 
@@ -238,19 +226,13 @@ The current state signal in ``BMS1_current_state`` is currently not filled with 
 | BMS6_Mod0_Cell14_Value     | 36                    | 16             | False           | 1.0        | 0.0        | 0.0     | 65535.0  | Intel         |
 +----------------------------+-----------------------+----------------+-----------------+------------+------------+---------+----------+---------------+
 
-The signals of the previous tables give the cell voltages. The signal ``BMSx_Mux`` is indicating the module number beginning with 0, 
-so for example, if 8 modules are used, the messages of cell voltages of modules 0 to 7 are transmitted subsequently and then restart from 0 again. 
-This also shows that a maximum of 16 modules is supported right now.
+The signals of the previous tables give the cell voltages. The signal ``BMSx_Mux`` is indicating the module number beginning with 0, so for example, if 8 modules are used, the messages of cell voltages of modules 0 to 7 are transmitted subsequently and then restart from 0 again. This also shows that a maximum of 16 modules is supported right now.
 
-The cell voltage values are transmitted in 1 mV resolution. Nevertheless, 16 bit signal length are reserved to switch to higher resolution in the future.
+The cell voltage values are transmitted in 1mV resolution. Nevertheless, 16 bit signal length are reserved for higher resolutions.
 
-When a module is not connected properly (e.g., a loose connection), the transmission of the voltage measurement signal 
-from the module to the master is interrupted. For the LTC6804-1 monitoring chip, this results in a measurement of
-hexadecimal 0xFFFF and a conversion to a CAN cell voltage signal of 6.55V.
+When a module is not connected properly (e.g., a loose connection), the transmission of the voltage measurement signal from the |slave| to the |master| is interrupted. For the |LTC| monitoring chip, this results in a measurement of hexadecimal 0xFFFF and a conversion to a CAN cell voltage signal of 6.55V.
 
-Battery systems with more than 12 cells per module casn be supported by foxBMS, with modifications in the hardware and the software.
-For this special case, the message ``CANS_MSG_BMS6`` is implemented in foxBMS. It should state voltage measurement values of 
-0V when the number of battery cells per module is less than 13. 
+Battery systems with more than 12 cells per module can be supported by |foxbms|, by using specific |slaves| (available on request by contacting us under info@foxbms.org) and enhanced software. For this special case, the message ``CANS_MSG_BMS6`` has been implemented. It should state voltage measurement values of 0V when the number of battery cells per module is less than 13.
 
 --------------------------------
 
@@ -278,16 +260,12 @@ For this special case, the message ``CANS_MSG_BMS6`` is implemented in foxBMS. I
 | BMS7_reserved              | 40                    | 24             | False           | 1.0        | 0.0        | 0.0     | 1.0     | Intel         |
 +----------------------------+-----------------------+----------------+-----------------+------------+------------+---------+---------+---------------+
 
-The minimum, maximum and average temperature are transmitted in the signals ``BMS7_Minimum_Temp``, ``BMS7_Maximum_Temp`` and ``BMS7_Average_Temp``, 
-respectively. Contrary to the temperature measurement values in messages ``CANS_MSG_BMS11`` and ``CANS_MSG_BMS11``, the resolution here
-is 0.5 °C, because there are 8 bits available for signal length.
+The minimum, maximum and average temperature are transmitted in the signals ``BMS7_Minimum_Temp``, ``BMS7_Maximum_Temp`` and ``BMS7_Average_Temp``, respectively. Contrary to the temperature measurement values in messages ``CANS_MSG_BMS11`` and ``CANS_MSG_BMS11``, the resolution here is 0.5°C, because there are 8 bits available for signal length.
 
-Additionally, the number of the module with minimum and maximum temperature is indicated in the signals ``BMS7_MinTemp_Module_Number``
-and ``BMS7_MaxTemp_Module_Number``, respectively. Indexing of module numbers starts from zero.
+Additionally, the number of the module with minimum and maximum temperature is indicated in the signals ``BMS7_MinTemp_Module_Number`` and ``BMS7_MaxTemp_Module_Number``, respectively. Indexing of module numbers starts from zero.
 
-The signals ``BMS7_Cooling_Needed``, ``BMS7_Heating_Needed`` and ``BMS7_Tempering_Demand`` are left free for use 
-for application specific development. Here, ``BMS7_Cooling_Needed`` and ``BMS7_Heating_Needed`` could be simple ON/OFF flags and 
-``BMS7_Tempering_Demand`` could be a 'continuous' value indicating the cooling/heating power. 
+The signals ``BMS7_Cooling_Needed``, ``BMS7_Heating_Needed`` and ``BMS7_Tempering_Demand`` are left free for use for application specific development. Here, ``BMS7_Cooling_Needed`` and ``BMS7_Heating_Needed`` could be simple ON/OFF flags and ``BMS7_Tempering_Demand`` could be a 'continuous' value indicating the cooling/heating power.
+
 
 ---------------------------------------------------
 
@@ -311,9 +289,8 @@ for application specific development. Here, ``BMS7_Cooling_Needed`` and ``BMS7_H
 | BMS8_reserved              | 48                    | 16             | False           | 1.0        | 0.0        | 0.0     | 1.0     | Intel         |
 +----------------------------+-----------------------+----------------+-----------------+------------+------------+---------+---------+---------------+
 
-Currently, ``BMS8_SOC_Average``, ``BMS8_SOC_Minimum``, ``BMS8_SOC_Maximum`` are set to the same value, that is implemented by a coulomb counter.
-Currently, ``BMS8_SOH_Average``, ``BMS8_SOH_Minimum``, ``BMS8_SOH_Maximum`` are set to an arbitrary value of 50.
-Specific SOH algorithms must be implemented by the user to change this value.
+In the free and open version of |foxbms|, ``BMS8_SOC_Average``, ``BMS8_SOC_Minimum``, ``BMS8_SOC_Maximum`` are set to the same value, that is implemented by a Coulomb counter. ``BMS8_SOH_Average``, ``BMS8_SOH_Minimum``, ``BMS8_SOH_Maximum`` are set to an arbitrary SOH value of 50. Specific SOH algorithms must be implemented by the user to change this value. Since Non-Disclosure-Agreements are required to analyze battery cells and intensive effort is necessary to develop accurate SOC/SOH battery models, specific state estimation algorithms can be purshased on request by contacting us under info@foxbms.org.
+
 
 -----------------------------
 
@@ -331,11 +308,7 @@ Specific SOH algorithms must be implemented by the user to change this value.
 | BMS9_Current_Discharge_Max_Peak | 48                    | 16             | False           | 0.01       | 0.0        | 0.0     | 655.35  | Intel         |
 +---------------------------------+-----------------------+----------------+-----------------+------------+------------+---------+---------+---------------+
 
-The current capability of the battery system is indicated by the signals of the previous table. For both discharge and charge directions, 
-two values are stated, one for the continuous current capability and one for the peak current capability.
-Currently, the peak value is simply the same as the continuous value.
-The resolution of the values is 0.01A, which should be of sufficient granularity for most applications. It is a tradeoff
-that enables a range up to 655.35A in charge and discharge direction with reasonable resolution.  
+The current capability of the battery system is indicated by the signals of the previous table. For both discharge and charge directions, two values are stated, one for the continuous current capability and one for the peak current capability. Currently, the peak value is simply the same as the continuous value. The resolution of the values is 0.01A, which should be of sufficient granularity for most applications. It is a tradeoff that enables a range up to 655.35A in charge and discharge direction with reasonable resolution.
 
 -----------------------------
 
@@ -359,9 +332,7 @@ that enables a range up to 655.35A in charge and discharge direction with reason
 | BMS10_Selftest_Debug          | 32                    | 8              | False           | 1.0        | 0.0        | 0.0     | 1.0        | Intel         |
 +-------------------------------+-----------------------+----------------+-----------------+------------+------------+---------+------------+---------------+
 
-The signals presented in the previous table are for the peripheral functions of the battery system, namely the isolation monitoring device, 
-the balancing  and the self testing capabilities. Currently, only the isolation monitoring values are sent, while balancing feedback values are not. 
-The signals ``BMS10_Selftest_state`` and ``BMS10_Selftest_Debug`` are left open for custom development.
+The signals presented in the previous table are for the peripheral functions of the battery system, namely the isolation monitoring device, the balancing and the self testing capabilities. The isolation monitoring values are sent over CAN while the balancing feedback values are not. The signals ``BMS10_Selftest_state`` and ``BMS10_Selftest_Debug`` are left open for custom developments.
 
 --------------------------------------------
 
@@ -417,18 +388,11 @@ The signals ``BMS10_Selftest_state`` and ``BMS10_Selftest_Debug`` are left open 
 | BMS12_Temp_Mod0_Temp15      | 53                    | 7              | False           | 1.0        | -40.0      | -40.0   | 87.0    | Intel         |
 +-----------------------------+-----------------------+----------------+-----------------+------------+------------+---------+---------+---------------+
 
-The signals of the previous tables give the temperatures. The signal ``BMSx_Mux`` is indicating the module number beginning with 0. 
-So for example, if 8 modules are configured, the messages of temperatures of modules 0 to 7 are transmitted subsequently and then restart from 0 again. 
-This also shows that a maximum of 16 modules is supported right now.
+The signals of the previous tables give the temperatures. The signal ``BMSx_Mux`` is indicating the module number beginning with 0. So for example, if 8 modules are configured, the messages of temperatures of modules 0 to 7 are transmitted subsequently and then restart from 0 again. This also shows that a maximum of 16 modules is supported right now.
 
-The cell temperatures values are transmitted in 1 °C resolution with an offset of -40 °C. 
-With a signal bit length of 7 bits, a range from -40 °C to +87 °C is possible with this CAN signal design. This should be sufficient for 
-most battery systems (lithium-ion battery systems). The placement of the temperature sensors is application specific and can be adapted 
-in the mechanical design of the battery system.
+The cell temperatures values are transmitted in 1°C resolution with an offset of -40°C. With a signal bit length of 7 bits, a range from -40°C to +87°C is possible with this CAN signal design. This should be sufficient for most battery systems (lithium-ion battery systems). The placement of the temperature sensors is application specific and can be adapted in the mechanical design of the battery system.
 
-Currently, battery systems with up to 16 temperature sensors per module are usable.
-When the number of temperature sensors per module is configured to be less than 16, temperatures of -40 °C should be sent
-per CAN (corresponding to 0x00 being sent via CAN).
+Currently, battery systems with up to 16 temperature sensors per module are usable. When the number of temperature sensors per module is configured to be less than 16, temperatures of -40°C should be sent per CAN (corresponding to 0x00 being sent via CAN).
 
 ---------------------------------------
 
@@ -448,9 +412,7 @@ per CAN (corresponding to 0x00 being sent via CAN).
 | BMS13_ModuleNrMaxVolt       | 52                    | 4              | False           | 1.0        | 0.0        | 0.0     | 15.0    | Intel         |
 +-----------------------------+-----------------------+----------------+-----------------+------------+------------+---------+---------+---------------+
 
-The minimum, maximum and average voltage are transmitted in the signals ``BMS13_VoltageMinimum``, ``BMS13_VoltageMaximum`` and ``BMS13_VoltageAverage``.
-Additionally, the number of the module with minimum and maximum voltage is indicated in the signals ``BMS13_ModuleNrMinVolt``
-and ``BMS13_ModuleNrMaxVolt``. Indexing of module numbers starts from 0.
+The minimum, maximum and average voltage are transmitted in the signals ``BMS13_VoltageMinimum``, ``BMS13_VoltageMaximum`` and ``BMS13_VoltageAverage``. Additionally, the number of the module with minimum and maximum voltage is indicated in the signals ``BMS13_ModuleNrMinVolt`` and ``BMS13_ModuleNrMaxVolt``. Indexing of module numbers starts from 0.
 
 +----------------------------------+-----------------------+----------------+-----------------+------------+------------+---------+---------+---------------+
 | **Message: CANS_MSG_ISENS_TRIG** | **Message ID: 0x35b** | **DLC: 8**     |                 |            |            |         |         |               |
@@ -460,8 +422,7 @@ and ``BMS13_ModuleNrMaxVolt``. Indexing of module numbers starts from 0.
 | ISENS_Trigger                    | 0                     | 32             | False           | 1.0        | 0.0        | 0.0     | 2.0     | Intel         |
 +----------------------------------+-----------------------+----------------+-----------------+------------+------------+---------+---------+---------------+
 
-``ISENS_Trigger`` is set to 0x31FFFF and sent via CAN bus to trigger a current sensor measurement cycle. This is the command of the Isabellenhütte sensor
-to trigger a measurement of all internal measurement channels.
+``ISENS_Trigger`` is set to 0x31FFFF and sent via CAN bus to trigger a current sensor measurement cycle. This is the command of the Isabellenhütte sensor to trigger a measurement of all internal measurement channels.
 
 +------------------------------+-----------------------+----------------+-----------------+------------+--------------+--------------+-------------+---------------+
 | **Message: CANS_MSG_ISENS0** | **Message ID: 0x35c** | **DLC: 6**     |                 |            |              |              |             |               |
@@ -475,10 +436,7 @@ to trigger a measurement of all internal measurement channels.
 | ISENS0_I_Measurement         | 16                    | 32             | False           | 0.001      | -2147483.648 | -2147483.648 | 2147483.647 | Intel         |
 +------------------------------+-----------------------+----------------+-----------------+------------+--------------+--------------+-------------+---------------+
 
-``ISENS0_I_ByteX`` indicate status values and counters of the current sensor measurement and are not used. For details the `datasheet of the 
-current sensor <http://www.isabellenhuette.de/uploads/media/IVT_Modular_Brief_Datasheet_1.0_01.pdf>`_ must be consulted. 
-``ISENS0_I_Measurement`` is the current value measured by the sensor. It is a 32 bit signed value with 1 mA resolution.  It
-must be noted that resolution in CAN transmission is not the same as measurement accuracy.
+``ISENS0_I_ByteX`` indicate status values and counters of the current sensor measurement and are not used. For details the `datasheet of the current sensor <http://www.isabellenhuette.de/uploads/media/IVT_Modular_Brief_Datasheet_1.0_01.pdf>`_ must be consulted. ``ISENS0_I_Measurement`` is the current value measured by the sensor. It is a 32 bit signed value with 1mA resolution. It must be noted that resolution in CAN transmission is not the same as the measurement accuracy.
 
 
 +------------------------------+-----------------------+----------------+-----------------+------------+--------------+--------------+-------------+---------------+
@@ -493,10 +451,7 @@ must be noted that resolution in CAN transmission is not the same as measurement
 | ISENS1_U1_Measurement        | 16                    | 32             | False           | 0.001      | -2147483.648 | -2147483.648 | 2147483.647 | Intel         |
 +------------------------------+-----------------------+----------------+-----------------+------------+--------------+--------------+-------------+---------------+
 
-``ISENS1_U1_ByteX`` indicate status values and counters of the current sensor measurement and are not used. For details the `datasheet of the 
-current sensor <http://www.isabellenhuette.de/uploads/media/IVT_Modular_Brief_Datasheet_1.0_01.pdf>`_ must be consulted. 
-``ISENS1_U1_Measurement`` is the voltage value measured by the sensor at the voltage input channel 1. It is a 32 bit unsigned value with 1V resolution. It
-must be noted that resolution in CAN transmission is not the same as measurement accuracy.
+``ISENS1_U1_ByteX`` indicate status values and counters of the current sensor measurement and are not used. For details the `datasheet of the current sensor <http://www.isabellenhuette.de/uploads/media/IVT_Modular_Brief_Datasheet_1.0_01.pdf>`_ must be consulted. ``ISENS1_U1_Measurement`` is the voltage value measured by the sensor at the voltage input channel 1. It is a 32 bit unsigned value with 1V resolution. It must be noted that resolution in CAN transmission is not the same as the measurement accuracy.
 
 
 +------------------------------+-----------------------+----------------+-----------------+------------+--------------+--------------+-------------+---------------+
@@ -511,10 +466,7 @@ must be noted that resolution in CAN transmission is not the same as measurement
 | ISENS2_U2_Measurement        | 16                    | 32             | False           | 0.001      | -2147483.648 | -2147483.648 | 2147483.647 | Intel         |
 +------------------------------+-----------------------+----------------+-----------------+------------+--------------+--------------+-------------+---------------+
 
-``ISENS2_U2_ByteX`` indicate status values and counters of the current sensor measurement and are not important. For details the `datasheet of the 
-current sensor <http://www.isabellenhuette.de/uploads/media/IVT_Modular_Brief_Datasheet_1.0_01.pdf>`_ must be consulted. 
-``ISENS2_U2_Measurement`` is the voltage value measured by the sensor at the voltage input channel 2. It is a 32 bit unsigned value with 1V resolution.
-It must be noted that resolution in CAN transmission is not the same as measurement accuracy.
+``ISENS2_U2_ByteX`` indicate status values and counters of the current sensor measurement and are not important. For details the `datasheet of the current sensor <http://www.isabellenhuette.de/uploads/media/IVT_Modular_Brief_Datasheet_1.0_01.pdf>`_ must be consulted. ``ISENS2_U2_Measurement`` is the voltage value measured by the sensor at the voltage input channel 2. It is a 32 bit unsigned value with 1V resolution. It must be noted that resolution in CAN transmission is not the same as measurement accuracy.
 
 +------------------------------+-----------------------+----------------+-----------------+------------+--------------+--------------+-------------+---------------+
 | **Message: CANS_MSG_ISENS3** | **Message ID: 0x35f** | **DLC: 6**     |                 |            |              |              |             |               |
@@ -529,9 +481,7 @@ It must be noted that resolution in CAN transmission is not the same as measurem
 +------------------------------+-----------------------+----------------+-----------------+------------+--------------+--------------+-------------+---------------+
 
 ``ISENS3_U3_ByteX`` indicate status values and counters of the current sensor measurement and are not important. For details see the `datasheet of the 
-current sensor <http://www.isabellenhuette.de/uploads/media/IVT_Modular_Brief_Datasheet_1.0_01.pdf>`_. 
-``ISENS3_U3_Measurement`` is the voltage value measured by the sensor at the voltage input channel 3. It is a 32 bit unsigned value with 1V resolution. It
-must be noted that resolution in CAN transmission is not the same as measurement accuracy.
+current sensor <http://www.isabellenhuette.de/uploads/media/IVT_Modular_Brief_Datasheet_1.0_01.pdf>`_. ``ISENS3_U3_Measurement`` is the voltage value measured by the sensor at the voltage input channel 3. It is a 32 bit unsigned value with 1V resolution. It must be noted that resolution in CAN transmission is not the same as measurement accuracy.
 
 +-----------------------------+-----------------------+----------------+-----------------+------------+------------+---------+---------+---------------+
 | **Message: CANS_MSG_DEBUG** | **Message ID: 0x55e** | **DLC: 8**     |                 |            |            |         |         |               |
@@ -541,5 +491,4 @@ must be noted that resolution in CAN transmission is not the same as measurement
 | DEBUG_Data                  | 0                     | 64             | False           | 1.0        | 0.0        | 0.0     | 0.0     | Intel         |
 +-----------------------------+-----------------------+----------------+-----------------+------------+------------+---------+---------+---------------+
 
-This message contains only one single signal. The debug data is interpreted by the embedded software differently depending on its actual databits.
-In the software FAQ (:ref:`can_debug_message`), further details are given on the handling of debug messages.
+This message contains only one single signal. The debug data is interpreted by the embedded software differently depending on its actual databits. In the software FAQ (:ref:`can_debug_message`), further details are given on the handling of debug messages.

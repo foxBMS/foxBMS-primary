@@ -1,78 +1,70 @@
+.. include:: ../../../macros.rst
+
+
+===
 SOX
 ===
 
-.. include:: ../../../macros.rst
-
 .. highlight:: C
 
-The calculation of a simple Coulomb counter is impelemented here and 
-current derating depending on voltage, temperature and this SOC is performed. 
+This section describes where and how to implement state estimation algorithms (e.g., SOC, SOH, SOF). The basic SOC calculation is done by a simple Coulomb counter. Its implementation is shown here. Current derating depending on cell voltages, temperatures and SOC is performed to compute the SOF.
 
-.. contents:: Table Of Contents
+
 
 Module Files
 ~~~~~~~~~~~~
 
 Driver:
- - src\\application\\sox\\sox.h
- - src\\application\\sox\\sox.c
+ - ``src\application\sox\sox.h``
+ - ``src\application\sox\sox.c``
  
 Driver Configuration:
- - src\\application\\config\\sox_cfg.h
- - src\\application\\config\\sox_cfg.c
+ - ``src\application\config\sox_cfg.h``
+ - ``src\application\config\sox_cfg.c``
 
 Dependencies
 ~~~~~~~~~~~~
 
 Database:
- - src\\engine\\database\\database.h (included implicitly by general.h)
+ - ``src\engine\database\database.h`` (included implicitly by ``general.h``)
  
-SOX module gets the relevant measurement minimum and maximum values from database 
-and stores current derating values in database.
+The |mod_sox| gets the relevant measurement minimum and maximum values from the database and stores the current derating values in the database.
 
-Detailed Description Of Module
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Detailed Description of the |mod_sox|
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-SOC
----
+SOC - State of Charge
+---------------------
 
-SOC is implemented in the form of a simple Coulomb counter. 
+The state of charge estimation (SOC) is implemented in the form of a simple Coulomb counter. The SOC initialization is done after startup by reading the value from the non volatile memory. Not implemented right now is a intialization of the SOC by VOLTAGE-SOC relation (lookup table), but configuration placeholders are already in `SOX Configuration`_. These placeholders define the constraints at which the initialization with lookup table is valid.
 
-SOC initialization is done after startup by reading the value from the non volatile memory.
+SOF - State of Function
+-----------------------
 
-Not implemented right now is a intialization of the SOC by VOLTAGE-SOC relation (lookup table), 
-but configuration placeholders are already in `SOX Configuration`_. These placeholders define the 
-constraints at which the initialization with lookup table is valid.
-
-SOF/Current derating
---------------------
-
-**The state of function (SOF) consists of some current derating values.**
-
-These derating is calculated according to battery cell specific constraints. 
-Currently three parameters are taken in account:
+The state of function estimation (SOF) consists of some current derating values. These derating values are calculated according to battery cell specific constraints. For this, three parameters are taken into account:
 
  - temperature
- - SOC
  - voltage
+ - SOC
 
-Specific points in the following derating curves have to be defined by FOXYGEN configurable variables.  
+Specific points in the following derating curves have to be defined by |foxygen| configurable variables:
 
 .. figure:: SOF_T.png
+   :width: 100 %
    
    Temperature dependent current derating 
 
-.. figure:: SOF_S.png
-   
-   SOC dependent current derating
-
 .. figure:: SOF_U.png
+   :width: 100 %
    
    Voltage dependent current derating
 
-These specific points are the values where derating starts and where it is at full extent. 
-They are described in `Configuration Variables`_ and battery specific values can be seen 
-for example in `Configuration example lithium titanate`_ and `Configuration example lithium NCA/NMC/...`_.
+.. figure:: SOF_S.png
+   :width: 100 %
+   
+   SOC dependent current derating
+
+These specific points are the values where derating starts and where it is at full extent. They are described in `Configuration Variables`_ and battery specific values can be seen for example in :ref:`SOX_CONFIG_EX_LTO` and :ref:`SOX_CONFIG_EX_NCA_NMC`.
 
 .. _SOX_CONFIG:
 
@@ -82,8 +74,7 @@ SOX Configuration
 Configuration Variables
 -----------------------
 
-For the coulomb counting method the cell capacity (in case of parallel cell configuration the sum of 
-parallel cells) has to be given here:
+For the Coulomb counting method the cell capacity (in case of parallel cell configuration, it is the sum of the parallel connected cells) has to be given here:
 
 ========================  =========   =====  ========   =============================================  ===============
 NAME                      LEVEL       TYPE     UNIT     DESCRIPTION                                    DEFAULT
@@ -91,8 +82,7 @@ NAME                      LEVEL       TYPE     UNIT     DESCRIPTION             
 SOX_CELL_CAPACITY         devel       float    mAh      cell capacity in SOC formula coulomb counter   20000.0
 ========================  =========   =====  ========   =============================================  ===============
 
-Currently there is only placeholder for the initialization by a Voltage-SOC relation. The following configuration can be
-used after implementation: 
+Currently there is only placeholder for the initialization by a Voltage-SOC relation. The following configuration can be used after implementation:
 
 ===========================   =====  ========   ============================================  ===============
 NAME                          TYPE     UNIT     DESCRIPTION                                   DEFAULT
@@ -134,11 +124,12 @@ SOX_VOLT_CUTOFF_DISCHARGE            devel int   mV     low voltage derating sta
 SOX_VOLT_LIMIT_DISCHARGE             devel int   mV     low voltage derating full extent               0<=x<=5000
 ==================================== ===== ===== ====== ============================================= ===============
 
-These configuration values are building the main safety feature together with the :ref:`BMSCTRL_CONFIG` and are therefore
-considered highly safety-relevant.
+These configuration values are building the main safety feature together with the :ref:`BMSCTRL_CONFIG` and are therefore considered highly safety-relevant.
 
-Configuration example lithium iron phosphate 
---------------------------------------------
+.. _SOX_CONFIG_EX_LFP:
+
+Configuration Example for Lithium-Ion LFP/Graphite Chemistry
+------------------------------------------------------------
 
 This configuration is very conservative and limits are defensive. It is the default standard configuration.
 Please adapt these values specific to your battery cells.
@@ -167,8 +158,10 @@ SOX_VOLT_CUTOFF_DISCHARGE            mV      2700    low voltage derating starts
 SOX_VOLT_LIMIT_DISCHARGE             mV      2300    low voltage derating full extent             
 ==================================== ======  ======= =============================================
 
-Configuration example lithium titanate
---------------------------------------
+.. _SOX_CONFIG_EX_LTO:
+
+Configuration Example for Lithium-Ion NMC/LTO Chemistry
+-------------------------------------------------------
 
 ==================================== ======  ======= =============================================
 NAME                                 UNIT    VALUE   DESCRIPTION                                  
@@ -194,8 +187,10 @@ SOX_VOLT_CUTOFF_DISCHARGE             mV     2000    low voltage derating starts
 SOX_VOLT_LIMIT_DISCHARGE              mV     1750    low voltage derating full extent             
 ==================================== ======  ======= =============================================
 
-Configuration example lithium NCA/NMC/...
------------------------------------------
+.. _SOX_CONFIG_EX_NCA_NMC:
+
+Configuration Example for Lithium-Ion NCA/Graphite or NMC/Graphite Chemistries
+------------------------------------------------------------------------------
 
 ==================================== ======  ======= =============================================
 NAME                                 UNIT    VALUE   DESCRIPTION                                  
@@ -224,10 +219,11 @@ SOX_VOLT_LIMIT_DISCHARGE              mV     2750    low voltage derating full e
 Usage/Examples
 ~~~~~~~~~~~~~~
 
-tbd
+To be drafted.
 
 
 
 References
 ~~~~~~~~~~
 
+To be drafted.

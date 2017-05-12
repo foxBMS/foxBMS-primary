@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: UTF-8 -*-
 '''
-@copyright &copy; 2010 - 2016, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V. All rights reserved.
+@copyright &copy; 2010 - 2017, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V. All rights reserved.
 
 BSD 3-Clause License
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -20,7 +20,7 @@ We kindly request you to use one or more of the following phrases to refer to fo
 '''
 
 '''
-@author: FoxBMS team
+@author: The foxBMS Team
 '''
 
 # vim: set fenc=utf-8 ft=python :
@@ -78,7 +78,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'foxBMS'
-copyright = u'2010–2016, Fraunhofer-Gesellschaft zur Förderung der angewandten Forschung e.V. All rights reserved. See license section for further information' 
+copyright = u'2010–2017, Fraunhofer-Gesellschaft zur Förderung der angewandten Forschung e.V. All rights reserved. See license section for further information' 
 
 
 #breathe_projects = { "foxBMS": "/home/data/bms/sandbox/ezBMS/OpenBMS/Doc/doxy/xml" }
@@ -96,7 +96,7 @@ if (time.tzname[time.daylight] == "Mitteleurop\xe4ische Sommerzeit"): #fixing ge
 elif not (isinstance(time.tzname[time.daylight] , unicode)): # fixing all other unicode problems
     _now = time_now + ' ' + 'Time zone not defined'
 else:
-    _now = time_now + ' ' + utime.tzname[time.daylight]
+    _now = time_now + ' ' + time.tzname[time.daylight]
 print _now
 # The short X.Y version.
 version = _now
@@ -228,10 +228,28 @@ pdf_documents = [
 # -- Options for LaTeX output --------------------------------------------------
 
 # The paper size ('letter' or 'a4').
-latex_paper_size = 'a4'
+#latex_paper_size = 'a4'
 
 # The font size ('10pt', '11pt' or '12pt').
-latex_font_size = '10pt'
+#latex_font_size = '10pt'
+
+latex_elements = {
+    # The paper size ('letterpaper' or 'a4paper').
+    #
+    'papersize': 'a4paper',
+
+    # The font size ('10pt', '11pt' or '12pt').
+    #
+    'pointsize': '10pt'
+
+    # Additional stuff for the LaTeX preamble.
+    #
+    # 'preamble': '',
+
+    # Latex figure (float) alignment
+    #
+    # 'figure_align': 'htbp',
+}
 
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title, author, documentclass [howto/manual]).

@@ -1,13 +1,14 @@
+.. include:: ../../macros.rst
+
+
+
+=======================
 Software File Structure
 =======================
 
-.. include:: ../../macros.rst
-
 .. highlight:: C
 
-The file structure of |foxBMS| is presented in the following diagram. The ``config`` directories contains configuration files for the software modules.
-For instance for ltc, the ``ltc`` directory contains the files ``ltc.c`` and ``ltc.h``. The corresponding configuration files in the ``config`` directory
-are ``ltc_cfc.c`` and ``ltc_cfg.h``.
+The file structure of |foxbms| is presented in the following diagram. The ``config`` directories contains configuration files for the software modules. For instance for ltc, the ``ltc`` directory contains the files ``ltc.c`` and ``ltc.h``. The corresponding configuration files in the ``config`` directory are ``ltc_cfc.c`` and ``ltc_cfg.h``.
 
 .. code-block:: none
 

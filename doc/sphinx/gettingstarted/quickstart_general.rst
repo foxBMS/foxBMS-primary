@@ -1,31 +1,27 @@
-=============================
-Getting started with |foxBMS|
-=============================
-
 .. include:: ../macros.rst
+
+=============================
+Getting started with |foxbms|
+=============================
 
 How to use this documentation
 -----------------------------
 
-The complete |foxBMS| documentation is available in HTML form.
+The complete |foxbms| documentation is available and maintained in HTML, PDF and EPUB formats.
 
 .. note::
    
-      A search function is available under the |foxBMS| logo in the HTML version of the documentation.
+      A search function is available under the |foxbms| logo in the HTML version of the documentation.
 
-How to generate the HTML documentation and set up foxBMS rapidly
-----------------------------------------------------------------
+How to generate the HTML documentation and set up |foxbms| rapidly
+------------------------------------------------------------------
 
 First, the software getting started guide explains how to generate the complete HTML generation and how to configure the software.
-Then, the flashing getting started guide explains how to supply the hardware and how to flash the |foxBMS| program on it.
+Then, the flashing getting started guide explains how to supply the hardware and how to flash the |foxbms| program on |MCU0| and |MCU1| located on the |BMS-Master| in the |master|.
 
-If these steps are done, |foxBMS| already runs. The last step is longer because connectors must be made. In this last step,
-it is explained how to prepare the other parts of the |foxBMS| hardware.
+If these steps are done, |foxbms| already runs. The last step is longer because connectors must be made. In this last step,
+it is explained how to prepare the other parts of the |foxbms| hardware.
 
-.. note::
-   
-      **The complete documentation is available in HTML and must be generated in case the user is reading another source of information
-      (e.g., a printed version of the getting started guide)**.
 
 Where can the layout and schematic files be found?
 --------------------------------------------------

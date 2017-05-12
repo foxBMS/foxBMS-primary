@@ -1,19 +1,16 @@
+.. include:: ../../../macros.rst
+
 .. _BMSCTRL:
 
+
+===========
 BMS Control
 ===========
 
-.. include:: ../../../macros.rst
-
 .. highlight:: C
 
-BMS Control (|bmsctrl module|) handles requests of superior control units (e.g., via CAN reception) 
-and checks for limits of voltage, current and temperature and monitors correct can timing.
+BMScontrol (|mod_bmsctrl|) handles requests of superior control units (e.g., via CAN messages) and checks for limits of voltage, current and temperature and monitors correct CAN timing.
 
-
-.. ignore .. sectnum::
-
-.. contents:: Table Of Contents
 
 Structure
 ~~~~~~~~~
@@ -31,19 +28,19 @@ Module Files
 
 
 Driver:
- - src\\engine\\bmsctrl\\bmsctrl.c
- - src\\engine\\bmsctrl\\bmsctrl.h
+ - ``src\\engine\\bmsctrl\\bmsctrl.c``
+ - ``src\\engine\\bmsctrl\\bmsctrl.h``
  
 Driver Configuration:
- - src\\engine\\config\\bmsctrl_cfg.c
- - src\\engine\\config\\bmsctrl_cfg.h
+ - ``src\\engine\\config\\bmsctrl_cfg.c``
+ - ``src\\engine\\config\\bmsctrl_cfg.h``
 
 .. _BMSCTRL_CONFIG:
  
 BMSCTRL Configuration
 ~~~~~~~~~~~~~~~~~~~~~
  
-FOXYGEN configurable variables that define safe operating area:
+|foxygen| configurable variables that define safe operating area:
 
 ==================  =========   ====   =========   ====   =========================================  ===============
 NAME                LEVEL       TYPE   VALIDATOR   UNIT   DESCRIPTION                                standard value
@@ -59,10 +56,9 @@ BMSCTRL_CURRENTMIN      devel   int          x<0   mA     minimum current safe o
 These configuration values are building the main safety feature together with the derating (:ref:`SOX_CONFIG`) and are therefore
 considered highly safety-relevant.
 
-**Example safe operating area for lithium iron phosphate**
+Example of safe operating area for lithium-ion LFP/Graphite chemistry:
 
-This configuration is very conservative and limits are defensive. It is the default standard configuration.
-Please adapt these values specific to your battery cells.
+This configuration is very conservative and limits are defensive. It is the default standard configuration for rechargeable lithium-ion batteries and has to be set up correctly to ensure safety. These values must be adapted carefully and specificly to the used battery cells.
 
 ================== ==== ===============  =========================================  
 NAME               UNIT VALUE            DESCRIPTION                                
@@ -75,7 +71,7 @@ BMSCTRL_CURRENTMAX mA   15000            maximum current safe operating limit
 BMSCTRL_CURRENTMIN mA   -15000           minimum current safe operating limit       
 ================== ==== ===============  =========================================  
 
-**Example safe operating area for lithium titanate**
+Example of safe operating area for lithium-ion NMC/LTO chemistry:
 
 ================== ==== ===============  =========================================  
 NAME               UNIT VALUE            DESCRIPTION                                
@@ -84,18 +80,18 @@ BMSCTRL_TEMPMAX    °C   55               maximum temperature safe operating lim
 BMSCTRL_TEMPMIN    °C   -30              minimum temperature safe operating limit   
 BMSCTRL_VOLTMAX    mV   2600             maximum cell voltage safe operating limit  
 BMSCTRL_VOLTMIN    mV   1700             minimum cell voltage safe operating limit  
-BMSCTRL_CURRENTMAX mA   180000           maximum current safe operating limit       
-BMSCTRL_CURRENTMIN mA   -180000          minimum current safe operating limit       
+BMSCTRL_CURRENTMAX mA   160000           maximum current safe operating limit       
+BMSCTRL_CURRENTMIN mA   -160000          minimum current safe operating limit       
 ================== ==== ===============  =========================================  
 
-**Example safe operating area for lithium NCA/NMC/...**
+Example of safe operating area for lithium-ion NCA/Graphite and NMC/Graphite chemistries:
 
 ================== ==== ===============  =========================================  
 NAME               UNIT VALUE            DESCRIPTION                                
 ================== ==== ===============  =========================================  
 BMSCTRL_TEMPMAX    °C   55               maximum temperature safe operating limit   
 BMSCTRL_TEMPMIN    °C   -10              minimum temperature safe operating limit   
-BMSCTRL_VOLTMAX    mV   4200             maximum cell voltage safe operating limit  
+BMSCTRL_VOLTMAX    mV   4100             maximum cell voltage safe operating limit  
 BMSCTRL_VOLTMIN    mV   2700             minimum cell voltage safe operating limit  
 BMSCTRL_CURRENTMAX mA   210000           maximum current safe operating limit       
 BMSCTRL_CURRENTMIN mA   -80000           minimum current safe operating limit       
@@ -104,7 +100,7 @@ BMSCTRL_CURRENTMIN mA   -80000           minimum current safe operating limit
 .. regex for extraction from header file
 .. \s\*\s(.*)\r\n(\s\*\s(.*)(\r\n)*)\s\*\s@var\s(.*)\r\n\s\*\s@level\s(.*)\r\n\s\*\s@type\s(.*)\r\n\s\*\s@validator\s(.*)\r\n\s\*\s@unit\s(.*)\r\n\s\*\s@group\sBMSCTRL\r\n
 
-FOXYGEN configurable variables that switch off or on specific checks
+|foxygen| configurable variables that switch off or on specific checks:
 
 ============================  =========   =========================================  ===============
 NAME                          LEVEL       DESCRIPTION                                default value
@@ -114,7 +110,7 @@ BMSCTRL_TEST_CELL_LIMITS      devel       Cell limits test enable               
 BMSCTRL_TEST_CELL_SOF_LIMITS  user        SOF limits test enable                     FALSE
 ============================  =========   =========================================  ===============
 
-FOXYGEN configurable IDs of requests receivable via CAN signal
+|foxygen| configurable IDs of requests receivable via CAN signal:
 
 ============================  =========   =========================================  ===============
 NAME                          LEVEL       DESCRIPTION                                default value
@@ -126,42 +122,44 @@ BMSCTRL_REQ_ID_STANDBY        user        ID to request for STANDBY state       
 Dependencies
 ~~~~~~~~~~~~
 **DATABASE**
- - src\\engine\\database\\database.h (included indirectly by ``general.h``)
+ - ``src\\engine\\database\\database.h`` (included indirectly by ``general.h``)
  
 ``BMSCTRL`` accesses minimum and maximum measurement values, SOF calculation results, can request data and can timing data from ``DATABASE``
 
 **SYSCTRL**
- - src\\engine\\sysctrl\\sysctrl.h
+ - ``src\\engine\\sysctrl\\sysctrl.h``
  
-``BMSCTRL`` requests states of ``SYSCTRL`` statemachine depending on the input from CAN signals from  ``DATABASE``.
+``BMSCTRL`` requests states of ``SYSCTRL`` statemachine depending on the input from CAN signals from ``DATABASE``.
 
 **SOX**
- - src\\engine\\sox\\sox.h
+ - ``src\\engine\\sox\\sox.h``
  
 ``BMSCTRL`` triggers the SOC initialization (until now only dummy implementation).
 
 **MCU**
- - src\\module\\mcu\\mcu.h 
+ - ``src\\module\\mcu\\mcu.h``
 
 ``BMSCTRL`` enables and disables interrupt functionality and gets timestamps from MCU module.
 
 **CONT**
- - src\\module\\contactor\\contactor.h
+ - ``src\\module\\contactor\\contactor.h``
 
 ``BMSCTRL`` gets the feedback of the contactors.
 
 Inputs and Outputs to BMSCTRL
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Called by 1ms-Task
+Called by 1ms Task:
 
 Input:
  - current measurements
  - voltage measurement minimum and maximum
  - temperature measurement minimum and maximum
  - requests received from CAN bus
- - current derating values, i.e., SOF calculation results (optionally, see Configuration) 
+ - current derating values (i.e., SOF calculation results)
  
 Output:
  - trigger to SOC initialization
  - requests to ``SYSCTRL`` statemachine
+ 
+ 

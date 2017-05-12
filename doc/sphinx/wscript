@@ -58,60 +58,6 @@ def sphinx(bld):
 
         #bld.install_files('${DATADIR}', bld.path.ant_glob("html/**/*.rst"))
 
-        if bld.options.enable_latex:
-            txt = bld.bldnode.make_node('doc/sphinx/latex/foxbms-quickstart.tex')
-
-            dl = bld(features="sphinx",
-                name='qs_sphinx',
-                outdir="latex",
-                builder="latex",
-                source=bld.path.ant_glob("**/*.rst"),
-                config="gettingstarted/conf.py",
-                srcdir=bld.path.abspath(),
-                VERSION=bld.env.version,
-                RELEASE=bld.env.version,
-                )
-
-            bld.add_group() 
-
-            bld( name   = 'copy_cover',
-                 rule   = 'cp ${SRC} ${TGT[0].abspath()}',
-                 source = 'gettingstarted/cover.pdf',
-                 target = 'latex/cover.pdf',
-                 always   = True,
-                 shell = True,
-                 after = 'sphinx'
-               )
-
-            bld.add_group() 
-
-            bld( name   = 'copy_cover_png',
-                 rule   = 'cp ${SRC} ${TGT[0].abspath()}',
-                 source = 'gettingstarted/cover.png',
-                 target = 'latex/cover.png',
-                 always   = True,
-                 shell = True,
-                 after = 'sphinx'
-               )
-
-
-            bld.add_group() 
-
-            bld(name  = 'esig', rule = esig, always = True, after = 'copy_cover')
-
-            bld.add_group() 
-            bld(name  = 'patch_for_XeLaTeX', source = txt.get_bld(), rule = patch_for_XeLaTeX, always = True, after = 'esig')
-            bld.add_group() 
-
-            d = bld(features = 'tex', 
-                type     = 'xelatex', # pdflatex or xelatex
-                source   = txt.get_bld(),
-                outs     = 'pdf',
-                prompt   =  1, # 0 for the batch mode
-                always   = True,
-                after    = ['esig', 'patch_for_XeLaTeX'],
-                shell = True
-                )    
 
 
 

@@ -1,34 +1,31 @@
+.. include:: ../../../macros.rst
+
 .. _checksum_module:
 
+
+===============
 Checksum Module
 ===============
 
-.. include:: ../../../macros.rst
-
 .. highlight:: C
 
-This is the documentation of the source files  the checksum feature in |foxBMS|.
-For the toolchain/buildprocess of the checksum feature see :ref:`checksum_tool`.
+This section describes the checksum feature in |foxbms|. For the toolchain/buildprocess of the checksum feature, see :ref:`checksum_tool`.
 
-The chksum module provides the capability to verify data integrity during runtime 
-for multiple purposes, e.g. firmware validation and verification of sent/received data.
+The |mod_chksum| provides the capability to verify data integrity during runtime for multiple purposes (e.g., firmware validation and verification of sent/received data).
 
-.. contents:: Table Of Contents
 
 Module Files
 ~~~~~~~~~~~~
 
 Source:
- - src\\module\\chksum\\chksum.h
- - src\\module\\chksum\\chksum.c
+ - ``src\module\chksum\chksum.h``
+ - ``src\module\chksum\chksum.c``
 
 
-Checksum Module Description
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Description of the |mod_chksum|
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The chksum module offers 2 possibilities to check data integrity, Modulo32BitAddition and 
-a hardware based, slightly modified CRC32 implementation. The following short examples
-demonstrate usage of this module:
+The |mod_chksum| offers 2 possibilities to check data integrity, ``Modulo32BitAddition`` and a hardware based, slightly modified CRC32 implementation. The following short examples demonstrate the usage of the |mod_chksum|:
 
 .. code-block:: c
 
@@ -37,16 +34,14 @@ demonstrate usage of this module:
     uint32_t chksum = CHK_modulo32addition((uint8_t*)0x08000000, 0x1000) -> hashes 4kB of code, starting at 0x08000000 using Modulo32BitAddition algorithm
 
 
-During startup CHK_crc32 function is used to verify integrity of the flashed firmware image, after calculation the crc32 chksum is compared to a hardoded
-value within the flashheader struct. When both values match the firmware is valid and execution continues else an error will be reported. 
+During the startup, the ``CHK_crc32`` function is used to verify the integrity of the flashed firmware image. After the calculation of the CRC32 checksum, it is compared to a hardcoded value within the flashheader struct. When both values match, the firmware is valid and execution continues. If both values do not match, an error is reported.
 
-The flashheader contains the validation and checksum information with memory areas of separate SW partitions, it gets generated during compilation by an external chksum tool, written in python.
-Furthermore it also provides the possibility for software versioning.  
+The flashheader contains the validation and checksum information with memory areas of separate software partitions, it gets generated during compilation by an external checksum tool, written in python. Furthermore it also provides the possibility for software versioning.
 
 
 Checksum Configuration
 ~~~~~~~~~~~~~~~~~~~~~~
-Enabling/disabling of the checksum verification at startup is set by the following macro. The macro is foxygen configurable.
+Enabling/disabling of the checksum verification at startup is set by the following macro (the macro is |foxygen| configurable):
 
 .. code-block:: C
 
@@ -61,11 +56,15 @@ Enabling/disabling of the checksum verification at startup is set by the followi
   #define BUILD_MODULE_ENABLE_FLASHCHECKSUM           1
   //#define BUILD_MODULE_ENABLE_FLASHCHECKSUM           0
 
+
 Checksum Default Configuration
-------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The default value enables checksum verification at startup.
+
 
 Related Modules
 ~~~~~~~~~~~~~~~
 The checksum tool is related on the ``Checksum Tool`` configuration (see :ref:`checksum_tool`).
+
+
