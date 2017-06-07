@@ -1,4 +1,3 @@
-=========================================
 foxBMS Hardware and Documentation License
 =========================================
 
@@ -22,11 +21,6 @@ Schottkystrasse 10
 info@foxbms.org    
 www.foxbms.org
 
-
-
-
-
-=======================
 foxBMS Software License
 =======================
 
