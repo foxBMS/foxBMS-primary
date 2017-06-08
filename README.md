@@ -1,4 +1,4 @@
-# foxBMS
+# foxBMS [![Build Status](https://travis-ci.org/foxBMS/foxBMS-primary.svg?branch=master)](https://travis-ci.org/foxBMS/foxBMS-primary)
 
 foxBMS is a free, open and flexible development environment for the design of
 battery management systems. It is the first universal BMS development
