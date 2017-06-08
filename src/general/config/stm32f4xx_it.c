@@ -1,18 +1,25 @@
 /**
  * @author  STMicroelectronics
- * @date    2015
+ * @date    2016
  * @ingroup GENERAL_CONF
- * @brief HAL IT Module, definition of IRQ handlers for hardware units
+ * @brief HAL IT Module, definition of IRQ handlers for hardware units,
+ *        based on project examples Templates\Src\stm32f4xx_it.c    
  *
  */
 
 /**
   ******************************************************************************
   * @file    stm32f4xx_it.c
-  * @brief   Interrupt Service Routines.
+  * @author  MCD Application Team
+  * @version V1.0.3
+  * @date    06-May-2016
+  * @brief   Main Interrupt Service Routines.
+  *          This file provides template for all exceptions handler and 
+  *          peripherals interrupt service routine.
   ******************************************************************************
+  * @attention
   *
-  * COPYRIGHT(c) 2015 STMicroelectronics
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -40,8 +47,17 @@
   */
 
 /*================== Includes =============================================*/
-#include "main.h"
+/* recommended include order of header files:
+ * 
+ * 1.    include general.h
+ * 2.    include module's own header
+ * 3...  other headers
+ *
+ */
+#include "general.h"
 #include "stm32f4xx_it.h"
+
+#include "main.h"
 #include "cmsis_os.h"
 #include "dma.h"
 #include "spi.h"
@@ -49,6 +65,9 @@
 #include "uart.h"
 #include "diag.h"
 #include "adc.h"
+#include "timer.h"
+#include "mcu.h"
+#include "io.h"
 
 /*================== Macros and Definitions ===============================*/
 
@@ -209,14 +228,37 @@ void UsageFault_Handler(void)
   }
 }
 
+#if 0
+/* this function is implemented by FreeRTOS in port.c: macro vPortSVCHandler */
+/**
+  * @brief  This function handles SVCall exception.
+  * 
+  * @retval void
+  */
+void SVC_Handler(void)
+{
+}
+#endif
 /**
   * @brief  This function handles Debug Monitor exception.
   *
   * @retval void
-   */
+  */
 void DebugMon_Handler(void)
 {
 }
+
+#if 0
+/* this function is implemented by FreeRTOS in port.c: macro xPortPendSVHandler */
+/**
+  * @brief  This function handles PendSVC exception.
+  * 
+  * @retval void
+  */
+void PendSV_Handler(void)
+{
+}
+#endif
 
 /**
   * @brief  This function handles SysTick Handler.
@@ -230,10 +272,10 @@ void SysTick_Handler(void)
 }
 
 /******************************************************************************/
-/* STM32F4xx Peripheral Interrupt Handlers                                    */
-/* Add here the Interrupt Handlers for the used peripherals.                  */
-/* For the available peripheral interrupt handler names,                      */
-/* please refer to the startup file (startup_stm32f4xx.s).                    */
+/*                 STM32F4xx Peripherals Interrupt Handlers                   */
+/*  Add here the Interrupt Handler for the used peripheral(s) (PPP), for the  */
+/*  available peripheral interrupt handler's name please refer to the startup */
+/*  file (startup_stm32f4xx.s).                                               */
 /******************************************************************************/
 
 /**
@@ -244,6 +286,7 @@ void SysTick_Handler(void)
 /*void PPP_IRQHandler(void)
 {
 }*/
+
 
 void CAN1_TX_IRQHandler(void)
 {
@@ -265,27 +308,27 @@ void CAN1_SCE_IRQHandler(void)
     CAN_Error_IRQHandler(CAN_NODE1, &hcan1);
 }
 
-void CAN2_TX_IRQHandler(void)
+void CAN0_TX_IRQHandler(void)
 {
-    CAN_TX_IRQHandler(&hcan2);
+    CAN_TX_IRQHandler(&hcan0);
 }
 
-void CAN2_RX0_IRQHandler(void)
+void CAN0_RX0_IRQHandler(void)
 {
-    CAN_RX_IRQHandler(CAN_NODE2, &hcan2);
+    CAN_RX_IRQHandler(CAN_NODE0, &hcan0);
 }
 
-void CAN2_RX1_IRQHandler(void)
+void CAN0_RX1_IRQHandler(void)
 {
-    CAN_RX_IRQHandler(CAN_NODE2, &hcan2);
+    CAN_RX_IRQHandler(CAN_NODE0, &hcan0);
 }
 
-void CAN2_SCE_IRQHandler(void)
+void CAN0_SCE_IRQHandler(void)
 {
-    CAN_Error_IRQHandler(CAN_NODE2, &hcan2);
+    CAN_Error_IRQHandler(CAN_NODE0, &hcan0);
 }
 
-#if 1   // FIXME noetig?
+#if 1   // FIXME nötig?
 /**
 * @brief This function handles SPI6 global interrupt.
 */
@@ -300,7 +343,7 @@ void SPI6_IRQHandler(void)
 }
 #endif
 
-#if 0   // FIXME kann geloescht werden?
+#if 0   // FIXME kann gelöscht werden?
 /**
 * @brief This function handles SPI4 global interrupt.
 */
@@ -316,6 +359,19 @@ void SPI4_IRQHandler(void)
   /* USER CODE END SPI4_IRQn 1 */
 }
 #endif
+
+/**
+* @brief This function handles SPI2 global interrupt.
+*/
+void SPI2_IRQHandler(void)
+{
+  /* USER CODE BEGIN SPI2_IRQn 0 */
+
+  /* USER CODE END SPI2_IRQn 0 */
+  HAL_NVIC_ClearPendingIRQ(SPI2_IRQn);
+  HAL_SPI_IRQHandler(&spi_devices[2]);
+
+}
 
 /**
  * interrupt-handler for DMA2
@@ -385,7 +441,7 @@ void USART3_IRQHandler(void)
 void USART2_IRQHandler(void)
 {
 #if BUILD_MODULE_ENABLE_RS485
-    // TODO implementation of common UART IRQ handling needed (huart2 + huart3)
+    // @todo akdere
     // HAL_UART_CustomIRQHandler(&huart2);
 #endif
 }
@@ -399,6 +455,52 @@ void ADC_IRQHandler(void)
   HAL_ADC_IRQHandler(&adc_devices[0]);
 }
 
+void TIM3_IRQHandler(void) {
+
+    TIM_IRQHandler();
+
+    // todo: do something here
+}
+
+void EXTI15_10_IRQHandler(void) {
+
+    static uint8_t toggle = 0;
+    static uint16_t cnt = 0;
+    // HAL Treiber
+    if(__HAL_GPIO_EXTI_GET_IT(GPIO_PIN_12) != RESET)
+    {
+        __HAL_GPIO_EXTI_CLEAR_IT(GPIO_PIN_12);
+
+        if(IO_ReadPin(IO_PB_12)) {
+            // high level -> rising edge occurred
+
+            IO_WritePin(IO_PIN_MCU_0_TO_FPGA_INTERFACE_SPI_NSS, SET);
+
+            if(toggle % 2 == 1) {
+
+                spi_devices[2].Instance->DR = 0x33;
+                IO_WritePin(IO_PIN_MCU_0_DEBUG_LED_1, SET);
+            } else {
+
+                spi_devices[2].Instance->DR = 0x55;
+                IO_WritePin(IO_PIN_MCU_0_DEBUG_LED_1, RESET);
+            }
+
+            cnt++;
+
+            if(cnt == 500) {
+                toggle++;
+                cnt = 0;
+            }
+
+        } else {
+            // low level -> falling edge occurred
+
+            IO_WritePin(IO_PIN_MCU_0_TO_FPGA_INTERFACE_SPI_NSS, RESET);
+
+        }
+    }
+}
 
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

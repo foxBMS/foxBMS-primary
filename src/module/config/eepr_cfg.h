@@ -7,7 +7,7 @@
  * 1.  Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
  * 2.  Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
  * 3.  Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote products derived from this software without specific prior written permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  * We kindly request you to use one or more of the following phrases to refer to foxBMS in your hardware, software, documentation or advertising materials:
@@ -23,30 +23,28 @@
 /**
  * @file    eepr_cfg.h
  * @author  foxBMS Team
- * @date    23.02.2016
+ * @date    23.02.2016 (date of creation)
  * @ingroup DRIVERS_CONF,EXT_PER
  * @prefix  EEPR
  *
- * @brief Header for the configuration for the driver for the storage in the EEPROM memory.
- *
- * Header of the configuration file for EEPRom module.
+ * @brief   Header for the configuration for the driver for the storage in the EEPROM memory
  *
  */
+
 #ifndef EEPR_CFG_H_
 #define EEPR_CFG_H_
-/*================== Includes =============================================*/
-#include "general.h"
-#include "bkpsram_cfg.h"
 
+/*================== Includes =============================================*/
+#include "diag.h"
+#include "bkpsram_cfg.h"
 #include "sox.h"
-#include "contactor.h"
 
 /*================== Macros and Definitions ===============================*/
                                                                    // 60 for all entries in calib but DIAG_CONTACTOR, + 3 to round up to %4 bytes
 // FIXME is it better to use sizeof operator? (sizeof(calib)+3)/4 or ((60+(2byte + (6byte * NR_OF_CONTACTORS)))+3)/4
 #define EEPR_CALIB_EEPR_DATA_BLOCK_U32LENGTH    20        // 20*4 Byte
 
-#define EEPR_TXBUF_LENGTH            (sizeof(EEPR_CALIB_FRAME_s) + 16)	/* data + command + tolerance*/
+#define EEPR_TXBUF_LENGTH            (sizeof(EEPR_CALIB_FRAME_s) + 16)    /* data + command + tolerance*/
 
 #define EEPR_ReceiveData(bufferptr,length)   SPI_ReceiveData(bufferptr,length)
 #define EEPR_SendData(bufferptr,length,receiveoffset)   SPI_SendData(bufferptr,length,receiveoffset)
@@ -95,8 +93,7 @@ typedef union {
 
         float        current_max;
         float        current_min;
-        uint32_t        dummy_2_2;
-        uint32_t        dummy_2_3;
+        BKPSRAM_OPERATING_HOURS_s   operating_hours;      // 8byte: 6 * 1byte + 2byte
 
         DIAG_CONTACTOR_s  contactors_count; // 20byte: 2byte + (6byte * NR_OF_CONTACTORS)
         uint32_t        dummy_4_1;

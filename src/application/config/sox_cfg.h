@@ -7,7 +7,7 @@
  * 1.  Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
  * 2.  Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
  * 3.  Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote products derived from this software without specific prior written permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  * We kindly request you to use one or more of the following phrases to refer to foxBMS in your hardware, software, documentation or advertising materials:
@@ -35,8 +35,6 @@
 #define SOX_CFG_H_
 
 /*================== Includes =============================================*/
-#include "general.h"
-#include "database.h"
 
 /*================== Macros and Definitions ===============================*/
 /*fox
@@ -91,10 +89,10 @@
  * @unit        mAh
  * @level       user
  * @validator   x>1
- * @default     10000.0
+ * @default     20000.0
  * @group       SOX
  */
-#define SOX_CELL_CAPACITY               10000.0
+#define SOX_CELL_CAPACITY               20000.0
 
 /*fox
  * the maximum current in charge direction that the battery pack can sustain.
@@ -104,10 +102,10 @@
  * @unit        A
  * @group       SOX
  * @validator   [1,240]
- * @default     10.0
+ * @default     120.0
  * @level   user
  */
-#define SOX_CURRENT_MAX_CONTINUOUS_CHARGE 10.00
+#define SOX_CURRENT_MAX_CONTINUOUS_CHARGE 120.00
 
 /*fox
  * the maximum current in discharge direction that the battery pack can deliver.
@@ -118,10 +116,10 @@
  * @unit        A
  * @group       SOX
  * @validator   [1,240]
- * @default     10.0
+ * @default     120.0
  * @level       user
  */
-#define SOX_CURRENT_MAX_CONTINUOUS_DISCHARGE 10.00
+#define SOX_CURRENT_MAX_CONTINUOUS_DISCHARGE 120.00
 
 /*fox
  * the current that the battery pack should be able to discharge when in LIMPHOME mode,
@@ -133,10 +131,10 @@
  * @unit        A
  * @group       SOX
  * @valid       [1,40]
- * @default     3.00
+ * @default     20.0
  * @level       user
  */
-#define SOX_CURRENT_LIMP_HOME 3.00
+#define SOX_CURRENT_LIMP_HOME 20.00
 
 /*fox
  * the cold temperature where the derating of maximum discharge current starts,
@@ -146,10 +144,10 @@
  * @valid       -40.0<x<80.0
  * @unit        °C
  * @group       SOX
- * @default     5.0
+ * @default     0.0
  * @level       user
  */
-#define SOX_TEMP_LOW_CUTOFF_DISCHARGE 5.0
+#define SOX_TEMP_LOW_CUTOFF_DISCHARGE 0.0
 
 /*fox
  * the cold temperature where the derating of maximum discharge current is fully applied,
@@ -159,10 +157,10 @@
  * @valid       -40.0<x<80.0
  * @unit        °C
  * @group       SOX
- * @default     -5.0
+ * @default     -10.0
  * @level       user
  */
-#define SOX_TEMP_LOW_LIMIT_DISCHARGE -5.0
+#define SOX_TEMP_LOW_LIMIT_DISCHARGE -10.0
 
 /*fox
  * the cold temperature where the derating of maximum charge current starts,
@@ -172,10 +170,10 @@
  * @valid       -40.0<x<80.0
  * @unit        °C
  * @group       SOX
- * @default     10.0
+ * @default     0.0
  * @level       user
  */
-#define SOX_TEMP_LOW_CUTOFF_CHARGE 10.0
+#define SOX_TEMP_LOW_CUTOFF_CHARGE 0.0
 
 /*fox
  * the cold temperature where the derating of maximum charge current is fully applied,
@@ -185,10 +183,10 @@
  * @valid       -40.0<x<80.0
  * @unit        °C
  * @group       SOX
- * @default     0.0
+ * @default     -10.0
  * @level       user
  */
-#define SOX_TEMP_LOW_LIMIT_CHARGE 0.0
+#define SOX_TEMP_LOW_LIMIT_CHARGE -10.0
 
 /*fox
  * the hot temperature where the derating of maximum discharge current starts,
@@ -224,10 +222,10 @@
  * @valid       -40.0<x<80.0
  * @unit        °C
  * @group       SOX
- * @default     30.0
+ * @default     45.0
  * @level       user
  */
-#define SOX_TEMP_HIGH_CUTOFF_CHARGE 30.0
+#define SOX_TEMP_HIGH_CUTOFF_CHARGE 45.0
 
 /*fox
  * the hot temperature where the derating of maximum charge current is fully applied,
@@ -237,10 +235,10 @@
  * @valid       -40.0<x<80.0
  * @unit        °C
  * @group       SOX
- * @default     37.0
+ * @default     55.0
  * @level       user
  */
-#define SOX_TEMP_HIGH_LIMIT_CHARGE 37.0
+#define SOX_TEMP_HIGH_LIMIT_CHARGE 55.0
 
 /*fox
  * above this SOC value battery pack should not be exposed to full current in charge direction
@@ -296,11 +294,11 @@
  * @type        int
  * @unit        mV
  * @group       SOX
- * @valid       [1000,5000]
- * @default     3300
+ * @valid       [2000,2500]
+ * @default     2400
  * @level       user
  */
-#define SOX_VOLT_CUTOFF_CHARGE 3300
+#define SOX_VOLT_CUTOFF_CHARGE 2400
 
 /*fox
  * above this voltage value battery pack should not be exposed to any current in charge direction
@@ -308,11 +306,11 @@
  * @type        int
  * @unit        mV
  * @group       SOX
- * @valid       [1000,5000]
- * @default     3550
+ * @valid       [2500,3000]
+ * @default     2550
  * @level       user
  */
-#define SOX_VOLT_LIMIT_CHARGE 3550
+#define SOX_VOLT_LIMIT_CHARGE 2550
 
 /*fox
  * below this voltage value battery pack should not deliver full current in discharge direction
@@ -320,11 +318,11 @@
  * @type        int
  * @unit        mV
  * @group       SOX
- * @valid       [1000,5000]
- * @default     2700
+ * @valid       [1900,2200]
+ * @default     2000
  * @level       user
  */
-#define SOX_VOLT_CUTOFF_DISCHARGE 2700
+#define SOX_VOLT_CUTOFF_DISCHARGE 2000
 
 /*fox
  * below this voltage value battery pack should not deliver any current in discharge direction
@@ -332,11 +330,11 @@
  * @type        int
  * @unit        mV
  * @group       SOX
- * @valid       [1000,5000]
- * @default     2300
+ * @valid       [1700,1900]
+ * @default     1750
  * @level       user
  */
-#define SOX_VOLT_LIMIT_DISCHARGE 2300
+#define SOX_VOLT_LIMIT_DISCHARGE 1750
 
 /*================== Constant and Variable Definitions ====================*/
 
@@ -380,4 +378,4 @@ extern SOX_SOF_CONFIG_s sox_sof_config;
 
 /*================== Function Implementations =============================*/
 
-#endif   // SOX_CFG_H_
+#endif /* SOX_CFG_H_ */

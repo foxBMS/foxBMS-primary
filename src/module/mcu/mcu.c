@@ -7,7 +7,7 @@
  * 1.  Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
  * 2.  Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
  * 3.  Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote products derived from this software without specific prior written permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  * We kindly request you to use one or more of the following phrases to refer to foxBMS in your hardware, software, documentation or advertising materials:
@@ -27,15 +27,26 @@
  * @ingroup DRIVERS
  * @prefix  MCU
  *
- * @brief Functions for the MCU to manage time and interrupts.
+ * @brief   Functions for the MCU to manage time and interrupts
+ *
  * Source file implements the interfaces to set boot information, to disable/enable all interrupts,
  * to wait a designated time and and to get the a timestamp based on the os systick.
  */
 
 /*================== Includes =============================================*/
+/* recommended include order of header files:
+ * 
+ * 1.    include general.h
+ * 2.    include module's own header
+ * 3...  other headers
+ *
+ */
+#include "general.h"
 #include "mcu.h"
-#include "cmsis_os.h"
+
+#include "os.h"
 #include "diag.h"
+#include "mcu_cfg.h"
 
 /*================== Macros and Definitions ===============================*/
 
@@ -142,6 +153,17 @@ uint32_t MCU_SystemResetStatus_Init(void) {
 
 uint32_t MCU_GetTimeStamp(void) {
      return osKernelSysTick();
+}
+
+
+void MCU_GetDeviceID(MCU_DeviceID_s * deviceID) {
+
+    /* Base address of device ID register  0x1FFF 7A10 */
+    deviceID->off0 = (*(volatile uint32_t *)(0x1FFF7A10 + 0x0));
+    deviceID->off32 = (*(volatile uint32_t *)(0x1FFF7A10 + 0x4));
+    deviceID->off64 = (*(volatile uint32_t *)(0x1FFF7A10 + 0x8));
+
+    return;
 }
 
 /*================== Static functions =====================================*/

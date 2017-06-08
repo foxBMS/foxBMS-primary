@@ -1,18 +1,23 @@
 /**
  * @author  STMicroelectronics
- * @date    2015
+ * @date    2016
  * @ingroup GENERAL_CONF
- * @brief HAL IT Module header, headers for definition of IRQ handlers for hardware units
+ * @brief HAL IT Module header, headers for definition of IRQ handlers for hardware units,
+ *        based on project examples Templates\Inc\stm32f4xx_it.h 
  *
  */
 
 /**
   ******************************************************************************
   * @file    stm32f4xx_it.h
+  * @author  MCD Application Team
+  * @version V1.0.3
+  * @date    06-May-2016
   * @brief   This file contains the headers of the interrupt handlers.
   ******************************************************************************
+  * @attention
   *
-  * COPYRIGHT(c) 2016 STMicroelectronics
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -68,10 +73,12 @@ void CAN1_TX_IRQHandler(void);                /* CAN1 TX    */
 void CAN1_RX0_IRQHandler(void);               /* CAN1 RX0   */
 void CAN1_RX1_IRQHandler(void);               /* CAN1 RX1   */
 void CAN1_SCE_IRQHandler(void);               /* CAN1 SCE   */
-void CAN2_TX_IRQHandler(void);                /* CAN2 TX    */
-void CAN2_RX0_IRQHandler(void);               /* CAN2 RX0   */
-void CAN2_RX1_IRQHandler(void);               /* CAN2 RX1   */
-void CAN2_SCE_IRQHandler(void);               /* CAN2 SCE   */
+void CAN0_TX_IRQHandler(void);                /* CAN0 TX    */
+void CAN0_RX0_IRQHandler(void);               /* CAN0 RX0   */
+void CAN0_RX1_IRQHandler(void);               /* CAN0 RX1   */
+void CAN0_SCE_IRQHandler(void);               /* CAN0 SCE   */
+void TIM3_IRQHandler(void);     /* TIM3 Interrupt Handler */
+void EXTI15_10_IRQHandler(void);
 
 #ifdef __cplusplus
 }

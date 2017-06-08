@@ -33,6 +33,7 @@
 
 
 /*================== Includes =============================================*/
+#include "general.h"
 #include "version.h"
 
 /*================== Macros and Definitions ===============================*/
@@ -56,16 +57,27 @@ const VER_ValidStruct_s __attribute__((section (".FLASH_HEADERSection"))) ver_sw
     VER_SW_VERSION,                                        /*!< address 0x18, Application SW Version    */
 
     VER_PROJECT,                                           /*!< address 0x28, Project Version*/
-    0,                                                     /*!< address 0x38 */
-    0,0,0,                                                 /*!< address 0x39, 0x3A, 0x3B*/
-    0,                                                     /*!< address 0x3C*/
+    0,                                                     /*!< address 0x38  Build Variant */
+    {0, 0, 0},                                             /*!< address 0x39  bootloaderVersion[3] */
+#if BUILD_MODULE_ENABLE_FLASHCHECKSUM
+    1,                                                     /*!< address 0x3C, 1: enable verification of flash checksum*/
+#else
+    0,                                                     /*!< address 0x3C, 0: disable verification of flash checksum*/
+#endif
+#if BUILD_MODULE_ENABLE_BOOTLOADER
+    1,                                                     /*!< address 0x3D,      1: enable bootloader startup */
+#else
+    0,                                                     /*!< address 0x3D,      0: disable bootloader startup*/
+#endif
+    0,                                                     /*!< address 0x3E*/
+    0,                                                     /*!< address 0x3F*/
     0,                                                     /*!< address 0x40*/
     11,                                                    /*!< address 0x44*/
     /* the start and end address of Application SW flash */
     (uint32_t)&_sflash1[0],                                /*!< address 0x48, flash start address      */
     (uint32_t)&_eflash1[0]-1,                              /*!< address 0x4C, flash end address        */
     /* the start and end address of interrupt table */
-    (uint32_t)0,                                           /*!< address 0x50*/
+    (uint32_t)&_jumpadressvectable[0],                     /*address 0x50*/
     (uint32_t)0,
     /* the start and end address of trap table */
     (uint32_t)(0 ),                                        /*!< address 0x58*/
@@ -105,7 +117,7 @@ const VER_ValidStruct_s __attribute__((section (".FLASH_HEADERSection"))) ver_sw
 };
 
 
-/**************************** END OF SECTION FLASH_HEADER *******************************/
+/********************  END OF SECTION FLASH_HEADER ************************/
 
 /*================== Function Prototypes ==================================*/
 

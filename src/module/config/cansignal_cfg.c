@@ -31,11 +31,18 @@
  *
  */
 
-
 /*================== Includes =============================================*/
+/* recommended include order of header files:
+ * 
+ * 1.    include general.h
+ * 2.    include module's own header
+ * 3...  other headers
+ *
+ */
 #include "general.h"
 #include "cansignal_cfg.h"
-#include "../../engine/database/database.h"
+
+#include "database.h"
 #include "syscontrol.h"
 #include "mcu.h"
 #include "sox.h"
@@ -70,153 +77,161 @@ static uint32_t cans_setdebug(uint32_t, void *);
 
 /*================== Macros and Definitions ===============================*/
 
-const uint32_t cans_signalToMuxMapping[] = { CANS_SIG_BMS2_Mux,
-        CANS_SIG_BMS3_Mux,
-        CANS_SIG_BMS4_Mux,
-        CANS_SIG_BMS5_Mux,
-        CANS_SIG_BMS11_Mux,
-        CANS_SIG_BMS12_Mux,
-        CANS_SIG_BMS13_Mux };
+const uint32_t cans_signalToMuxMapping[] = {
+        CAN0_SIG_BMS2_Mux,
+        CAN0_SIG_BMS3_Mux,
+        CAN0_SIG_BMS4_Mux,
+        CAN0_SIG_BMS5_Mux,
+        CAN0_SIG_BMS11_Mux,
+        CAN0_SIG_BMS12_Mux,
+        CAN0_SIG_BMS13_Mux };
 static uint8_t cans_muxVal[sizeof(cans_signalToMuxMapping)/sizeof(cans_signalToMuxMapping[0])];
 
-static DATA_BLOCK_CURRENT_s current_tab;
+static DATA_BLOCK_CURRENT_s cans_current_tab;
 
 /*================== Constant and Variable Definitions ====================*/
-const CANS_message_s cans_messages_tx[NR_MESSAGES_TX] = {
-        { 0x150, 8, 100, 20, NULL_PTR }, //!< BMS general state
-        { 0x550, 8, 100, 20, NULL_PTR }, //!< Cell Voltages of Cells 0 1 2
-        { 0x551, 8, 100, 30, NULL_PTR }, //!< Cell Voltages of Cells 3 4 5
-        { 0x552, 8, 100, 40, NULL_PTR }, //!< Cell Voltages of Cells 6 7 8
-        { 0x553, 8, 100, 50, NULL_PTR }, //!< Cell Voltages of Cells 9 10 11
-        { 0x351, 8, 500, 60, NULL_PTR }, //!< temperature/tempering
-        { 0x352, 8, 300, 70, NULL_PTR }, //!< SOC/SOH
-        { 0x151, 8, 100, 20, NULL_PTR }, //!< SOF
-        { 0x554, 8, 500, 80, NULL_PTR }, //!< Isolation/Balancing
-        { 0x353, 8, 500, 90, NULL_PTR }, //!< Temperatures of modules
-        { 0x555, 8, 100, 10, NULL_PTR }, //!< Cell Voltages of Cells 12 13 14
-        { 0x354, 8, 500, 10, NULL_PTR }, //!< Temperatures extended of modules
-        { 0x556, 8, 100, 10, NULL_PTR }, //!< Cell Voltages Max Min Average
-        { 0x35B, 8, 100, 20, NULL_PTR } //!< Current Sensor Trigger
+
+const CANS_signal_s cans_CAN0_signals_tx[] = {
+        { {CAN0_MSG_BMS1}, 0, 2, 0, 0, 1, 0, FALSE,FALSE, FALSE, {CAN0_SIGNAL_NONE},&cans_setcanerr, &cans_getcanerr }, //!<    CAN_SIGNAL_general_error, // only 2 bits
+        { {CAN0_MSG_BMS1}, 2, 6, 0, 0, 1, 0, FALSE,FALSE, FALSE, {CAN0_SIGNAL_NONE},&cans_setcanerr, &cans_getcanerr }, //!<    CAN_SIGNAL_current_state, // only 2 bits
+        { {CAN0_MSG_BMS1}, 8, 2, 0, 0, 1, 0, FALSE,FALSE, FALSE, {CAN0_SIGNAL_NONE},&cans_setcanerr, &cans_getcanerr }, //!<    CAN_SIGNAL_error_overtemp_bat, // only 2 bits
+        { {CAN0_MSG_BMS1}, 10, 2, 0, 0, 1, 0, FALSE,FALSE, FALSE, {CAN0_SIGNAL_NONE},&cans_setcanerr, &cans_getcanerr }, //!<   CAN_SIGNAL_error_overtemp_ic, // only 2 bits
+        { {CAN0_MSG_BMS1}, 12, 2, 0, 0, 1, 0, FALSE,FALSE, FALSE, {CAN0_SIGNAL_NONE},&cans_setcanerr, &cans_getcanerr }, //!<   CAN_SIGNAL_error_overtemp_charge, // only 2 bits
+        { {CAN0_MSG_BMS1}, 14, 2, 0, 0, 1, 0, FALSE,FALSE, FALSE, {CAN0_SIGNAL_NONE},&cans_setcanerr, &cans_getcanerr }, //!<   CAN_SIGNAL_error_overtemp_discharge, // only 2 bits
+        { {CAN0_MSG_BMS1}, 16, 2, 0, 0, 1, 0, FALSE,FALSE, FALSE, {CAN0_SIGNAL_NONE},&cans_setcanerr, &cans_getcanerr }, //!<   CAN_SIGNAL_error_overvoltage, // only 2 bits
+        { {CAN0_MSG_BMS1}, 18, 2, 0, 0, 1, 0, FALSE,FALSE, FALSE, {CAN0_SIGNAL_NONE},&cans_setcanerr, &cans_getcanerr }, //!<   CAN_SIGNAL_error_undervoltage, // only 2 bits
+        { {CAN0_MSG_BMS1}, 20, 2, 0, 0, 1, 0, FALSE,FALSE, FALSE, {CAN0_SIGNAL_NONE},&cans_setcanerr, &cans_getcanerr }, //!<   CAN_SIGNAL_error_relays, // only 2 bits
+        { {CAN0_MSG_BMS1}, 22, 2, 0, 0, 1, 0, FALSE,FALSE, FALSE, {CAN0_SIGNAL_NONE},&cans_setcanerr, &cans_getcanerr }, //!<   CAN_SIGNAL_error_selftest, // only 2 bits
+        { {CAN0_MSG_BMS1}, 24, 6, 0, 0, 1, 0, FALSE,FALSE, FALSE, {CAN0_SIGNAL_NONE},&cans_setcanerr, &cans_getcanerr }, //!<   CAN_SIGNAL_states_relays,
+        { {CAN0_MSG_BMS1}, 30, 2, 0, 0, 1, 0, FALSE,FALSE, FALSE, {CAN0_SIGNAL_NONE},&cans_setcanerr, &cans_getcanerr }, //!<   CAN_SIGNAL_error_cantiming,
+        { {CAN0_MSG_BMS1}, 49, 1, 0, 0, 1, 0, FALSE,FALSE, FALSE, {CAN0_SIGNAL_NONE},&cans_setcanerr, &cans_getcanerr }, //!<   CAN_SIGNAL_balancing_active,
+        { {CAN0_MSG_BMS1}, 52, 4, 0, 0, 1, 0, FALSE,FALSE, FALSE, {CAN0_SIGNAL_NONE},&cans_setcanerr, &cans_getcanerr }, //!<   CAN_SIGNAL_status_msg_overflowing_counter,
+        { {CAN0_MSG_BMS1}, 56, 8, 0, 0, 1, 0, FALSE,FALSE, FALSE, {CAN0_SIGNAL_NONE},&cans_setcanerr, &cans_getcanerr }, //!<   reserved
+        { {CAN0_MSG_BMS2}, 56, 8, 0, 0, 1, 0, FALSE,FALSE, FALSE, {CAN0_SIGNAL_NONE},&cans_setcanerr, &cans_getcanerr }, //!<
+        { {CAN0_MSG_BMS2},  0, 4, 15, 0, 1, 0, FALSE , FALSE, FALSE, {CAN0_SIGNAL_NONE}, &cans_setmux, &cans_getupdatemux }, //!< Cell Voltages of Cells 0 1 2 of Module 0
+        { {CAN0_MSG_BMS2},  4, 16, 5000, 0, 1, 0, FALSE, FALSE, 0, {CAN0_SIGNAL_NONE}, &cans_setvolt, &cans_getvolt }, //!< Voltage of Cell 0 of Module 0
+        { {CAN0_MSG_BMS2}, 20, 16, 5000, 0, 1, 0, FALSE, FALSE, 0, {CAN0_SIGNAL_NONE}, &cans_setvolt, &cans_getvolt }, //!< Voltage of Cell 1 of Module 0
+        { {CAN0_MSG_BMS2}, 36, 16, 5000, 0, 1, 0, FALSE, FALSE, 0, {CAN0_SIGNAL_NONE}, &cans_setvolt, &cans_getvolt }, //!< Voltage of Cell 2 of Module 0
+        { {CAN0_MSG_BMS3}, 0, 4, 0, 0, 1, 0, FALSE, FALSE, FALSE, {CAN0_SIGNAL_NONE}, &cans_setmux, &cans_getupdatemux }, //!< Cell Voltages of Cells 3 4 5 of Module 0
+        { {CAN0_MSG_BMS3}, 4, 16, 5000, 0, 1, 0, FALSE, FALSE, 0, {CAN0_SIGNAL_NONE}, &cans_setvolt, &cans_getvolt }, //!< Voltage of Cell 3 of Module 0
+        { {CAN0_MSG_BMS3}, 20, 16, 5000, 0, 1, 0, FALSE, FALSE, 0, {CAN0_SIGNAL_NONE}, &cans_setvolt, &cans_getvolt}, //!< Voltage of Cell 4 of Module 0
+        { {CAN0_MSG_BMS3}, 36, 16, 5000, 0, 1, 0, FALSE, FALSE, 0, {CAN0_SIGNAL_NONE}, &cans_setvolt, &cans_getvolt}, //!< Voltage of Cell 5 of Module 0
+        { {CAN0_MSG_BMS4}, 0, 4, 0, 0, 1, 0, FALSE, FALSE, FALSE, {CAN0_SIGNAL_NONE}, &cans_setmux, &cans_getupdatemux }, //!< Cell Voltages of Cells 6 7 8 of Module 0
+        { {CAN0_MSG_BMS4}, 4, 16,  5000, 0, 1, 0, FALSE, FALSE, 0, {CAN0_SIGNAL_NONE}, &cans_setvolt, &cans_getvolt }, //!< Voltage of Cell 6 of Module 0
+        { {CAN0_MSG_BMS4}, 20, 16, 5000, 0, 1, 0, FALSE, FALSE, 0, {CAN0_SIGNAL_NONE}, &cans_setvolt, &cans_getvolt }, //!< Voltage of Cell 7 of Module 0
+        { {CAN0_MSG_BMS4}, 36, 16, 5000, 0, 1, 0, FALSE, FALSE, 0, {CAN0_SIGNAL_NONE}, &cans_setvolt, &cans_getvolt }, //!< Voltage of Cell 8 of Module 0
+        { {CAN0_MSG_BMS5}, 0, 4, 0, 0, 1, 0, FALSE, FALSE, FALSE, {CAN0_SIGNAL_NONE}, &cans_setmux, &cans_getupdatemux }, //!< Cell Voltages of Cells 9 10 11 of Module 0
+        { {CAN0_MSG_BMS5}, 4, 16, 5000, 0, 1, 0, FALSE, FALSE, 0, {CAN0_SIGNAL_NONE}, &cans_setvolt, &cans_getvolt }, //!< Voltage of Cell 9 of Module 0
+        { {CAN0_MSG_BMS5}, 20, 16, 5000, 0, 1, 0, FALSE, FALSE, 0, {CAN0_SIGNAL_NONE}, &cans_setvolt, &cans_getvolt }, //!< Voltage of Cell 10 of Module 0
+        { {CAN0_MSG_BMS5}, 36, 16, 5000, 0, 1, 0, FALSE, FALSE, 0, {CAN0_SIGNAL_NONE}, &cans_setvolt, &cans_getvolt }, //!< Voltage of Cell 11 of Module 0
+        { {CAN0_MSG_BMS6}, 0, 1, 1, 0, 1, 0, FALSE, FALSE, FALSE, {CAN0_SIGNAL_NONE}, &cans_settempering, &cans_gettempering }, //!< Flag Signal if Cooling needed
+        { {CAN0_MSG_BMS6}, 1, 1, 1, 0, 1, 0, FALSE, FALSE, FALSE, {CAN0_SIGNAL_NONE}, &cans_settempering, &cans_gettempering }, //!< Flag Signal if Heating needed
+        { {CAN0_MSG_BMS6}, 2, 6, 31, -32, 1, -32, FALSE, FALSE, FALSE, {CAN0_SIGNAL_NONE}, &cans_settempering, &cans_gettempering }, //!< Need for Tempering
+        { {CAN0_MSG_BMS6}, 8, 8, 87.5, -40, 0.5, -40, FALSE, FALSE, FALSE, {CAN0_SIGNAL_NONE}, &cans_settempering, &cans_gettempering }, //!< Average Temp
+        { {CAN0_MSG_BMS6}, 16, 8, 87.5, -40, 0.5, -40, FALSE, FALSE, FALSE, {CAN0_SIGNAL_NONE}, &cans_settempering, &cans_gettempering }, //!< Minimum Temp
+        { {CAN0_MSG_BMS6}, 24, 8, 87.5, -40, 0.5, -40, FALSE, FALSE, FALSE, {CAN0_SIGNAL_NONE}, &cans_settempering, &cans_gettempering }, //!< Maximum Temp
+        { {CAN0_MSG_BMS6}, 32, 4, 15, 0, 1, 0, FALSE, FALSE, FALSE, {CAN0_SIGNAL_NONE}, &cans_settempering, &cans_gettempering }, //!< Module Number of Module with highest temperature
+        { {CAN0_MSG_BMS6}, 36, 4, 15, 0, 1, 0, FALSE, FALSE, FALSE, {CAN0_SIGNAL_NONE}, &cans_settempering, &cans_gettempering }, //!< Module Number of Module with lowest temperature
+        { {CAN0_MSG_BMS6}, 40, 24, 1, 0, 1, 0, FALSE, FALSE, FALSE, {CAN0_SIGNAL_NONE}, NULL_PTR, NULL_PTR }, //!< reserved
+        { {CAN0_MSG_BMS7}, 0, 8, 100, 0, 0.5, 0, FALSE, FALSE, FALSE, {CAN0_SIGNAL_NONE}, &cans_setsocsoh, &cans_getsocsoh }, //!< State of Charge averaged over all cells
+        { {CAN0_MSG_BMS7}, 8, 8, 100, 0, 0.5, 0, FALSE, FALSE, FALSE, {CAN0_SIGNAL_NONE}, &cans_setsocsoh, &cans_getsocsoh }, //!< State of Charge minimum of all cells
+        { {CAN0_MSG_BMS7}, 16, 8, 100, 0, 0.5, 0, FALSE, FALSE, FALSE, {CAN0_SIGNAL_NONE}, &cans_setsocsoh, &cans_getsocsoh }, //!< State of Charge maximum of all cells
+        { {CAN0_MSG_BMS7}, 24, 8, 100, 0, 0.5, 0, FALSE, FALSE, FALSE, {CAN0_SIGNAL_NONE}, &cans_setsocsoh, &cans_getsocsoh }, //!< State of Health averaged over all cells
+        { {CAN0_MSG_BMS7}, 32, 8, 100, 0, 0.5, 0, FALSE, FALSE, FALSE, {CAN0_SIGNAL_NONE}, &cans_setsocsoh, &cans_getsocsoh }, //!< State of Health minimum of all cells
+        { {CAN0_MSG_BMS7}, 40, 8, 100, 0, 0.5, 0, FALSE, FALSE, FALSE, {CAN0_SIGNAL_NONE}, &cans_setsocsoh, &cans_getsocsoh }, //!< State of Health maximum of all cells
+        { {CAN0_MSG_BMS7}, 48, 16, 1, 0, 1, 0, FALSE, FALSE, FALSE, {CAN0_SIGNAL_NONE}, NULL_PTR, NULL_PTR }, //!< reserved
+        { {CAN0_MSG_BMS8}, 0, 16,  65535, 0, 0.01, 0, FALSE, FALSE, FALSE, {CAN0_SIGNAL_NONE}, &cans_setsof, &cans_getsof },  //!< SOF charge continuous
+        { {CAN0_MSG_BMS8}, 16, 16, 65535, 0, 0.01, 0, FALSE, FALSE, FALSE, {CAN0_SIGNAL_NONE}, &cans_setsof, &cans_getsof },  //!< SOF charge peak
+        { {CAN0_MSG_BMS8}, 32, 16, 65535, 0, 0.01, 0, FALSE, FALSE, FALSE, {CAN0_SIGNAL_NONE}, &cans_setsof, &cans_getsof }, //!< SOF discharge continuous
+        { {CAN0_MSG_BMS8}, 48, 16, 65535, 0, 0.01, 0, FALSE, FALSE, FALSE, {CAN0_SIGNAL_NONE}, &cans_setsof, &cans_getsof }, //!< SOF discharge peak
+        { {CAN0_MSG_BMS9}, 0, 1, 1, 0, 1, 0, FALSE, FALSE, FALSE, {CAN0_SIGNAL_NONE}, NULL_PTR, &cans_getisoguard }, //!< State of IsoGood Pin of Bender
+        { {CAN0_MSG_BMS9}, 1, 7, 127, 0, 1, 0, FALSE, FALSE, FALSE, {CAN0_SIGNAL_NONE}, NULL_PTR, &cans_getisoguard }, //!< Isolation PWM value of Bender
+        { {CAN0_MSG_BMS9}, 8, 4, 15, 0, 1, 0, FALSE, FALSE, FALSE, {CAN0_SIGNAL_NONE}, NULL_PTR, NULL_PTR }, //!< Module number of balancing active indicator
+        { {CAN0_MSG_BMS9}, 12, 12, 4095, 0, 1, 0, FALSE, FALSE, FALSE, {CAN0_SIGNAL_NONE}, NULL_PTR, NULL_PTR }, //!< Balancing Active indication bitfield
+        { {CAN0_MSG_BMS9}, 40, 24, 16777215, 0, 1, 0, FALSE, FALSE, FALSE, {CAN0_SIGNAL_NONE}, NULL_PTR, NULL_PTR }, //!<
+        { {CAN0_MSG_BMS9}, 24, 8, 1, 0, 1, 0, FALSE, FALSE, FALSE, {CAN0_SIGNAL_NONE}, NULL_PTR, NULL_PTR }, //!< tbd
+        { {CAN0_MSG_BMS9}, 32, 8, 1, 0, 1, 0, FALSE, FALSE, FALSE, {CAN0_SIGNAL_NONE}, NULL_PTR, NULL_PTR }, //!<
+        { {CAN0_MSG_BMS11}, 0, 4, 12, 0, 1, 0, FALSE, FALSE, FALSE, {CAN0_SIGNAL_NONE}, &cans_setmux, &cans_getupdatemux }, //!< Cell Temperatures of Modules
+        { {CAN0_MSG_BMS11}, 60, 4, 15, 0, 1, 0, FALSE, FALSE, FALSE, {CAN0_SIGNAL_NONE}, NULL_PTR, NULL_PTR }, //!< reserved
+        { {CAN0_MSG_BMS11}, 4, 7, 87, -40, 1, -40, FALSE, FALSE, 0, {CAN0_SIGNAL_NONE}, &cans_settemp, &cans_gettemp }, //!< Temp 0 of Module 0
+        { {CAN0_MSG_BMS11}, 11, 7, 87, -40, 1, -40, FALSE, FALSE, 0, {CAN0_SIGNAL_NONE}, &cans_settemp, &cans_gettemp }, //!< Temp 1 of Module 0
+        { {CAN0_MSG_BMS11}, 18, 7, 87, -40, 1, -40, FALSE, FALSE, 0, {CAN0_SIGNAL_NONE}, &cans_settemp, &cans_gettemp }, //!< Temp 2 of Module 0
+        { {CAN0_MSG_BMS11}, 25, 7, 87, -40, 1, -40, FALSE, FALSE, 0, {CAN0_SIGNAL_NONE}, &cans_settemp, &cans_gettemp }, //!< Temp 3 of Module 0
+        { {CAN0_MSG_BMS11}, 32, 7, 87, -40, 1, -40, FALSE, FALSE, 0, {CAN0_SIGNAL_NONE}, &cans_settemp, &cans_gettemp }, //!< Temp 4 of Module 0
+        { {CAN0_MSG_BMS11}, 39, 7, 87, -40, 1, -40, FALSE, FALSE, 0, {CAN0_SIGNAL_NONE}, &cans_settemp, &cans_gettemp }, //!< Temp 5 of Module 0
+        { {CAN0_MSG_BMS11}, 46, 7, 87, -40, 1, -40, FALSE, FALSE, 0, {CAN0_SIGNAL_NONE}, &cans_settemp, &cans_gettemp }, //!< Temp 6 of Module 0
+        { {CAN0_MSG_BMS11}, 53, 7, 87, -40, 1, -40, FALSE, FALSE, 0, {CAN0_SIGNAL_NONE}, &cans_settemp, &cans_gettemp }, //!< Temp 7 of Module 0
+        { {CAN0_MSG_BMS12}, 56, 8, 0, 0, 1, 0, FALSE, FALSE, FALSE, {CAN0_SIGNAL_NONE}, NULL_PTR, NULL_PTR }, //!<
+        { {CAN0_MSG_BMS12}, 0, 4, 0, 0, 1, 0, FALSE, FALSE, FALSE, {CAN0_SIGNAL_NONE}, &cans_setmux, &cans_getupdatemux }, //!< Cell Voltages of Cells 12 13 14 of Module 0
+        { {CAN0_MSG_BMS12}, 4, 16, 5000, 0, 1, 0, FALSE, FALSE, 0, {CAN0_SIGNAL_NONE}, &cans_setvolt, &cans_getvolt }, //!< Voltage of Cell 13 of Module 0
+        { {CAN0_MSG_BMS12}, 20, 16, 5000, 0, 1, 0, FALSE, FALSE, 0, {CAN0_SIGNAL_NONE}, &cans_setvolt, &cans_getvolt }, //!< Voltage of Cell 14 of Module 0
+        { {CAN0_MSG_BMS12}, 36, 16, 5000, 0, 1, 0, FALSE, FALSE, 0, {CAN0_SIGNAL_NONE}, &cans_setvolt, &cans_getvolt }, //!< Voltage of Cell 15 of Module 0
+        { {CAN0_MSG_BMS13}, 0, 4, 0, 0, 1, 0, FALSE, FALSE, FALSE, {CAN0_SIGNAL_NONE}, &cans_setmux, &cans_getupdatemux }, //!<
+        { {CAN0_MSG_BMS13}, 60, 4, 15, 0, 1, 0, FALSE, FALSE, FALSE, {CAN0_SIGNAL_NONE}, NULL_PTR, NULL_PTR }, //!< reserved
+        { {CAN0_MSG_BMS13}, 4, 7, 87, -40, 1, -40, FALSE, FALSE, 0, {CAN0_SIGNAL_NONE}, &cans_settemp, &cans_gettemp }, //!< Temp 8 of Module 0
+        { {CAN0_MSG_BMS13}, 11, 7, 87, -40, 1, -40, FALSE, FALSE, 0, {CAN0_SIGNAL_NONE}, &cans_settemp, &cans_gettemp }, //!< Temp 9 of Module 0
+        { {CAN0_MSG_BMS13}, 18, 7, 87, -40, 1, -40, FALSE, FALSE, 0, {CAN0_SIGNAL_NONE}, &cans_settemp, &cans_gettemp }, //!< Temp 10 of Module 0
+        { {CAN0_MSG_BMS13}, 25, 7, 87, -40, 1, -40, FALSE, FALSE, 0, {CAN0_SIGNAL_NONE}, &cans_settemp, &cans_gettemp }, //!< Temp 11 of Module 0
+        { {CAN0_MSG_BMS13}, 32, 7, 87, -40, 1, -40, FALSE, FALSE, 0, {CAN0_SIGNAL_NONE}, &cans_settemp, &cans_gettemp }, //!< Temp 12 of Module 0
+        { {CAN0_MSG_BMS13}, 39, 7, 87, -40, 1, -40, FALSE, FALSE, 0, {CAN0_SIGNAL_NONE}, &cans_settemp, &cans_gettemp }, //!< Temp 13 of Module 0
+        { {CAN0_MSG_BMS13}, 46, 7, 87, -40, 1, -40, FALSE, FALSE, 0, {CAN0_SIGNAL_NONE}, &cans_settemp, &cans_gettemp }, //!< Temp 14 of Module 0
+        { {CAN0_MSG_BMS14}, 0, 16, 65535, 0, 1, 0, FALSE, FALSE, FALSE, {CAN0_SIGNAL_NONE}, &cans_setminmaxvolt, &cans_getminmaxvolt }, //!< Average Voltage of Cells
+        { {CAN0_MSG_BMS14}, 16, 16, 65535, 0, 1, 0, FALSE, FALSE, FALSE, {CAN0_SIGNAL_NONE}, &cans_setminmaxvolt, &cans_getminmaxvolt }, //!< Minimum Voltage of Cells
+        { {CAN0_MSG_BMS14}, 32, 16, 65535, 0, 1, 0, FALSE, FALSE, FALSE, {CAN0_SIGNAL_NONE}, &cans_setminmaxvolt, &cans_getminmaxvolt }, //!< Maximum Voltage of Cells
+        { {CAN0_MSG_BMS14}, 48, 4, 15, 0, 1, 0, FALSE, FALSE, FALSE, {CAN0_SIGNAL_NONE}, &cans_setminmaxvolt, &cans_getminmaxvolt }, //!< ModuleNr with Minimum Voltage
+        { {CAN0_MSG_BMS14}, 52, 4, 15, 0, 1, 0, FALSE, FALSE, FALSE, {CAN0_SIGNAL_NONE}, &cans_setminmaxvolt, &cans_getminmaxvolt } //!< ModuleNr with Maximum Voltage
+#ifdef CAN_ISABELLENHUETTE_TRIGGERED
+        ,{ {CAN0_MSG_BMS_CurrentTrigger}, 0, 32, 0, 0, 1, 0, FALSE, FALSE, FALSE, {CAN0_SIGNAL_NONE}, NULL_PTR, &cans_gettriggercurrent } //!< ModuleNr with Maximum Voltage
+#endif
 };
 
-const CANS_message_s cans_messages_rx[NR_MESSAGES_RX] = {
-        { 0x152, 8, 0, 0, NULL_PTR }, //!< state request
-        { 0x35C, 8, 0, 0, NULL_PTR }, //!< current sensor I
-        { 0x35D, 8, 0, 0, NULL_PTR }, //!< current sensor U1
-        { 0x35E, 8, 0, 0, NULL_PTR }, //!< current sensor U2
-        { 0x35F, 8, 0, 0, NULL_PTR }, //!< current sensor U3
-        { 0x55E, 8, 0, 0, NULL_PTR }  //!< debug messages
+
+const CANS_signal_s cans_CAN1_signals_tx[] = {
 };
 
-const CANS_signal_s cans_signals_tx[NR_SIGNALS_TX] = {
-        { {CANS_MSG_BMS1}, 0, 2, 0, 0, 1, 0, FALSE,FALSE, FALSE, {CANS_SIGNAL_NONE},&cans_setcanerr, &cans_getcanerr }, //!<    CAN_SIGNAL_general_error, // only 2 bits
-        { {CANS_MSG_BMS1}, 2, 6, 0, 0, 1, 0, FALSE,FALSE, FALSE, {CANS_SIGNAL_NONE},&cans_setcanerr, &cans_getcanerr }, //!<    CAN_SIGNAL_current_state, // only 2 bits
-        { {CANS_MSG_BMS1}, 8, 2, 0, 0, 1, 0, FALSE,FALSE, FALSE, {CANS_SIGNAL_NONE},&cans_setcanerr, &cans_getcanerr }, //!<    CAN_SIGNAL_error_overtemp_bat, // only 2 bits
-        { {CANS_MSG_BMS1}, 10, 2, 0, 0, 1, 0, FALSE,FALSE, FALSE, {CANS_SIGNAL_NONE},&cans_setcanerr, &cans_getcanerr }, //!<   CAN_SIGNAL_error_overtemp_ic, // only 2 bits
-        { {CANS_MSG_BMS1}, 12, 2, 0, 0, 1, 0, FALSE,FALSE, FALSE, {CANS_SIGNAL_NONE},&cans_setcanerr, &cans_getcanerr }, //!<   CAN_SIGNAL_error_overtemp_charge, // only 2 bits
-        { {CANS_MSG_BMS1}, 14, 2, 0, 0, 1, 0, FALSE,FALSE, FALSE, {CANS_SIGNAL_NONE},&cans_setcanerr, &cans_getcanerr }, //!<   CAN_SIGNAL_error_overtemp_discharge, // only 2 bits
-        { {CANS_MSG_BMS1}, 16, 2, 0, 0, 1, 0, FALSE,FALSE, FALSE, {CANS_SIGNAL_NONE},&cans_setcanerr, &cans_getcanerr }, //!<   CAN_SIGNAL_error_overvoltage, // only 2 bits
-        { {CANS_MSG_BMS1}, 18, 2, 0, 0, 1, 0, FALSE,FALSE, FALSE, {CANS_SIGNAL_NONE},&cans_setcanerr, &cans_getcanerr }, //!<   CAN_SIGNAL_error_undervoltage, // only 2 bits
-        { {CANS_MSG_BMS1}, 20, 2, 0, 0, 1, 0, FALSE,FALSE, FALSE, {CANS_SIGNAL_NONE},&cans_setcanerr, &cans_getcanerr }, //!<   CAN_SIGNAL_error_relays, // only 2 bits
-        { {CANS_MSG_BMS1}, 22, 2, 0, 0, 1, 0, FALSE,FALSE, FALSE, {CANS_SIGNAL_NONE},&cans_setcanerr, &cans_getcanerr }, //!<   CAN_SIGNAL_error_selftest, // only 2 bits
-        { {CANS_MSG_BMS1}, 24, 6, 0, 0, 1, 0, FALSE,FALSE, FALSE, {CANS_SIGNAL_NONE},&cans_setcanerr, &cans_getcanerr }, //!<   CAN_SIGNAL_states_relays,
-        { {CANS_MSG_BMS1}, 30, 2, 0, 0, 1, 0, FALSE,FALSE, FALSE, {CANS_SIGNAL_NONE},&cans_setcanerr, &cans_getcanerr }, //!<   CAN_SIGNAL_error_cantiming,
-        { {CANS_MSG_BMS1}, 49, 1, 0, 0, 1, 0, FALSE,FALSE, FALSE, {CANS_SIGNAL_NONE},&cans_setcanerr, &cans_getcanerr }, //!<   CAN_SIGNAL_balancing_active,
-        { {CANS_MSG_BMS1}, 52, 4, 0, 0, 1, 0, FALSE,FALSE, FALSE, {CANS_SIGNAL_NONE},&cans_setcanerr, &cans_getcanerr }, //!<   CAN_SIGNAL_status_msg_overflowing_counter,
-        { {CANS_MSG_BMS1}, 56, 8, 0, 0, 1, 0, FALSE,FALSE, FALSE, {CANS_SIGNAL_NONE},&cans_setcanerr, &cans_getcanerr }, //!<   reserved
-        { {CANS_MSG_BMS2}, 56, 8, 0, 0, 1, 0, FALSE,FALSE, FALSE, {CANS_SIGNAL_NONE},&cans_setcanerr, &cans_getcanerr }, //!<
-        { {CANS_MSG_BMS2},  0, 4, 15, 0, 1, 0, FALSE , FALSE, FALSE, {CANS_SIGNAL_NONE}, &cans_setmux, &cans_getupdatemux }, //!< Cell Voltages of Cells 0 1 2 of Module 0
-        { {CANS_MSG_BMS2},  4, 16, 5000, 0, 1, 0, FALSE, FALSE, 0, {CANS_SIGNAL_NONE}, &cans_setvolt, &cans_getvolt }, //!< Voltage of Cell 0 of Module 0
-        { {CANS_MSG_BMS2}, 20, 16, 5000, 0, 1, 0, FALSE, FALSE, 0, {CANS_SIGNAL_NONE}, &cans_setvolt, &cans_getvolt }, //!< Voltage of Cell 1 of Module 0
-        { {CANS_MSG_BMS2}, 36, 16, 5000, 0, 1, 0, FALSE, FALSE, 0, {CANS_SIGNAL_NONE}, &cans_setvolt, &cans_getvolt }, //!< Voltage of Cell 2 of Module 0
-        { {CANS_MSG_BMS3}, 0, 4, 0, 0, 1, 0, FALSE, FALSE, FALSE, {CANS_SIGNAL_NONE}, &cans_setmux, &cans_getupdatemux }, //!< Cell Voltages of Cells 3 4 5 of Module 0
-        { {CANS_MSG_BMS3}, 4, 16, 5000, 0, 1, 0, FALSE, FALSE, 0, {CANS_SIGNAL_NONE}, &cans_setvolt, &cans_getvolt }, //!< Voltage of Cell 3 of Module 0
-        { {CANS_MSG_BMS3}, 20, 16, 5000, 0, 1, 0, FALSE, FALSE, 0, {CANS_SIGNAL_NONE}, &cans_setvolt, &cans_getvolt}, //!< Voltage of Cell 4 of Module 0
-        { {CANS_MSG_BMS3}, 36, 16, 5000, 0, 1, 0, FALSE, FALSE, 0, {CANS_SIGNAL_NONE}, &cans_setvolt, &cans_getvolt}, //!< Voltage of Cell 5 of Module 0
-        { {CANS_MSG_BMS4}, 0, 4, 0, 0, 1, 0, FALSE, FALSE, FALSE, {CANS_SIGNAL_NONE}, &cans_setmux, &cans_getupdatemux }, //!< Cell Voltages of Cells 6 7 8 of Module 0
-        { {CANS_MSG_BMS4}, 4, 16,  5000, 0, 1, 0, FALSE, FALSE, 0, {CANS_SIGNAL_NONE}, &cans_setvolt, &cans_getvolt }, //!< Voltage of Cell 6 of Module 0
-        { {CANS_MSG_BMS4}, 20, 16, 5000, 0, 1, 0, FALSE, FALSE, 0, {CANS_SIGNAL_NONE}, &cans_setvolt, &cans_getvolt }, //!< Voltage of Cell 7 of Module 0
-        { {CANS_MSG_BMS4}, 36, 16, 5000, 0, 1, 0, FALSE, FALSE, 0, {CANS_SIGNAL_NONE}, &cans_setvolt, &cans_getvolt }, //!< Voltage of Cell 8 of Module 0
-        { {CANS_MSG_BMS5}, 0, 4, 0, 0, 1, 0, FALSE, FALSE, FALSE, {CANS_SIGNAL_NONE}, &cans_setmux, &cans_getupdatemux }, //!< Cell Voltages of Cells 9 10 11 of Module 0
-        { {CANS_MSG_BMS5}, 4, 16, 5000, 0, 1, 0, FALSE, FALSE, 0, {CANS_SIGNAL_NONE}, &cans_setvolt, &cans_getvolt }, //!< Voltage of Cell 9 of Module 0
-        { {CANS_MSG_BMS5}, 20, 16, 5000, 0, 1, 0, FALSE, FALSE, 0, {CANS_SIGNAL_NONE}, &cans_setvolt, &cans_getvolt }, //!< Voltage of Cell 10 of Module 0
-        { {CANS_MSG_BMS5}, 36, 16, 5000, 0, 1, 0, FALSE, FALSE, 0, {CANS_SIGNAL_NONE}, &cans_setvolt, &cans_getvolt }, //!< Voltage of Cell 11 of Module 0
-        { {CANS_MSG_BMS6}, 0, 1, 1, 0, 1, 0, FALSE, FALSE, FALSE, {CANS_SIGNAL_NONE}, &cans_settempering, &cans_gettempering }, //!< Flag Signal if Cooling needed
-        { {CANS_MSG_BMS6}, 1, 1, 1, 0, 1, 0, FALSE, FALSE, FALSE, {CANS_SIGNAL_NONE}, &cans_settempering, &cans_gettempering }, //!< Flag Signal if Heating needed
-        { {CANS_MSG_BMS6}, 2, 6, 31, -32, 1, -32, FALSE, FALSE, FALSE, {CANS_SIGNAL_NONE}, &cans_settempering, &cans_gettempering }, //!< Need for Tempering
-        { {CANS_MSG_BMS6}, 8, 8, 87.5, -40, 0.5, -40, FALSE, FALSE, FALSE, {CANS_SIGNAL_NONE}, &cans_settempering, &cans_gettempering }, //!< Average Temp
-        { {CANS_MSG_BMS6}, 16, 8, 87.5, -40, 0.5, -40, FALSE, FALSE, FALSE, {CANS_SIGNAL_NONE}, &cans_settempering, &cans_gettempering }, //!< Minimum Temp
-        { {CANS_MSG_BMS6}, 24, 8, 87.5, -40, 0.5, -40, FALSE, FALSE, FALSE, {CANS_SIGNAL_NONE}, &cans_settempering, &cans_gettempering }, //!< Maximum Temp
-        { {CANS_MSG_BMS6}, 32, 4, 15, 0, 1, 0, FALSE, FALSE, FALSE, {CANS_SIGNAL_NONE}, &cans_settempering, &cans_gettempering }, //!< Module Number of Module with highest temperature
-        { {CANS_MSG_BMS6}, 36, 4, 15, 0, 1, 0, FALSE, FALSE, FALSE, {CANS_SIGNAL_NONE}, &cans_settempering, &cans_gettempering }, //!< Module Number of Module with lowest temperature
-        { {CANS_MSG_BMS6}, 40, 24, 1, 0, 1, 0, FALSE, FALSE, FALSE, {CANS_SIGNAL_NONE}, NULL_PTR, NULL_PTR }, //!< reserved
-        { {CANS_MSG_BMS7}, 0, 8, 100, 0, 0.5, 0, FALSE, FALSE, FALSE, {CANS_SIGNAL_NONE}, &cans_setsocsoh, &cans_getsocsoh }, //!< State of Charge averaged over all cells
-        { {CANS_MSG_BMS7}, 8, 8, 100, 0, 0.5, 0, FALSE, FALSE, FALSE, {CANS_SIGNAL_NONE}, &cans_setsocsoh, &cans_getsocsoh }, //!< State of Charge minimum of all cells
-        { {CANS_MSG_BMS7}, 16, 8, 100, 0, 0.5, 0, FALSE, FALSE, FALSE, {CANS_SIGNAL_NONE}, &cans_setsocsoh, &cans_getsocsoh }, //!< State of Charge maximum of all cells
-        { {CANS_MSG_BMS7}, 24, 8, 100, 0, 0.5, 0, FALSE, FALSE, FALSE, {CANS_SIGNAL_NONE}, &cans_setsocsoh, &cans_getsocsoh }, //!< State of Health averaged over all cells
-        { {CANS_MSG_BMS7}, 32, 8, 100, 0, 0.5, 0, FALSE, FALSE, FALSE, {CANS_SIGNAL_NONE}, &cans_setsocsoh, &cans_getsocsoh }, //!< State of Health minimum of all cells
-        { {CANS_MSG_BMS7}, 40, 8, 100, 0, 0.5, 0, FALSE, FALSE, FALSE, {CANS_SIGNAL_NONE}, &cans_setsocsoh, &cans_getsocsoh }, //!< State of Health maximum of all cells
-        { {CANS_MSG_BMS7}, 48, 16, 1, 0, 1, 0, FALSE, FALSE, FALSE, {CANS_SIGNAL_NONE}, NULL_PTR, NULL_PTR }, //!< reserved
-        { {CANS_MSG_BMS8}, 0, 16,  65535, 0, 0.01, 0, FALSE, FALSE, FALSE, {CANS_SIGNAL_NONE}, &cans_setsof, &cans_getsof },  //!< SOF charge continuous
-        { {CANS_MSG_BMS8}, 16, 16, 65535, 0, 0.01, 0, FALSE, FALSE, FALSE, {CANS_SIGNAL_NONE}, &cans_setsof, &cans_getsof },  //!< SOF charge peak
-        { {CANS_MSG_BMS8}, 32, 16, 65535, 0, 0.01, 0, FALSE, FALSE, FALSE, {CANS_SIGNAL_NONE}, &cans_setsof, &cans_getsof }, //!< SOF discharge continuous
-        { {CANS_MSG_BMS8}, 48, 16, 65535, 0, 0.01, 0, FALSE, FALSE, FALSE, {CANS_SIGNAL_NONE}, &cans_setsof, &cans_getsof }, //!< SOF discharge peak
-        { {CANS_MSG_BMS9}, 0, 1, 1, 0, 1, 0, FALSE, FALSE, FALSE, {CANS_SIGNAL_NONE}, NULL_PTR, &cans_getisoguard }, //!< State of IsoGood Pin of Bender
-        { {CANS_MSG_BMS9}, 1, 7, 127, 0, 1, 0, FALSE, FALSE, FALSE, {CANS_SIGNAL_NONE}, NULL_PTR, &cans_getisoguard }, //!< Isolation PWM value of Bender
-        { {CANS_MSG_BMS9}, 8, 4, 15, 0, 1, 0, FALSE, FALSE, FALSE, {CANS_SIGNAL_NONE}, NULL_PTR, NULL_PTR }, //!< Module number of balancing active indicator
-        { {CANS_MSG_BMS9}, 12, 12, 4095, 0, 1, 0, FALSE, FALSE, FALSE, {CANS_SIGNAL_NONE}, NULL_PTR, NULL_PTR }, //!< Balancing Active indication bitfield
-        { {CANS_MSG_BMS9}, 40, 24, 16777215, 0, 1, 0, FALSE, FALSE, FALSE, {CANS_SIGNAL_NONE}, NULL_PTR, NULL_PTR }, //!<
-        { {CANS_MSG_BMS9}, 24, 8, 1, 0, 1, 0, FALSE, FALSE, FALSE, {CANS_SIGNAL_NONE}, NULL_PTR, NULL_PTR }, //!< tbd
-        { {CANS_MSG_BMS9}, 32, 8, 1, 0, 1, 0, FALSE, FALSE, FALSE, {CANS_SIGNAL_NONE}, NULL_PTR, NULL_PTR }, //!<
-        { {CANS_MSG_BMS11}, 0, 4, 12, 0, 1, 0, FALSE, FALSE, FALSE, {CANS_SIGNAL_NONE}, &cans_setmux, &cans_getupdatemux }, //!< Cell Temperatures of Modules
-        { {CANS_MSG_BMS11}, 60, 4, 15, 0, 1, 0, FALSE, FALSE, FALSE, {CANS_SIGNAL_NONE}, NULL_PTR, NULL_PTR }, //!< reserved
-        { {CANS_MSG_BMS11}, 4, 7, 87, -40, 1, -40, FALSE, FALSE, 0, {CANS_SIGNAL_NONE}, &cans_settemp, &cans_gettemp }, //!< Temp 0 of Module 0
-        { {CANS_MSG_BMS11}, 11, 7, 87, -40, 1, -40, FALSE, FALSE, 0, {CANS_SIGNAL_NONE}, &cans_settemp, &cans_gettemp }, //!< Temp 1 of Module 0
-        { {CANS_MSG_BMS11}, 18, 7, 87, -40, 1, -40, FALSE, FALSE, 0, {CANS_SIGNAL_NONE}, &cans_settemp, &cans_gettemp }, //!< Temp 2 of Module 0
-        { {CANS_MSG_BMS11}, 25, 7, 87, -40, 1, -40, FALSE, FALSE, 0, {CANS_SIGNAL_NONE}, &cans_settemp, &cans_gettemp }, //!< Temp 3 of Module 0
-        { {CANS_MSG_BMS11}, 32, 7, 87, -40, 1, -40, FALSE, FALSE, 0, {CANS_SIGNAL_NONE}, &cans_settemp, &cans_gettemp }, //!< Temp 4 of Module 0
-        { {CANS_MSG_BMS11}, 39, 7, 87, -40, 1, -40, FALSE, FALSE, 0, {CANS_SIGNAL_NONE}, &cans_settemp, &cans_gettemp }, //!< Temp 5 of Module 0
-        { {CANS_MSG_BMS11}, 46, 7, 87, -40, 1, -40, FALSE, FALSE, 0, {CANS_SIGNAL_NONE}, &cans_settemp, &cans_gettemp }, //!< Temp 6 of Module 0
-        { {CANS_MSG_BMS11}, 53, 7, 87, -40, 1, -40, FALSE, FALSE, 0, {CANS_SIGNAL_NONE}, &cans_settemp, &cans_gettemp }, //!< Temp 7 of Module 0
-        { {CANS_MSG_BMS12}, 56, 8, 0, 0, 1, 0, FALSE, FALSE, FALSE, {CANS_SIGNAL_NONE}, NULL_PTR, NULL_PTR }, //!<
-        { {CANS_MSG_BMS12}, 0, 4, 0, 0, 1, 0, FALSE, FALSE, FALSE, {CANS_SIGNAL_NONE}, &cans_setmux, &cans_getupdatemux }, //!< Cell Voltages of Cells 12 13 14 of Module 0
-        { {CANS_MSG_BMS12}, 4, 16, 5000, 0, 1, 0, FALSE, FALSE, 0, {CANS_SIGNAL_NONE}, &cans_setvolt, &cans_getvolt }, //!< Voltage of Cell 13 of Module 0
-        { {CANS_MSG_BMS12}, 20, 16, 5000, 0, 1, 0, FALSE, FALSE, 0, {CANS_SIGNAL_NONE}, &cans_setvolt, &cans_getvolt }, //!< Voltage of Cell 14 of Module 0
-        { {CANS_MSG_BMS12}, 36, 16, 5000, 0, 1, 0, FALSE, FALSE, 0, {CANS_SIGNAL_NONE}, &cans_setvolt, &cans_getvolt }, //!< Voltage of Cell 15 of Module 0
-        { {CANS_MSG_BMS13}, 0, 4, 0, 0, 1, 0, FALSE, FALSE, FALSE, {CANS_SIGNAL_NONE}, &cans_setmux, &cans_getupdatemux }, //!<
-        { {CANS_MSG_BMS13}, 60, 4, 15, 0, 1, 0, FALSE, FALSE, FALSE, {CANS_SIGNAL_NONE}, NULL_PTR, NULL_PTR }, //!< reserved
-        { {CANS_MSG_BMS13}, 4, 7, 87, -40, 1, -40, FALSE, FALSE, 0, {CANS_SIGNAL_NONE}, &cans_settemp, &cans_gettemp }, //!< Temp 8 of Module 0
-        { {CANS_MSG_BMS13}, 11, 7, 87, -40, 1, -40, FALSE, FALSE, 0, {CANS_SIGNAL_NONE}, &cans_settemp, &cans_gettemp }, //!< Temp 9 of Module 0
-        { {CANS_MSG_BMS13}, 18, 7, 87, -40, 1, -40, FALSE, FALSE, 0, {CANS_SIGNAL_NONE}, &cans_settemp, &cans_gettemp }, //!< Temp 10 of Module 0
-        { {CANS_MSG_BMS13}, 25, 7, 87, -40, 1, -40, FALSE, FALSE, 0, {CANS_SIGNAL_NONE}, &cans_settemp, &cans_gettemp }, //!< Temp 11 of Module 0
-        { {CANS_MSG_BMS13}, 32, 7, 87, -40, 1, -40, FALSE, FALSE, 0, {CANS_SIGNAL_NONE}, &cans_settemp, &cans_gettemp }, //!< Temp 12 of Module 0
-        { {CANS_MSG_BMS13}, 39, 7, 87, -40, 1, -40, FALSE, FALSE, 0, {CANS_SIGNAL_NONE}, &cans_settemp, &cans_gettemp }, //!< Temp 13 of Module 0
-        { {CANS_MSG_BMS13}, 46, 7, 87, -40, 1, -40, FALSE, FALSE, 0, {CANS_SIGNAL_NONE}, &cans_settemp, &cans_gettemp }, //!< Temp 14 of Module 0
-        { {CANS_MSG_BMS14}, 0, 16, 65535, 0, 1, 0, FALSE, FALSE, FALSE, {CANS_SIGNAL_NONE}, &cans_setminmaxvolt, &cans_getminmaxvolt }, //!< Average Voltage of Cells
-        { {CANS_MSG_BMS14}, 16, 16, 65535, 0, 1, 0, FALSE, FALSE, FALSE, {CANS_SIGNAL_NONE}, &cans_setminmaxvolt, &cans_getminmaxvolt }, //!< Minimum Voltage of Cells
-        { {CANS_MSG_BMS14}, 32, 16, 65535, 0, 1, 0, FALSE, FALSE, FALSE, {CANS_SIGNAL_NONE}, &cans_setminmaxvolt, &cans_getminmaxvolt }, //!< Maximum Voltage of Cells
-        { {CANS_MSG_BMS14}, 48, 4, 15, 0, 1, 0, FALSE, FALSE, FALSE, {CANS_SIGNAL_NONE}, &cans_setminmaxvolt, &cans_getminmaxvolt }, //!< ModuleNr with Minimum Voltage
-        { {CANS_MSG_BMS14}, 52, 4, 15, 0, 1, 0, FALSE, FALSE, FALSE, {CANS_SIGNAL_NONE}, &cans_setminmaxvolt, &cans_getminmaxvolt }, //!< ModuleNr with Maximum Voltage
-        { {CANS_MSG_BMS_CurrentTrigger}, 0, 32, 0, 0, 1, 0, FALSE, FALSE, FALSE, {CANS_SIGNAL_NONE}, NULL_PTR, &cans_gettriggercurrent } //!< ModuleNr with Maximum Voltage
+
+const CANS_signal_s cans_CAN0_signals_rx[] = {
+        { {CAN0_MSG_BMS10},   0,  8,    32, 0, 1,        0,  FALSE,  FALSE,  FALSE,  {CAN0_SIGNAL_NONE}, NULL_PTR,               NULL_PTR },
+        { {CAN0_MSG_BMS10},   8,  8,    8, 0, 1,        0,  FALSE,  FALSE,  FALSE,  {CAN0_SIGNAL_NONE}, &cans_setstaterequest,  &cans_getstaterequest },
+        { {CAN0_MSG_ISENS0},  0,  8,    32, 0, 1,        0,  FALSE,  FALSE,  FALSE,  {CAN0_SIGNAL_NONE}, NULL_PTR,               NULL_PTR },
+        { {CAN0_MSG_ISENS0},  8,  8,  255, 0, 1,        0,  FALSE,  FALSE,  FALSE,  {CAN0_SIGNAL_NONE}, NULL_PTR,               NULL_PTR },
+        { {CAN0_MSG_ISENS0}, 16, 32, 0xFFFFFFFF, -3000, 0.001,    0,  FALSE,  FALSE,  FALSE,  {CAN0_SIGNAL_NONE}, &cans_setcurr,          &cans_getcurr },
+        { {CAN0_MSG_ISENS1},  0,  8,    32, 0, 1,        0,  FALSE,  FALSE,  FALSE,  {CAN0_SIGNAL_NONE}, NULL_PTR,               NULL_PTR },
+        { {CAN0_MSG_ISENS1},  8,  8,    255, 0, 1,        0,  FALSE,  FALSE,  FALSE,  {CAN0_SIGNAL_NONE}, NULL_PTR,               NULL_PTR },
+        { {CAN0_MSG_ISENS1}, 16, 32,  0xFFFFFFFF, 0, 0.001,    0,  FALSE,  FALSE,  FALSE,  {CAN0_SIGNAL_NONE}, &cans_setcurr,          &cans_getcurr },
+        { {CAN0_MSG_ISENS2},  0,  8,    32, 0, 1,        0,  FALSE,  FALSE,  FALSE,  {CAN0_SIGNAL_NONE}, NULL_PTR,               NULL_PTR },
+        { {CAN0_MSG_ISENS2},  8,  8,    255, 0, 1,        0,  FALSE,  FALSE,  FALSE,  {CAN0_SIGNAL_NONE}, NULL_PTR,               NULL_PTR },
+        { {CAN0_MSG_ISENS2}, 16, 32,  0xFFFFFFFF, 0, 0.001,    0,  FALSE,  FALSE,  FALSE,  {CAN0_SIGNAL_NONE}, &cans_setcurr,          &cans_getcurr },
+        { {CAN0_MSG_ISENS3},  0,  8,    32, 0, 0.001,    0,  FALSE,  FALSE,  FALSE,  {CAN0_SIGNAL_NONE}, NULL_PTR,               NULL_PTR },
+        { {CAN0_MSG_ISENS3},  8,  8,    255, 0, 1,        0,  FALSE,  FALSE,  FALSE,  {CAN0_SIGNAL_NONE}, NULL_PTR,               NULL_PTR },
+        { {CAN0_MSG_ISENS3}, 16, 32,  0xFFFFFFFF, 0, 0.001,    0,     FALSE,  FALSE,  FALSE,  {CAN0_SIGNAL_NONE}, &cans_setcurr,       &cans_getcurr },
+        { {CAN0_MSG_DEBUG},   0, 64,  100, 0, 0.001,    0,     FALSE,  FALSE,  FALSE,  {CAN0_SIGNAL_NONE}, &cans_setdebug,      &cans_getdebug }
 };
 
-const CANS_signal_s cans_signals_rx[NR_SIGNALS_RX] = {
-        { {CANS_MSG_BMS10},   0,  8, 1, 0, 1, 0,FALSE,FALSE,FALSE,{CANS_SIGNAL_NONE},NULL_PTR,NULL_PTR },
-        { {CANS_MSG_BMS10},   8,  8, 1, 0, 1, 0, FALSE, FALSE, FALSE, {CANS_SIGNAL_NONE}, &cans_setstaterequest, &cans_getstaterequest },
-        { {CANS_MSG_ISENS0},  0,  8, 0, 0, 1, 0,FALSE,FALSE,FALSE,{CANS_SIGNAL_NONE},NULL_PTR,NULL_PTR },
-        { {CANS_MSG_ISENS0},  8,  8, 1, 0, 1, 0, FALSE, FALSE, FALSE, {CANS_SIGNAL_NONE}, NULL_PTR, NULL_PTR },
-        { {CANS_MSG_ISENS0}, 16, 32, 100, 0, 0.001, 0, FALSE, FALSE, FALSE, {CANS_SIGNAL_NONE}, &cans_setcurr, &cans_getcurr },
-        { {CANS_MSG_ISENS1},  0,  8, 0, 0, 1, 0,FALSE,FALSE,FALSE,{CANS_SIGNAL_NONE},NULL_PTR,NULL_PTR },
-        { {CANS_MSG_ISENS1},  8,  8, 1, 0, 1, 0, FALSE, FALSE, FALSE, {CANS_SIGNAL_NONE}, NULL_PTR, NULL_PTR },
-        { {CANS_MSG_ISENS1}, 16, 32, 100, 0, 0.001, 0, FALSE, FALSE, FALSE, {CANS_SIGNAL_NONE}, &cans_setcurr, &cans_getcurr },
-        { {CANS_MSG_ISENS2},  0,  8, 0, 0, 1, 0,FALSE,FALSE,FALSE,{CANS_SIGNAL_NONE},NULL_PTR,NULL_PTR },
-        { {CANS_MSG_ISENS2},  8,  8, 1, 0, 1, 0, FALSE, FALSE, FALSE, {CANS_SIGNAL_NONE}, NULL_PTR, NULL_PTR },
-        { {CANS_MSG_ISENS2}, 16, 32, 100, 0, 0.001, 0, FALSE, FALSE, FALSE, {CANS_SIGNAL_NONE}, &cans_setcurr, &cans_getcurr },
-        { {CANS_MSG_ISENS3},  0,  8, 0, 0, 0.001, 0,FALSE,FALSE,FALSE,{CANS_SIGNAL_NONE},NULL_PTR,NULL_PTR },
-        { {CANS_MSG_ISENS3},  8,  8, 1, 0, 1, 0, FALSE, FALSE, FALSE, {CANS_SIGNAL_NONE}, NULL_PTR, NULL_PTR },
-        { {CANS_MSG_ISENS3}, 16, 32, 100, 0, 0.001, 0, FALSE, FALSE, FALSE, {CANS_SIGNAL_NONE}, &cans_setcurr, &cans_getcurr },
-        { {CANS_MSG_DEBUG}, 0, 64, 100, 0, 0.001, 0, FALSE, FALSE, FALSE, {CANS_SIGNAL_NONE}, &cans_setdebug, &cans_getdebug }
+const CANS_signal_s cans_CAN1_signals_rx[] = {
+        { {CAN1_MSG_BMS10},   0,  8,    32, 0, 1,        0,  FALSE,  FALSE,  FALSE,  {CAN1_SIGNAL_NONE}, NULL_PTR,               NULL_PTR },
+        { {CAN1_MSG_BMS10},   8,  8,    8, 0, 1,        0,  FALSE,  FALSE,  FALSE,  {CAN1_SIGNAL_NONE}, &cans_setstaterequest,  &cans_getstaterequest },
+        { {CAN1_MSG_ISENS0},  0,  8,    32, 0, 1,        0,  FALSE,  FALSE,  FALSE,  {CAN1_SIGNAL_NONE}, NULL_PTR,               NULL_PTR },
+        { {CAN1_MSG_ISENS0},  8,  8,    255, 0, 1,        0,  FALSE,  FALSE,  FALSE,  {CAN1_SIGNAL_NONE}, NULL_PTR,               NULL_PTR },
+        { {CAN1_MSG_ISENS0}, 16, 32,  0xFFFFFFFF, 0, 0.001,    0,  FALSE,  FALSE,  FALSE,  {CAN1_SIGNAL_NONE}, &cans_setcurr,          &cans_getcurr },
+        { {CAN1_MSG_ISENS1},  0,  8,    32, 0, 1,        0,  FALSE,  FALSE,  FALSE,  {CAN1_SIGNAL_NONE}, NULL_PTR,               NULL_PTR },
+        { {CAN1_MSG_ISENS1},  8,  8,    255, 0, 1,        0,  FALSE,  FALSE,  FALSE,  {CAN1_SIGNAL_NONE}, NULL_PTR,               NULL_PTR },
+        { {CAN1_MSG_ISENS1}, 16, 32,  0xFFFFFFFF, 0, 0.001,    0,  FALSE,  FALSE,  FALSE,  {CAN1_SIGNAL_NONE}, &cans_setcurr,          &cans_getcurr },
+        { {CAN1_MSG_ISENS2},  0,  8,    32, 0, 1,        0,  FALSE,  FALSE,  FALSE,  {CAN1_SIGNAL_NONE}, NULL_PTR,               NULL_PTR },
+        { {CAN1_MSG_ISENS2},  8,  8,    255, 0, 1,        0,  FALSE,  FALSE,  FALSE,  {CAN1_SIGNAL_NONE}, NULL_PTR,               NULL_PTR },
+        { {CAN1_MSG_ISENS2}, 16, 32,  0xFFFFFFFF, 0, 0.001,    0,  FALSE,  FALSE,  FALSE,  {CAN1_SIGNAL_NONE}, &cans_setcurr,          &cans_getcurr },
+        { {CAN1_MSG_ISENS3},  0,  8,    32, 0, 0.001,    0,  FALSE,  FALSE,  FALSE,  {CAN1_SIGNAL_NONE}, NULL_PTR,               NULL_PTR },
+        { {CAN1_MSG_ISENS3},  8,  8,    255, 0, 1,        0,  FALSE,  FALSE,  FALSE,  {CAN1_SIGNAL_NONE}, NULL_PTR,               NULL_PTR },
+        { {CAN1_MSG_ISENS3}, 16, 32,  0xFFFFFFFF, 0, 0.001,    0,     FALSE,  FALSE,  FALSE,  {CAN1_SIGNAL_NONE}, &cans_setcurr,       &cans_getcurr },
+        { {CAN1_MSG_DEBUG},   0, 64,  100, 0, 0.001,    0,     FALSE,  FALSE,  FALSE,  {CAN1_SIGNAL_NONE}, &cans_setdebug,      &cans_getdebug }
 };
+
+
+const uint16_t cans_CAN0_signals_tx_length = sizeof(cans_CAN0_signals_tx)/sizeof(cans_CAN0_signals_tx[0]);
+const uint16_t cans_CAN1_signals_tx_length = sizeof(cans_CAN1_signals_tx)/sizeof(cans_CAN1_signals_tx[0]);
+
+const uint16_t cans_CAN0_signals_rx_length = sizeof(cans_CAN0_signals_rx)/sizeof(cans_CAN0_signals_rx[0]);
+const uint16_t cans_CAN1_signals_rx_length = sizeof(cans_CAN1_signals_rx)/sizeof(cans_CAN1_signals_rx[0]);
 
 /*================== Function Implementations =============================*/
 
@@ -250,7 +265,7 @@ uint32_t cans_getupdatemux(uint32_t sigIdx, void *value) {
     if (locMuxIdx != 0xFFFFFFFF){
         if(value != NULL_PTR) {
             cans_muxVal[locMuxIdx]++;
-            if (cans_muxVal[locMuxIdx] >=NR_OF_MODULES){
+            if (cans_muxVal[locMuxIdx] >=BS_NR_OF_MODULES){
                 cans_muxVal[locMuxIdx] = 0;
             }
             *(uint32_t *)value = (uint32_t)cans_muxVal[locMuxIdx];
@@ -271,47 +286,47 @@ uint32_t cans_getvolt(uint32_t sigIdx, void *value) {
     uint32_t cellIdx, muxIdx, muxVal=0;
     DATA_GetTable(&volt_tab, DATA_BLOCK_ID_CELLVOLTAGE);
     switch (sigIdx){
-        case CANS_SIG_BMS2__Mod0_Cell0_Value:
-        case CANS_SIG_BMS2__Mod0_Cell1_Value:
-        case CANS_SIG_BMS2__Mod0_Cell2_Value:
-            cellIdx = sigIdx - CANS_SIG_BMS2__Mod0_Cell0_Value;
-            muxIdx = CANS_SIG_BMS2_Mux;
+        case CAN0_SIG_BMS2__Mod0_Cell0_Value:
+        case CAN0_SIG_BMS2__Mod0_Cell1_Value:
+        case CAN0_SIG_BMS2__Mod0_Cell2_Value:
+            cellIdx = sigIdx - CAN0_SIG_BMS2__Mod0_Cell0_Value;
+            muxIdx = CAN0_SIG_BMS2_Mux;
             break;
-        case CANS_SIG_BMS3__Mod0_Cell3_Value:
-        case CANS_SIG_BMS3__Mod0_Cell4_Value:
-        case CANS_SIG_BMS3__Mod0_Cell5_Value:
-            cellIdx = sigIdx - CANS_SIG_BMS3__Mod0_Cell3_Value + 3;
-            muxIdx = CANS_SIG_BMS3_Mux;
+        case CAN0_SIG_BMS3__Mod0_Cell3_Value:
+        case CAN0_SIG_BMS3__Mod0_Cell4_Value:
+        case CAN0_SIG_BMS3__Mod0_Cell5_Value:
+            cellIdx = sigIdx - CAN0_SIG_BMS3__Mod0_Cell3_Value + 3;
+            muxIdx = CAN0_SIG_BMS3_Mux;
             break;
-        case CANS_SIG_BMS4__Mod0_Cell6_Value:
-        case CANS_SIG_BMS4__Mod0_Cell7_Value:
-        case CANS_SIG_BMS4__Mod0_Cell8_Value:
-            cellIdx = sigIdx - CANS_SIG_BMS4__Mod0_Cell6_Value + 6;
-            muxIdx = CANS_SIG_BMS4_Mux;
+        case CAN0_SIG_BMS4__Mod0_Cell6_Value:
+        case CAN0_SIG_BMS4__Mod0_Cell7_Value:
+        case CAN0_SIG_BMS4__Mod0_Cell8_Value:
+            cellIdx = sigIdx - CAN0_SIG_BMS4__Mod0_Cell6_Value + 6;
+            muxIdx = CAN0_SIG_BMS4_Mux;
             break;
-        case CANS_SIG_BMS5__Mod0_Cell9_Value:
-        case CANS_SIG_BMS5__Mod0_Cell10_Value:
-        case CANS_SIG_BMS5__Mod0_Cell11_Value:
-            cellIdx = sigIdx - CANS_SIG_BMS5__Mod0_Cell9_Value + 9;
-            muxIdx = CANS_SIG_BMS5_Mux;
+        case CAN0_SIG_BMS5__Mod0_Cell9_Value:
+        case CAN0_SIG_BMS5__Mod0_Cell10_Value:
+        case CAN0_SIG_BMS5__Mod0_Cell11_Value:
+            cellIdx = sigIdx - CAN0_SIG_BMS5__Mod0_Cell9_Value + 9;
+            muxIdx = CAN0_SIG_BMS5_Mux;
             break;
 #if NR_OF_BAT_CELLS_PER_MODULE > 12
-        case CANS_SIG_BMS12__Mod0_Cell12_Value:
-        case CANS_SIG_BMS12__Mod0_Cell13_Value:
-        case CANS_SIG_BMS12__Mod0_Cell14_Value:
-            cellIdx = sigIdx - CANS_SIG_BMS12__Mod0_Cell12_Value + 12;
+        case CAN0_SIG_BMS12__Mod0_Cell12_Value:
+        case CAN0_SIG_BMS12__Mod0_Cell13_Value:
+        case CAN0_SIG_BMS12__Mod0_Cell14_Value:
+            cellIdx = sigIdx - CAN0_SIG_BMS12__Mod0_Cell12_Value + 12;
             muxIdx = CANS_SIG_BMS12_Mux;
             break;
 #else
-        case CANS_SIG_BMS12__Mod0_Cell12_Value:
-        case CANS_SIG_BMS12__Mod0_Cell13_Value:
-        case CANS_SIG_BMS12__Mod0_Cell14_Value:
+        case CAN0_SIG_BMS12__Mod0_Cell12_Value:
+        case CAN0_SIG_BMS12__Mod0_Cell13_Value:
+        case CAN0_SIG_BMS12__Mod0_Cell14_Value:
             *(uint32_t *)value = 0;
             return 0;
 #endif
     }
     cans_getmux(muxIdx,&muxVal);
-    cellIdx = muxVal * NR_OF_BAT_CELLS_PER_MODULE + cellIdx;
+    cellIdx = muxVal * BS_NR_OF_BAT_CELLS_PER_MODULE + cellIdx;
     if(value != NULL_PTR) {
         *(uint32_t *)value = volt_tab.voltage[cellIdx];
     }
@@ -331,31 +346,31 @@ uint32_t cans_gettemp(uint32_t sigIdx, void *value) {
     uint32_t cellIdx, muxIdx, muxVal=0;
     DATA_GetTable(&temp_tab, DATA_BLOCK_ID_CELLTEMPERATURE);
     switch (sigIdx){
-        case CANS_SIG_BMS11_Temp_Mod0_Temp0:
-        case CANS_SIG_BMS11_Temp_Mod0_Temp1:
-        case CANS_SIG_BMS11_Temp_Mod0_Temp2:
-        case CANS_SIG_BMS11_Temp_Mod0_Temp3:
-        case CANS_SIG_BMS11_Temp_Mod0_Temp4:
-        case CANS_SIG_BMS11_Temp_Mod0_Temp5:
-        case CANS_SIG_BMS11_Temp_Mod0_Temp6:
-        case CANS_SIG_BMS11_Temp_Mod0_Temp7:
-            cellIdx = sigIdx - CANS_SIG_BMS11_Temp_Mod0_Temp0;
-            muxIdx = CANS_SIG_BMS11_Mux;
+        case CAN0_SIG_BMS11_Temp_Mod0_Temp0:
+        case CAN0_SIG_BMS11_Temp_Mod0_Temp1:
+        case CAN0_SIG_BMS11_Temp_Mod0_Temp2:
+        case CAN0_SIG_BMS11_Temp_Mod0_Temp3:
+        case CAN0_SIG_BMS11_Temp_Mod0_Temp4:
+        case CAN0_SIG_BMS11_Temp_Mod0_Temp5:
+        case CAN0_SIG_BMS11_Temp_Mod0_Temp6:
+        case CAN0_SIG_BMS11_Temp_Mod0_Temp7:
+            cellIdx = sigIdx - CAN0_SIG_BMS11_Temp_Mod0_Temp0;
+            muxIdx = CAN0_SIG_BMS11_Mux;
             break;
-        case CANS_SIG_BMS13_Temp_Mod0_Temp8:
-        case CANS_SIG_BMS13_Temp_Mod0_Temp9:
-        case CANS_SIG_BMS13_Temp_Mod0_Temp10:
-        case CANS_SIG_BMS13_Temp_Mod0_Temp11:
-        case CANS_SIG_BMS13_Temp_Mod0_Temp12:
-        case CANS_SIG_BMS13_Temp_Mod0_Temp13:
-        case CANS_SIG_BMS13_Temp_Mod0_Temp14:
-            cellIdx = sigIdx - CANS_SIG_BMS13_Temp_Mod0_Temp8 + 8;
-            muxIdx = CANS_SIG_BMS13_Mux;
+        case CAN0_SIG_BMS13_Temp_Mod0_Temp8:
+        case CAN0_SIG_BMS13_Temp_Mod0_Temp9:
+        case CAN0_SIG_BMS13_Temp_Mod0_Temp10:
+        case CAN0_SIG_BMS13_Temp_Mod0_Temp11:
+        case CAN0_SIG_BMS13_Temp_Mod0_Temp12:
+        case CAN0_SIG_BMS13_Temp_Mod0_Temp13:
+        case CAN0_SIG_BMS13_Temp_Mod0_Temp14:
+            cellIdx = sigIdx - CAN0_SIG_BMS13_Temp_Mod0_Temp8 + 8;
+            muxIdx = CAN0_SIG_BMS13_Mux;
             break;
 
     }
     cans_getmux(muxIdx,&muxVal);
-    cellIdx = muxVal * NR_OF_TEMP_SENSORS_PER_MODULE + cellIdx;
+    cellIdx = muxVal * BS_NR_OF_TEMP_SENSORS_PER_MODULE + cellIdx;
     if(value != NULL_PTR) {
         //temperature: -40 degrees offset
         *(uint32_t *)value = temp_tab.temperature[cellIdx] + 40;
@@ -375,19 +390,19 @@ uint32_t cans_gettempering(uint32_t sigIdx, void *value) {
     DATA_GetTable(&minmax_tab, DATA_BLOCK_ID_MINMAX);
     if(value != NULL_PTR) {
         switch(sigIdx){
-            case CANS_SIG_BMS6_Average_Temp:
+            case CAN0_SIG_BMS6_Average_Temp:
                 *(uint32_t *)value = (minmax_tab.temperature_mean+40)*2;
                 break;
-            case CANS_SIG_BMS6_Minimum_Temp:
+            case CAN0_SIG_BMS6_Minimum_Temp:
                 *(uint32_t *)value = (minmax_tab.temperature_min+40)*2;
                 break;
-            case CANS_SIG_BMS6_Maximum_Temp:
+            case CAN0_SIG_BMS6_Maximum_Temp:
                 *(uint32_t *)value = (minmax_tab.temperature_max+40)*2;
                 break;
-            case CANS_SIG_BMS6_MaxTemp_Module_Number:
+            case CAN0_SIG_BMS6_MaxTemp_Module_Number:
                 *(uint32_t *)value = minmax_tab.temperature_module_number_max;
                 break;
-            case CANS_SIG_BMS6_MinTemp_Module_Number:
+            case CAN0_SIG_BMS6_MinTemp_Module_Number:
                 *(uint32_t *)value = minmax_tab.temperature_module_number_min;
                 break;
             default:
@@ -412,37 +427,37 @@ uint32_t cans_getcanerr(uint32_t sigIdx, void *value) {
     DATA_GetTable(&balancing_tab, DATA_BLOCK_ID_BALANCING_CONTROL_VALUES);
     if(value != NULL_PTR) {
         switch(sigIdx){
-            case CAN_SIG_BMS1_states_relays:
+            case CAN0_SIG_BMS1_states_relays:
                 *(uint32_t *)value = canerr_tab.contactor_state_feedback;
                 break;
-            case CAN_SIG_BMS1_balancing_active:
+            case CAN0_SIG_BMS1_balancing_active:
                 *(uint32_t *)value = balancing_tab.enable_balancing;
                 break;
-            case CAN_SIG_BMS1_error_cantiming:
+            case CAN0_SIG_BMS1_error_cantiming:
                 *(uint32_t *)value = canerr_tab.error_cantiming;
                 break;
-            case CAN_SIG_BMS1_error_overvoltage:
+            case CAN0_SIG_BMS1_error_overvoltage:
                 *(uint32_t *)value = canerr_tab.error_highvolt;
                 break;
-            case CAN_SIG_BMS1_error_undervoltage:
+            case CAN0_SIG_BMS1_error_undervoltage:
                 *(uint32_t *)value = canerr_tab.error_lowvolt;
                 break;
-            case CAN_SIG_BMS1_error_overcurrent_charge:
+            case CAN0_SIG_BMS1_error_overcurrent_charge:
                 *(uint32_t *)value = canerr_tab.error_overcurrent_charge;
                 break;
-            case CAN_SIG_BMS1_error_overcurrent_discharge:
+            case CAN0_SIG_BMS1_error_overcurrent_discharge:
                 *(uint32_t *)value = canerr_tab.error_overcurrent_discharge;
                 break;
-            case CAN_SIG_BMS1_error_hightemp_bat:
+            case CAN0_SIG_BMS1_error_hightemp_bat:
                 *(uint32_t *)value = canerr_tab.error_hightemp;
                 break;
-            case CAN_SIG_BMS1_error_lowtemp_bat:
+            case CAN0_SIG_BMS1_error_lowtemp_bat:
                 *(uint32_t *)value = canerr_tab.error_lowtemp;
                 break;
-            case CAN_SIG_BMS1_error_contactor:
+            case CAN0_SIG_BMS1_error_contactor:
                 *(uint32_t *)value = canerr_tab.contactor_error;
                 break;
-            case CAN_SIG_BMS1_general_error:
+            case CAN0_SIG_BMS1_general_error:
                 //If interlock open: general error
                 if (canerr_tab.interlock_open == 1) {
                     *(uint32_t *)value = 1;
@@ -480,17 +495,17 @@ uint32_t cans_getsocsoh(uint32_t sigIdx, void *value) {
     DATA_GetTable(&sox_tab, DATA_BLOCK_ID_SOX);
     if(value != NULL_PTR) {
         switch(sigIdx){
-            case CANS_SIG_BMS7_SOC_Average:
+            case CAN0_SIG_BMS7_SOC_Average:
                 //CAN signal resolution 0,5%, GetSoc Unit 0.01% --> factor 50
                 //*(uint32_t *)value = (sox_tab.soc_mean*100.0)/50.0;
                 *(uint32_t *)value = sox_tab.soc_mean*2.0;
                 break;
-            case CANS_SIG_BMS7_SOC_Minimum:
+            case CAN0_SIG_BMS7_SOC_Minimum:
                 //CAN signal resolution 0,5%, GetSoc Unit 0.01% --> factor 50
                 //*(uint32_t *)value = (sox_tab.soc_min*100.0)/50.0;
                 *(uint32_t *)value = sox_tab.soc_min*2.0;
                 break;
-            case CANS_SIG_BMS7_SOC_Maximum:
+            case CAN0_SIG_BMS7_SOC_Maximum:
                 //CAN signal resolution 0,5%, GetSoc Unit 0.01% --> factor 50
                 //*(uint32_t *)value = (sox_tab.soc_max*100.0)/50.0;
                 *(uint32_t *)value = sox_tab.soc_max*2.0;
@@ -516,16 +531,16 @@ uint32_t cans_getsof(uint32_t sigIdx, void *value) {
     if(value != NULL_PTR) {
         // values transmitted in resolution of 10mA (16bit means 0A-655.35A)
         switch(sigIdx){
-            case CANS_SIG_BMS8_Current_Charge_Max:
+            case CAN0_SIG_BMS8_Current_Charge_Max:
                 *(uint32_t *)value = sox_tab.sof_continuous_charge*100.0;
                 break;
-            case CANS_SIG_BMS8_Current_Charge_Max_Peak:
+            case CAN0_SIG_BMS8_Current_Charge_Max_Peak:
             *(uint32_t *)value = sox_tab.sof_peak_charge*100.0;
                 break;
-            case CANS_SIG_BMS8_Current_Discharge_Max:
+            case CAN0_SIG_BMS8_Current_Discharge_Max:
             *(uint32_t *)value = sox_tab.sof_continuous_discharge*100.0;
                 break;
-            case CANS_SIG_BMS8_Current_Discharge_Max_Peak:
+            case CAN0_SIG_BMS8_Current_Discharge_Max_Peak:
             *(uint32_t *)value = sox_tab.sof_peak_discharge*100.0;
                 break;
         }
@@ -545,19 +560,19 @@ uint32_t cans_getminmaxvolt(uint32_t sigIdx, void *value) {
     DATA_GetTable(&minmax_tab, DATA_BLOCK_ID_MINMAX);
     if(value != NULL_PTR) {
         switch(sigIdx){
-            case CANS_SIG_BMS14_VoltageAverage:
+            case CAN0_SIG_BMS14_VoltageAverage:
                 *(uint32_t *)value = minmax_tab.voltage_mean;
                 break;
-            case CANS_SIG_BMS14_VoltageMinimum:
+            case CAN0_SIG_BMS14_VoltageMinimum:
                 *(uint32_t *)value = minmax_tab.voltage_min;
                 break;
-            case CANS_SIG_BMS14_VoltageMaximum:
+            case CAN0_SIG_BMS14_VoltageMaximum:
                 *(uint32_t *)value = minmax_tab.voltage_max;
                 break;
-            case CANS_SIG_BMS14_ModuleNrMinVolt:
+            case CAN0_SIG_BMS14_ModuleNrMinVolt:
                 *(uint32_t *)value = minmax_tab.voltage_module_number_min;
                 break;
-            case CANS_SIG_BMS14_ModuleNrMaxVolt:
+            case CAN0_SIG_BMS14_ModuleNrMaxVolt:
                 *(uint32_t *)value = minmax_tab.voltage_module_number_max;
                 break;
             default:
@@ -584,39 +599,42 @@ uint32_t cans_setcurr(uint32_t sigIdx, void *value) {
 
     if(value != NULL_PTR) {
         switch(sigIdx){
-            case ISENS0_I_Measurement:
+            case CAN0_SIG_ISENS0_I_Measurement:
+            // case CAN1_SIG_ISENS0_I_Measurement:  uncommented because identical position in CAN0 and CAN1 rx signal struct
                 currentValue = (int32_t)(dummy[3] | dummy[2] << 8
                         | dummy[1] << 16 | dummy[0] << 24);
-                current_tab.previous_timestamp = current_tab.timestamp;
-                current_tab.timestamp = MCU_GetTimeStamp();
-                DATA_StoreDataBlock(&current_tab,DATA_BLOCK_ID_CURRENT);
-                current_tab.current=(float)(currentValue);
-                current_tab.state_current++;
-                DATA_StoreDataBlock(&current_tab,DATA_BLOCK_ID_CURRENT);
+                cans_current_tab.previous_timestamp = cans_current_tab.timestamp;
+                cans_current_tab.timestamp = MCU_GetTimeStamp();
+                cans_current_tab.current=(float)(currentValue);
+                cans_current_tab.state_current++;
+                DATA_StoreDataBlock(&cans_current_tab,DATA_BLOCK_ID_CURRENT);
                 break;
-            case ISENS1_U1_Measurement:
+            case CAN0_SIG_ISENS1_U1_Measurement:
+            // case CAN1_SIG_ISENS1_U1_Measurement:  uncommented because identical position in CAN0 and CAN1 rx signal struct
                 idx =0;
                 voltageValue[idx] = (int32_t)(dummy[3] | dummy[2] << 8
                         | dummy[1] << 16 | dummy[0] << 24);
-                current_tab.voltage[idx]=(float)(voltageValue[idx])*cans_signals_rx[sigIdx].factor;
-                current_tab.state_voltage++;
-                DATA_StoreDataBlock(&current_tab,DATA_BLOCK_ID_CURRENT);
+                cans_current_tab.voltage[idx]=(float)(voltageValue[idx])*cans_CAN0_signals_rx[sigIdx].factor;
+                cans_current_tab.state_voltage++;
+                DATA_StoreDataBlock(&cans_current_tab,DATA_BLOCK_ID_CURRENT);
                 break;
-            case ISENS2_U2_Measurement:
+            case CAN0_SIG_ISENS2_U2_Measurement:
+            // case CAN1_SIG_ISENS2_U2_Measurement:  uncommented because identical position in CAN0 and CAN1 rx signal struct
                 idx = 1;
                 voltageValue[idx] = (int32_t)(dummy[3] | dummy[2] << 8
                         | dummy[1] << 16 | dummy[0] << 24);
-                current_tab.voltage[idx]=(float)(voltageValue[idx])*cans_signals_rx[sigIdx].factor;
-                current_tab.state_voltage++;
-                DATA_StoreDataBlock(&current_tab,DATA_BLOCK_ID_CURRENT);
+                cans_current_tab.voltage[idx]=(float)(voltageValue[idx])*cans_CAN0_signals_rx[sigIdx].factor;
+                cans_current_tab.state_voltage++;
+                DATA_StoreDataBlock(&cans_current_tab,DATA_BLOCK_ID_CURRENT);
                 break;
-            case ISENS3_U3_Measurement:
+            case CAN0_SIG_ISENS3_U3_Measurement:
+            // case CAN1_SIG_ISENS3_U3_Measurement:  uncommented because identical position in CAN0 and CAN1 rx signal struct
                 idx = 2;
                 voltageValue[idx] = (int32_t)(dummy[3] | dummy[2] << 8
                         | dummy[1] << 16 | dummy[0] << 24);
-                current_tab.voltage[idx]=(float)(voltageValue[idx])*cans_signals_rx[sigIdx].factor;
-                current_tab.state_voltage++;
-                DATA_StoreDataBlock(&current_tab,DATA_BLOCK_ID_CURRENT);
+                cans_current_tab.voltage[idx]=(float)(voltageValue[idx])*cans_CAN0_signals_rx[sigIdx].factor;
+                cans_current_tab.state_voltage++;
+                DATA_StoreDataBlock(&cans_current_tab,DATA_BLOCK_ID_CURRENT);
                 break;
         }
     }
@@ -638,7 +656,7 @@ uint32_t cans_setstaterequest(uint32_t sigIdx, void *value) {
     DATA_GetTable(&staterequest_tab,DATA_BLOCK_ID_STATEREQUEST);
 
     if(value != NULL_PTR) {
-        if (sigIdx == CANS_SIG_BMS10_Request) {
+        if (sigIdx == CAN0_SIG_BMS10_Request || sigIdx == CAN1_SIG_BMS10_Request ) {
             staterequest = *(uint8_t *)value;
             staterequest_tab.previous_state_request = staterequest_tab.state_request;
             staterequest_tab.state_request = staterequest;
@@ -669,9 +687,9 @@ uint32_t cans_getisoguard(uint32_t sigIdx, void *value) {
     static DATA_BLOCK_ISOMETER_s isoguard_tab;
     DATA_GetTable(&isoguard_tab, DATA_BLOCK_ID_ISOGUARD);
     if(value != NULL_PTR) {
-        if (sigIdx == CANS_SIG_BMS9_Isolation_Good) {
+        if (sigIdx == CAN0_SIG_BMS9_Isolation_Good) {
             *(uint8_t *)value = isoguard_tab.state;
-        } else if (sigIdx == CANS_SIG_BMS9_Isolation_Value) {
+        } else if (sigIdx == CAN0_SIG_BMS9_Isolation_Value) {
             *(uint8_t *)value = isoguard_tab.resistance;
         }
     }
@@ -708,6 +726,10 @@ uint32_t cans_setdebug(uint32_t sigIdx, void *value) {
                     DATA_GetTable(&balancing_tab, DATA_BLOCK_ID_BALANCING_CONTROL_VALUES);
                     balancing_tab.enable_balancing=1;
                     balancing_tab.threshold = data[2]; //get threshold in mV
+                    /*for(int i = 0; i<12; i++)   // get cells to be balanced
+                    {
+                        balancing_tab.value[i] = (data[3]>>i)&0x01;
+                    }*/
                     DATA_StoreDataBlock(&balancing_tab, DATA_BLOCK_ID_BALANCING_CONTROL_VALUES);
                 } else {
                     DATA_GetTable(&balancing_tab, DATA_BLOCK_ID_BALANCING_CONTROL_VALUES);

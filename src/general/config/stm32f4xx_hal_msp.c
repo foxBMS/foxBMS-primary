@@ -1,20 +1,26 @@
 /**
  * @file stm32f4xx_hal_msp.c
  * @author  STMicroelectronics
- * @date    2015
+ * @date    2016
  * @ingroup GENERAL_CONF
- * @brief HAL MSP Module, definition of initialization/de-initialization functions called when hardware units are activated/deactivated
+ * @brief HAL MSP Module, definition of initialization/de-initialization functions called when hardware units are activated/deactivated,
+ *        based on stm32f4xx_hal_msp_template.c 
  *
  */
 
 /**
   ******************************************************************************
-  * File Name          : stm32f4xx_hal_msp.c
-  * Description        : This file provides code for the MSP Initialization 
-  *                      and de-Initialization codes.
+  * @file    stm32f4xx_hal_msp.c
+  * @author  MCD Application Team
+  * @version V1.5.0
+  * @date    06-May-2016
+  * @brief   This file contains the HAL System and Peripheral (PPP) MSP initialization
+  *          and de-initialization functions.
+  *          It should be copied to the application folder and renamed into 'stm32f4xx_hal_msp.c'.           
   ******************************************************************************
+  * @attention
   *
-  * COPYRIGHT(c) 2015 STMicroelectronics
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -57,12 +63,16 @@
 static uint8_t CAN_CLK1_enabled = 0;
 
 
-/**
+
+/** @defgroup HAL_MSP_Private_Functions HAL MSP Private Functions
   * @{
   */
 
 /**
-  * Initializes the Global MSP and is called from HAL_Init() 
+  * @brief  Initializes the Global MSP.
+  * @note   This function is called from HAL_Init() function to perform system
+  *         level initialization (GPIOs, clock, DMA, interrupt).
+  * @retval None
   */
 void HAL_MspInit(void)
 {
@@ -70,17 +80,37 @@ void HAL_MspInit(void)
 }
 
 /**
-  * @brief  DeInitializes the Global MSP and is called from HAL_DeInit()
+  * @brief  DeInitializes the Global MSP.
+  * @note   This functiona is called from HAL_DeInit() function to perform system
+  *         level de-initialization (GPIOs, clock, DMA, interrupt).
+  * @retval None
   */
 void HAL_MspDeInit(void)
 {
 
 }
 
+/**
+  * @brief  Initializes the PPP MSP.
+  * @note   This functiona is called from HAL_PPP_Init() function to perform 
+  *         peripheral(PPP) system level initialization (GPIOs, clock, DMA, interrupt)
+  * @retval None
+  */
+void HAL_PPP_MspInit(void)
+{
 
+}
 
+/**
+  * @brief  DeInitializes the PPP MSP.
+  * @note   This functiona is called from HAL_PPP_DeInit() function to perform 
+  *         peripheral(PPP) system level de-initialization (GPIOs, clock, DMA, interrupt)
+  * @retval None
+  */
+void HAL_PPP_MspDeInit(void)
+{
 
-
+}
 
 /**
  *  Inizalizes the CAN modules, called by HAL_CAN_Init()
@@ -252,5 +282,23 @@ void HAL_UART_MspInit(UART_HandleTypeDef* huart)
 }
 
 
+#ifdef  USE_FULL_ASSERT
+/**
+ * runtime callback function of HAL Drivers parameter checking
+ * called by HAL-Functions
+ *
+ * @param srcfile: pointer to filename
+ * @param srcline: line number of source file
+ *
+ */
+void assert_failed(uint8_t* srcfile, uint32_t srcline)
+{
+    while (1)
+    {   ;     }
+}
+#endif
+
+/**@}
+  */
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

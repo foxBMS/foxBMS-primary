@@ -7,7 +7,7 @@
  * 1.  Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
  * 2.  Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
  * 3.  Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote products derived from this software without specific prior written permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  * We kindly request you to use one or more of the following phrases to refer to foxBMS in your hardware, software, documentation or advertising materials:
@@ -23,7 +23,7 @@
 /**
  * @file    io.c
  * @author  foxBMS Team
- * @date    26.08.2015
+ * @date    26.08.2015 (date of creation)
  * @ingroup DRIVERS
  * @prefix  IO
  *
@@ -32,7 +32,16 @@
  */
 
 /*================== Includes =============================================*/
+/* recommended include order of header files:
+ * 
+ * 1.    include general.h
+ * 2.    include module's own header
+ * 3...  other headers
+ *
+ */
+#include "general.h"
 #include "io.h"
+#include "portcheck.h"
 
 /*================== Macros and Definitions ===============================*/
 #define IO_GET_GPIOx(_N) ((GPIO_TypeDef *)(GPIOA_BASE + (GPIOB_BASE-GPIOA_BASE)*(_N)))
@@ -41,7 +50,9 @@
 
 /*================== Function Prototypes ==================================*/
 static STD_RETURN_TYPE_e IO_ClkInit(void);
+#ifdef IO_PIN_LOCKING
 static IO_HAL_STATUS_e IO_LockPin(IO_PORTS_e pin);
+#endif
 static STD_RETURN_TYPE_e IO_ConfigCheck(void);
 
 /*================== Function Implementations =============================*/
@@ -56,7 +67,7 @@ STD_RETURN_TYPE_e IO_Init(const IO_PIN_CFG_s *io_cfg) {
 
     STD_RETURN_TYPE_e retVal = E_NOT_OK;
     STD_RETURN_TYPE_e clk_ok = E_NOT_OK;
-    STD_RETURN_TYPE_e config_ok = E_NOT_OK;
+    STD_RETURN_TYPE_e config_ok = E_OK;
     GPIO_InitTypeDef GPIO_InitStructure;
 
     clk_ok = IO_ClkInit();
@@ -84,10 +95,11 @@ STD_RETURN_TYPE_e IO_Init(const IO_PIN_CFG_s *io_cfg) {
             else {
                 IO_WritePin(io_cfg[i].pin, IO_PIN_RESET);
             };
+
+            config_ok = (GPIO_Check(IO_GET_GPIOx(io_cfg[i].pin/IO_NR_OF_PINS_PER_PORT), &GPIO_InitStructure) == E_OK ? config_ok : E_NOT_OK);
         }
     }
 
-    config_ok = IO_ConfigCheck();
 
 #ifdef IO_PIN_LOCKING
     STD_RETURN_TYPE_e pinLocking_ok = E_NOT_OK;
@@ -197,6 +209,7 @@ static STD_RETURN_TYPE_e IO_ConfigCheck(void) {
     return retVal;
 }
 
+#ifdef IO_PIN_LOCKING
 /**
  * @brief   Locks the configuration of a pin.
  *
@@ -222,3 +235,4 @@ static IO_HAL_STATUS_e IO_LockPin(IO_PORTS_e pin) {
     currentPinStatus = HAL_GPIO_LockPin(IO_GET_GPIOx(pin/IO_NR_OF_PINS_PER_PORT), setPin);
     return currentPinStatus;
 }
+#endif

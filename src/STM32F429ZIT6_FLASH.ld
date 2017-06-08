@@ -61,13 +61,14 @@ _Min_Stack_Size = 0x400;; /* required amount of stack */
 MEMORY
 {
 /* FLASH (rx)   : ORIGIN   = 0x8000000, LENGTH = 2048K */
-FLASH (rx)      : ORIGIN   = 0x08000000, LENGTH = 1024K-256
-FLASH_HEADER (rx) : ORIGIN = 0x080FFF00, LENGTH = 256
-FLASH_2 (rx)     : ORIGIN  = 0x08100000, LENGTH = 1024K
-RAM (xrw)        : ORIGIN  = 0x20000000, LENGTH = 192K
-CCMRAM (rw)      : ORIGIN  = 0x10000000, LENGTH = 64K
-BKP_RAM(rw)      : ORIGIN  = 0x40024000, LENGTH = 4K
-EXT_SDRAM (xrw)  : ORIGIN  = 0xD0000000, LENGTH = 8192K
+RESERVED (rx)      : ORIGIN = 0x08000000, LENGTH = 32K
+FLASH (rx)         : ORIGIN = 0x08000000, LENGTH = 1024K-32K-256
+FLASH_HEADER (rx)  : ORIGIN = 0x080FFF00, LENGTH = 256
+FLASH_2 (rx)       : ORIGIN = 0x08100000, LENGTH = 1024K
+RAM (xrw)          : ORIGIN = 0x20000000, LENGTH = 192K
+CCMRAM (rw)        : ORIGIN = 0x10000000, LENGTH = 64K
+BKP_RAM(rw)        : ORIGIN = 0x40024000, LENGTH = 4K
+EXT_SDRAM (xrw)    : ORIGIN = 0xD0000000, LENGTH = 8192K
 }
 
 /* Define output sections */
@@ -95,6 +96,7 @@ SECTIONS
  _foxBMS_FLASH_2_end = ORIGIN(FLASH_2) + LENGTH(FLASH_2);
 
 _sflash1 = ORIGIN(FLASH);
+_jumpadressvectable = ORIGIN(FLASH) + 4;
 
   .text :
   {

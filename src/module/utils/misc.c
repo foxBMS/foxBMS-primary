@@ -33,6 +33,7 @@
  */
 
 /*================== Includes =============================================*/
+#include "general.h"
 #include "misc.h"
 
 /*================== Macros and Definitions ===============================*/
@@ -42,6 +43,44 @@
 /*================== Function Prototypes ==================================*/
 
 /*================== Function Implementations =============================*/
+
+/**
+ * @brief U16ToDecascii is a helper function which converts U16 to ASCII.
+ *
+ * This function does some basic conversion stuff to be able to print out numbers/values as their corresponding ASCII.
+ *
+ * @return (type: uint8_t)
+ */
+
+uint8_t *U16ToDecascii(uint8_t *destptr, uint16_t *dataptr, uint8_t minDigits)
+{
+    uint16_t tmp = *dataptr;
+    destptr += 4;
+
+    *destptr = (tmp % 10) + 48;
+    tmp = tmp/10;
+    destptr--;
+
+    *destptr = (tmp % 10) + 48;
+    tmp = tmp/10;
+    destptr--;
+
+    *destptr = (tmp % 10) + 48;
+    tmp = tmp/10;
+    destptr--;
+
+    *destptr = (tmp % 10) + 48;
+    tmp = tmp/10;
+    destptr--;
+
+    *destptr = (tmp % 10) + 48;
+
+    destptr += 5 - minDigits;
+
+    return destptr;
+}
+
+
 
 /**
  * @brief U8ToDecascii is a helper function which converts U8 to ASCII.

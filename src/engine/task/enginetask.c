@@ -28,22 +28,23 @@
  * @prefix  ENG
  *
  * @brief   Calls of functions within engine task
+ *
  */
 
 /*================== Includes =============================================*/
+#include "general.h"
 #include "enginetask.h"
+
 #include "ltc.h"
 #include "syscontrol.h"
-#include "bmsctrl.h"
 #include "can.h"
 #include "cansignal.h"
 #include "isoguard.h"
-#include "com.h"
-#include "led.h"
-#include "sox.h"
 #include "adc.h"
 #include "wdg.h"
 #include "bal.h"
+#include "intermcu.h"
+#include "bkpsram.h"
 
 /*================== Macros and Definitions ===============================*/
 
@@ -59,31 +60,26 @@
 void ENG_Init(void) {
     SOF_Init();
     ISO_Init();
+#if BUILD_MODULE_ENABLE_SAFETY_FEATURES == 1
+    IMC_enableInterrupt();
+#endif
 }
 
-void ENG_TSK_Cyclic_1ms(void)
-{
-    BMSCTRL_Trigger();
+void ENG_TSK_Cyclic_1ms(void) {
+
     LTC_Ctrl(LTC_HAS_TO_MEASURE);
     LTC_Trigger();
+
 }
 
-void ENG_TSK_Cyclic_10ms(void)
-{
+void ENG_TSK_Cyclic_10ms(void) {
     SYSCTRL_Trigger(SYS_MODE_CYCLIC_EVENT);
-    BMSCTRL_Ctrl();
-    CANS_MainFunction();
-#if CANS_USE_CAN_NODE1
+
+#if CAN_USE_CAN_NODE0
+    CAN_TxMsgBuffer(CAN_NODE0);
+#endif
+#if CAN_USE_CAN_NODE1
     CAN_TxMsgBuffer(CAN_NODE1);
-#endif
-#if CANS_USE_CAN_NODE2
-    CAN_TxMsgBuffer(CAN_NODE2);
-#endif
-    LED_Ctrl();
-    SOC_Ctrl();
-    SOF_Ctrl();
-#if BUILD_MODULE_ENABLE_COM
-    COM_Decoder();
 #endif
 
 #if BUILD_MODULE_ENABLE_WATCHDOG
@@ -91,27 +87,29 @@ void ENG_TSK_Cyclic_10ms(void)
 #endif
 }
 
-void ENG_TSK_Cyclic_100ms(void)
-{
+void ENG_TSK_Cyclic_100ms(void) {
     static uint8_t counter = 0;
-    static uint8_t BMS_init = 0;
+
 
     ADC_Ctrl();
-    BAL_Ctrl();
 
     // Read every 200ms because of possible jitter and lowest Bender frequency 10Hz -> 100ms
-    if(counter % 2 == 0)
-    {
+    if(counter % 2 == 0) {
         ISO_MeasureInsulation();
     }
-    // FIXME evaluate if better to put this in ENG_TSK_INIT?
-    if (BMS_init == 0)
-    {
-        BMSCTRL_SetStateRequest(BMSCTRL_STATE_IDLE_REQUEST);
-        BMS_init = 1;
-    }
-    if(printHelp == 1) {
-        COM_printHelpCommand();
-    }
+
+    if(counter == 255)
+        BKPSRAM_SetOperatingHours();
+
     counter++;
 }
+
+
+void ENG_TSK_EventHandler(void) {
+    ;
+}
+
+void ENG_TSK_Diagnosis(void) {
+    ;
+}
+

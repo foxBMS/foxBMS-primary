@@ -7,7 +7,7 @@
  * 1.  Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
  * 2.  Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
  * 3.  Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote products derived from this software without specific prior written permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  * We kindly request you to use one or more of the following phrases to refer to foxBMS in your hardware, software, documentation or advertising materials:
@@ -29,10 +29,13 @@
  *
  * @brief   Syscontrol driver implementation
  */
+
 //  // TODO Review: did not change braces according to our styleguide
 
 /*================== Includes =============================================*/
+#include "general.h"
 #include "syscontrol.h"
+#include "database.h"
 #include "cmsis_os.h"
 #include "diag.h"
 
@@ -95,6 +98,9 @@ STD_RETURN_TYPE_e SYSCTRL_SetStateRequest(SYSCTRL_STATEMACH_REQ_e statereq)
             (sysctrl.state == SYSCTRL_STATE_STANDBY) ||
             (sysctrl.state == SYSCTRL_STATE_PRECHARGE_ERROR) ||
             (sysctrl.state == SYSCTRL_STATE_NORMAL) ||
+#if BS_SEPARATE_POWERLINES == 1
+            (sysctrl.state == SYSCTRL_STATE_NORMAL_CHARGE) ||
+#endif // BS_SEPARATE_POWERLINES == 1
             (sysctrl.state == SYSCTRL_STATE_ERROR) ||
             (sysctrl.state == SYSCTRL_STATE_UNINITIALIZED)
           )
@@ -121,7 +127,7 @@ SYSCTRL_STATEMACH_e SYSCTRL_GetState(void)
 
 void SYSCTRL_Trigger(SYSCTRL_TRIG_EVENT_e event)
 {
-    SYSCTRL_STATEMACH_REQ_e statereq;
+    SYSCTRL_STATEMACH_REQ_e statereq; // TODO Review: uninitialized variable
 
     DIAG_SysMonNotify(DIAG_SYSMON_SYSCTRL_ID, 0);        // task is running, state = ok
 
@@ -250,6 +256,12 @@ static STD_RETURN_TYPE_e SYSCTRL_CheckPendigRequest(void)
             {
                 SYSCTRL_SetState(SYSCTRL_STATE_STANDBY, 0);
             }
+#if BS_SEPARATE_POWERLINES == 1
+            else if((sysctrl.state == SYSCTRL_STATE_NORMAL_CHARGE))
+            {
+                SYSCTRL_SetState(SYSCTRL_STATE_STANDBY, 0);
+            }
+#endif // BS_SEPARATE_POWERLINES == 1
             else if((sysctrl.state == SYSCTRL_STATE_PRECHARGE_ERROR))
             {
                 SYSCTRL_SetState(SYSCTRL_STATE_STANDBY, 0);
@@ -276,10 +288,24 @@ static STD_RETURN_TYPE_e SYSCTRL_CheckPendigRequest(void)
             }
             else
             {
+            sysctrl.seqErr++;
+                retVal=E_NOT_OK;
+            }
+        }
+#if BS_SEPARATE_POWERLINES == 1
+        else if (statereq == SYSCTRL_STATE_REQ_NORMAL_CHARGE) {
+
+            if((sysctrl.state == SYSCTRL_STATE_STANDBY))
+            {
+                SYSCTRL_SetState(SYSCTRL_STATE_NORMAL_CHARGE, 0);
+            }
+            else
+            {
                 sysctrl.seqErr++;
                 retVal=E_NOT_OK;
             }
         }
+#endif // BS_SEPARATE_POWERLINES == 1
     }
     /* END OF REQUEST HANDLING*/
     return (retVal);
@@ -293,108 +319,68 @@ static STD_RETURN_TYPE_e SYSCTRL_CheckPendigRequest(void)
  *
  * SYSCTRL_StateControl() reads the state-member of the global sysctrl-struct (type: SYSCTRL_STATE_s).
  * The states (type: SYSCTRL_STATEMACH_e) handled by the state machine are:
- *
- *  - SYSCTRL_STATE_INITIALIZING handles the substates:
- *      <br> &nbsp; - SYSCTRL_STATE_INITIALIZING_SUBSTATE_BASIC_SELF_CHECK
- *      <br> &nbsp; - SYSCTRL_STATE_INITIALIZING_SUBSTATE_POWERON_SELF_CHECK
- *      <br>
+ *  - SYSCTRL_STATE_INITIALIZING handles the substates: **0**, **1** <br>
  *      **state machine behavior:**
- *      - If it is substate == SYSCTRL_STATE_INITIALIZING_SUBSTATE_BASIC_SELF_CHECK:
- *         - This is the initial value of sysctrl.substate. A startup-check routine is performed
- *            and substate is set to sysctrl.substate = SYSCTRL_STATE_INITIALIZING_SUBSTATE_POWERON_SELF_CHECK
- *      - If it is substate == SYSCTRL_STATE_INITIALIZING_SUBSTATE_POWERON_SELF_CHECK:
+ *      - If it is substate == 0:
+ *        0 is the initial value of sysctrl.substate. A startup-check routine is performed
+ *            and substate is set to sysctrl.substate = 1
+ *      - If it is substate == 1:
  *          - and the power self check returns OK:
  *            systrl.state is set to awake (SYSCTRL_STATE_AWAKE)
  *          - and the power self check returns NOT_OK:
  *            systrl.state is set to error mode (SYSCTRL_STATE_ERROR)
  *          - and the power self check returns BUSY:
  *            systrl.state is set to error mode (SYSCTRL_STATE_ERROR)
- *  <br><br>
- *  - SYSCTRL_STATE_AWAKE handles the substate:
- *      <br> &nbsp; - SYSCTRL_STATE_AWAKE_SUBSTATE_AWAKE_SELF_CHECK
- *      <br> &nbsp; - SYSCTRL_STATE_AWAKE_SUBSTATE_WAITING_SELF_CHECK_OK
- *      <br>
+ *  - SYSCTRL_STATE_AWAKE handles the substate: **0**, **1** <br>
  *      **state machine behavior:**
- *      - If it is substate == SYSCTRL_STATE_AWAKE_SUBSTATE_AWAKE_SELF_CHECK:
- *         - perform wake up check and substate is set to sysctrl.substate = SYSCTRL_STATE_AWAKE_SUBSTATE_WAITING_SELF_CHECK_OK
- *      - If it is substate == SYSCTRL_STATE_AWAKE_SUBSTATE_WAITING_SELF_CHECK_OK:
- *         - waiting
- *  <br><br>
- *  - SYSCTRL_STATE_IDLE handles the substates:
- *      <br> &nbsp; -SYSCTRL_STATE_IDLE_SUBSTATE_OPEN_INTERLOCK_AND_CONTACTORS
- *      <br> &nbsp; - SYSCTRL_STATE_IDLE_SUBSTATE_CHECK_VCU
- *      <br>
+ *      - If it is substate == 0:
+ *         - perform wake up check and substate is set to sysctrl.substate = 1
+ *      - If it is substate == 1:
+ *         - TODO
+ *  - SYSCTRL_STATE_IDLE handles the substates: **0**, **1** <br>
  *      **state machine behavior:**
- *      - If it is substate == SYSCTRL_STATE_IDLE_SUBSTATE_OPEN_INTERLOCK_AND_CONTACTORS:
- *         - The Interlock and all contactors are switched off, and it is set substate = SYSCTRL_STATE_IDLE_SUBSTATE_CHECK_VCU.
- *      - If it is substate == SYSCTRL_STATE_IDLE_SUBSTATE_CHECK_VCU:
- *         - stay in idle or go to sleep
- *  <br><br>
- *  - SYSCTRL_STATE_STANDBY handles the substates:
- *       <br> &nbsp; - SYSCTRL_STATE_STANDBY_SUBSTATE_OPEN_CONTACTORS
- *       <br> &nbsp; - SYSCTRL_STATE_STANDBY_SUBSTATE_CHECK_VCU
- *       <br>
+ *      - If it is substate == 0:
+ *         - The Interlock and all contactors are switched off, , and it is set substate = 1.
+ *      - If it is substate == 1:
+ *         - TODO
+ *  - SYSCTRL_STATE_STANDBY handles the substates: **0**, **1** <br>
  *      **state machine behavior:**
- *      - If it is substate == SYSCTRL_STATE_STANDBY_SUBSTATE_OPEN_CONTACTORS:
- *         - The interlock is still switched on, while all contactors are switched off, and it is set substate = SYSCTRL_STATE_STANDBY_SUBSTATE_CHECK_VCU
- *      - If it is substate == SYSCTRL_STATE_STANDBY_SUBSTATE_CHECK_VCU:
- *         - stay or go in idle
- *  <br><br>
- *  - SYSCTRL_STATE_NORMAL handles the substates:
- *      <br> &nbsp; - SYSCTRL_STATE_NORMAL_SUBSTATE_SWITCH_MINUS_MAIN_CONTACTOR_ON
- *      <br> &nbsp; - SYSCTRL_STATE_NORMAL_SUBSTATE_CHECK_MINUS_MAIN_CONTACTOR
- *      <br> &nbsp; - SYSCTRL_STATE_NORMAL_SUBSTATE_SWITCH_PLUS_PRECHARGE_CONTACTOR_ON
- *      <br> &nbsp; - SYSCTRL_STATE_NORMAL_SUBSTATE_CHECK_PLUS_PRECHARGE_CONTACTOR
- *      <br> &nbsp; - SYSCTRL_STATE_NORMAL_SUBSTATE_CHECK_PRECHARGE
- *      <br> &nbsp; - SYSCTRL_STATE_NORMAL_SUBSTATE_SWITCH_PLUS_PRECHARGE_CONTACTOR_OFF
- *      <br> &nbsp; - SYSCTRL_STATE_NORMAL_SUBSTATE_CHECK_POWERLINE
- *      <br> &nbsp; - SYSCTRL_STATE_NORMAL_SUBSTATE_LOOP
- *      <br>
+ *      - If it is substate == 0:
+ *         - The interlock is still switched on, while all contactors are switched off, and it is set substate = 1
+ *      - If it is substate == 1:
+ *         - TODO
+ *  - SYSCTRL_STATE_NORMAL handles the substates: **0**, **1**, **2**, **3**, **4** <br>
  *      **state machine behavior:**
- *      - If it is substate == SYSCTRL_STATE_NORMAL_SUBSTATE_SWITCH_MINUS_MAIN_CONTACTOR_ON:
- *         - main minus contactor is closed
- *         - ->next substate SYSCTRL_STATE_NORMAL_SUBSTATE_CHECK_MINUS_MAIN_CONTACTOR.
- *
- *      - If it is substate == SYSCTRL_STATE_NORMAL_SUBSTATE_CHECK_MINUS_MAIN_CONTACTOR:
- *         - check if minus main contactor is closed
- *         - ->next substate SYSCTRL_STATE_NORMAL_SUBSTATE_SWITCH_PLUS_PRECHARGE_CONTACTOR_ON.
-           - if timeout and minus main contactor not closed to go error state
- *
- *      - If it is substate == SYSCTRL_STATE_NORMAL_SUBSTATE_SWITCH_PLUS_PRECHARGE_CONTACTOR_ON:
- *         - main precharge contactor is closed
- *         - -> next substate SYSCTRL_STATE_NORMAL_SUBSTATE_CHECK_PLUS_PRECHARGE_CONTACTOR.
- *
- *      - If it is substate == SYSCTRL_STATE_NORMAL_SUBSTATE_CHECK_PLUS_PRECHARGE_CONTACTOR:
- *         - check if precharge contactor is closed
- *         - -> next substate SYSCTRL_STATE_NORMAL_SUBSTATE_CHECK_PRECHARGE
- *
- *      - If it is substate == SYSCTRL_STATE_NORMAL_SUBSTATE_CHECK_PRECHARGE:
- *         - The function has a timing limit for the maximum precharge time, where the current
- *         has to be lower than the configured current threshold. If the time is exceeded, the bms is set to error
- *         mode (SYSCTRL_STATE_PRECHARGE_ERROR).
- *         - if the precharge is succesful the main plus contactor is closed.
- *         - -> next substate SYSCTRL_STATE_NORMAL_SUBSTATE_SWITCH_PLUS_PRECHARGE_CONTACTOR_OFF
- *
- *      - If it is substate == SYSCTRL_STATE_NORMAL_SUBSTATE_SWITCH_PLUS_PRECHARGE_CONTACTOR_OFF:
+ *      - If it is substate == 0:
+ *         - main minus contactor is closed and it is set substate = 1.
+ *      - If it is substate == 1:
+ *         - plus precharge contactor is closed and it is set substate = 2.
+ *      - If it is substate == 2:
+ *         - if precharge check is successful (i.e. the precharge current is lower than the configured threshold),
+ *           it is set substate = 3. The function has a timing limit for the maximum precharge time, where the current
+ *           has to be lower than the configured current threshold. If the time is exceeded, the bms is set to error
+ *           mode (SYSCTRL_STATE_PRECHARGE_ERROR).
+ *      - If it is substate == 3:
+ *         - The plus precharge contactor is closed
+ *         - go to substate 4
+ *      - If it is substate == 4:
+ *         - Precharge check
+ *         - If precharge check ok, go to substate 5
+ *      - If it is substate == 5:
  *        - Open the precharge contactor
-          - -> next substate SYSCTRL_STATE_NORMAL_SUBSTATE_CHECK_POWERLINE
-
- *      - If it is substate == SYSCTRL_STATE_NORMAL_SUBSTATE_CHECK_POWERLINE:
- *        - check plus and minus main contactor, therefore a complete powerline check
- *        - if plus main contactor closed go to normal operation mode
- *        - -> next substate SYSCTRL_STATE_NORMAL_SUBSTATE_LOOP
- *
- *      - If it is substate == SYSCTRL_STATE_NORMAL_SUBSTATE_LOOP:
- *         - Normal operation mode. Main contactors are closed. <br> **After exiting the
+          - go to substate 6
+ *      - If it is substate == 6:
+ *        - check plus main contactor
+ *        - if plus main contactor closed go to substate 7
+ *      - If it is substate == 7:
+ *         - Normal operation mode. Main contactors are closed. **After exiting the
  *           normal mode (SYSCTRL_STATE_NORMAL) and transitioning into another state,
  *           the valid state transition to that state must first open the contactors.**
- *  <br><br>
  *  - SYSCTRL_STATE_ERROR handles any error state as follows <br>
  *      **state machine behavior:**
  *      - The Interlock is opened and therefore the hardware opens all contactors.
  *        Nevertheless are all contactors are going to be switched off. (For a list of the
  *        contactors see cont_contactors_cfg [] in contactor_cfg.c)
- *  <br><br>
  *  - SYSCTRL_STATE_PRECHARGE_ERROR <br>
  *      **state machine behavior:**
  *      - All contactors are going to be opened (For a list of the contactors see
@@ -406,7 +392,6 @@ static STD_RETURN_TYPE_e SYSCTRL_CheckPendigRequest(void)
 static void SYSCTRL_StateControl(void)
 {
     STD_RETURN_TYPE_e sysctrlContInit_ok; // TODO Review: uninitialized variable
-
     switch(sysctrl.state) {
         /****************************SLEEP*******************************************/
         case SYSCTRL_STATE_SLEEP: {
@@ -484,7 +469,7 @@ static void SYSCTRL_StateControl(void)
                     }
                     else if(SYSCTRL_GETSELFCHECK_STATE() == SYSCTRL_CHECK_BUSY) {
                         if(sysctrl.timeout == 0) {
-                            // TODO Timeout-Error Entry?
+                            // todo Timeout-Error Entry?
                             SYSCTRL_SetState(SYSCTRL_STATE_ERROR, 1);
                         }
                         else
@@ -577,6 +562,12 @@ static void SYSCTRL_StateControl(void)
 
         /******************NORMAL**************************************************/
         case SYSCTRL_STATE_NORMAL: {
+#if BS_SEPARATE_POWERLINES == 1
+            if (sysctrl.laststate == SYSCTRL_STATE_NORMAL_CHARGE) {
+                SYSCTRL_SetState(SYSCTRL_STATE_IDLE, 0);
+                break;
+            }
+#endif // BS_SEPARATE_POWERLINES == 1
             if ((CONT_GetInterlockFeedback()).feedback == CONT_SWITCH_OFF){
                 SYSCTRL_SETINTERLOCK_OFF();
                 SYSCTRL_ALL_CONTACTORS_OFF();
@@ -654,7 +645,6 @@ static void SYSCTRL_StateControl(void)
 
                     case SYSCTRL_STATE_NORMAL_SUBSTATE_SWITCH_PLUS_PRECHARGE_CONTACTOR_OFF: {
                         SYSCTRL_CONT_MAINPRECHARGE_OFF();   // open PreCharge
-                        // SYSCTRL_SetState(SYSCTRL_STATE_NORMAL_OPERATION,1);
                         sysctrl.timer = SYSCTRL_TIMER_MAINPLUS;        //
                         sysctrl.substate = SYSCTRL_STATE_NORMAL_SUBSTATE_CHECK_POWERLINE;//6;
                         sysctrl.timeout = 2; //double check contactor feedback
@@ -709,6 +699,144 @@ static void SYSCTRL_StateControl(void)
             break;
         }
 
+#if BS_SEPARATE_POWERLINES == 1
+        /******************NORMAL CHARGE*******************************************/
+        case SYSCTRL_STATE_NORMAL_CHARGE: {
+            if (sysctrl.laststate == SYSCTRL_STATE_NORMAL) {
+                SYSCTRL_SetState(SYSCTRL_STATE_IDLE, 0);
+                break;
+            }
+            if ((CONT_GetInterlockFeedback()).feedback == CONT_SWITCH_OFF){
+                SYSCTRL_SETINTERLOCK_OFF();
+                SYSCTRL_ALL_CONTACTORS_OFF();
+                SYSCTRL_SetState(SYSCTRL_STATE_ERROR, 1);
+            }
+            else {
+                switch(sysctrl.substate) {
+                    case SYSCTRL_STATE_NORMAL_SUBSTATE_SWITCH_MINUS_MAIN_CONTACTOR_ON: {
+                       SYSCTRL_CONT_CHARGE_MAINMINUS_ON();// SYSCTRL_CONT_MAINMINUS_ON();
+                       sysctrl.timer = SYSCTRL_TIMER_MAINMINUS;
+                       sysctrl.substate = SYSCTRL_STATE_NORMAL_SUBSTATE_CHECK_MINUS_MAIN_CONTACTOR;//1;
+                       sysctrl.timeout = 2; //double check contactor feedback
+                       break;
+                    }
+
+                    case SYSCTRL_STATE_NORMAL_SUBSTATE_CHECK_MINUS_MAIN_CONTACTOR: {
+                        // check that the negative power line is on
+                        CONT_STATE_MEASUREMENT_s feedbackChargeMinusMain = CONT_GetContactorFeedback(CONT_CHARGE_MINUS_MAIN); //CONT_MINUS_MAIN
+                        if (feedbackChargeMinusMain.feedback == CONT_SWITCH_ON){
+                            sysctrl.substate = SYSCTRL_STATE_NORMAL_SUBSTATE_SWITCH_PLUS_PRECHARGE_CONTACTOR_ON;//2;
+                        }
+                        else if((sysctrl.timeout == 0) && (feedbackChargeMinusMain.feedback != CONT_SWITCH_ON)){
+                            SYSCTRL_SetState(SYSCTRL_STATE_ERROR,1);
+                        }
+                        else {
+                            sysctrl.timeout--;
+                        }
+                        break;
+                    }
+
+                    case SYSCTRL_STATE_NORMAL_SUBSTATE_SWITCH_PLUS_PRECHARGE_CONTACTOR_ON: {
+                        SYSCTRL_CONT_CHARGE_MAINPRECHARGE_ON();//SYSCTRL_CONT_MAINPRECHARGE_ON();
+                        sysctrl.timer = SYSCTRL_TIMER_MAINPRECHARGE;
+                        sysctrl.substate = SYSCTRL_STATE_NORMAL_SUBSTATE_CHECK_PLUS_PRECHARGE_CONTACTOR;//3;
+                        sysctrl.timeout = 2; //double check contactor feedback
+                        break;
+                    }
+
+                    case SYSCTRL_STATE_NORMAL_SUBSTATE_CHECK_PLUS_PRECHARGE_CONTACTOR: {
+                        // check that the precharge power line is on
+                        CONT_STATE_MEASUREMENT_s feedbackChargePlusPrecharge = CONT_GetContactorFeedback(CONT_CHARGE_PLUS_PRECHARGE); //CONT_PLUS_PRECHARGE
+                        if (feedbackChargePlusPrecharge.feedback == CONT_SWITCH_ON){
+                            sysctrl.timeout = SYSCTRL_PRECHARGE_TIMEOUT;
+                            sysctrl.substate = SYSCTRL_STATE_NORMAL_SUBSTATE_CHECK_PRECHARGE;//4;
+                        }
+                        else if((sysctrl.timeout == 0) && (feedbackChargePlusPrecharge.feedback != CONT_SWITCH_ON)){
+                            SYSCTRL_SetState(SYSCTRL_STATE_ERROR,1);
+                        }
+                        else {
+                            sysctrl.timeout--;
+                        }
+                        break;
+                    }
+
+                    case SYSCTRL_STATE_NORMAL_SUBSTATE_CHECK_PRECHARGE: {
+                        uint8_t precharge_check = SYSCTRL_CHECKPRECHARGE();
+                        if(precharge_check == DIAG_OK) {
+                            SYSCTRL_CONT_CHARGE_MAINPLUS_ON();//SYSCTRL_CONT_MAINPLUS_ON();
+                            sysctrl.timer = 50;    // 500ms contactor plus and precharge closed overlap
+                            sysctrl.substate = SYSCTRL_STATE_NORMAL_SUBSTATE_SWITCH_PLUS_PRECHARGE_CONTACTOR_OFF;//5;
+                        }
+                        else if (precharge_check == DIAG_BUSY) {
+                            if(sysctrl.timeout == 0) {
+                                SYSCTRL_SetState(SYSCTRL_STATE_PRECHARGE_ERROR,1);
+                            }
+                            else {
+                                --sysctrl.timeout;
+                            }
+                        }
+                        else {
+                            SYSCTRL_SetState(SYSCTRL_STATE_ERROR,1);
+                        }
+                        break;
+                    }
+
+                    case SYSCTRL_STATE_NORMAL_SUBSTATE_SWITCH_PLUS_PRECHARGE_CONTACTOR_OFF: {
+                        SYSCTRL_CONT_CHARGE_MAINPRECHARGE_OFF();//SYSCTRL_CONT_MAINPRECHARGE_OFF();   // open PreCharge
+                        sysctrl.timer = SYSCTRL_TIMER_MAINPLUS;        //
+                        sysctrl.substate = SYSCTRL_STATE_NORMAL_SUBSTATE_CHECK_POWERLINE;//6;
+                        sysctrl.timeout = 2; //double check contactor feedback
+                        break;
+                    }
+
+                    case SYSCTRL_STATE_NORMAL_SUBSTATE_CHECK_POWERLINE: {
+                        // check that the power line is on
+                        CONT_STATE_MEASUREMENT_s feedbackChargePlusMain = CONT_GetContactorFeedback(CONT_CHARGE_PLUS_MAIN); //CONT_PLUS_MAIN
+                        CONT_STATE_MEASUREMENT_s feedbackChargeMinusMain = CONT_GetContactorFeedback(CONT_CHARGE_MINUS_MAIN); //CONT_MINUS_MAIN
+                        if ((CONT_SWITCH_ON == feedbackChargePlusMain.feedback) &&
+                            (CONT_SWITCH_ON == feedbackChargeMinusMain.feedback)) {
+                            sysctrl.substate = SYSCTRL_STATE_NORMAL_SUBSTATE_LOOP;//7;
+                        }
+                        else if((0 == sysctrl.timeout) &&
+                                (CONT_SWITCH_ON != feedbackChargePlusMain.feedback) &&
+                                (CONT_SWITCH_ON != feedbackChargeMinusMain.feedback)) {
+                            SYSCTRL_SetState(SYSCTRL_STATE_ERROR,1);
+                        }
+                        else {
+                            sysctrl.timeout--;
+                        }
+                        break;
+                    }
+
+                    case SYSCTRL_STATE_NORMAL_SUBSTATE_LOOP: {
+                        /*NORMAL MODE*/
+                        /*if(sysctrl.substate == SYSCTRL_STATE_NORMAL_SUBSTATE_LOOP//7)*/
+                        CONT_STATE_MEASUREMENT_s feedbackChargePlusMain = CONT_GetContactorFeedback(CONT_CHARGE_PLUS_MAIN);
+                        CONT_STATE_MEASUREMENT_s feedbackChargeMinusMain = CONT_GetContactorFeedback(CONT_CHARGE_MINUS_MAIN);
+                        if ((CONT_SWITCH_ON == feedbackChargePlusMain.feedback) &&
+                            (CONT_SWITCH_ON == feedbackChargeMinusMain.feedback)) {
+                            sysctrl.timeout = 100;
+                        }
+                        else if(sysctrl.timeout == 0) {
+                            SYSCTRL_SetState(SYSCTRL_STATE_ERROR, 1);
+                        }
+                        else {
+                            sysctrl.timeout--;
+                        }
+                        // bei exit zu anderen erst MAINPLUS OFF und MAINMINUS OFF
+                        // TODO Review: no
+                        break;
+                    }
+
+                    default: {
+                        SYSCTRL_SetState(SYSCTRL_STATE_ERROR, 1);
+                        break;
+                    }
+                }
+            }
+            break;
+        }
+#endif // BS_SEPARATE_POWERLINES == 1
         /******************ERROR**************************************************/
         case SYSCTRL_STATE_ERROR: {
             SYSCTRL_SETINTERLOCK_OFF();

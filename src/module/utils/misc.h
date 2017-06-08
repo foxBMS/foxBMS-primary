@@ -35,7 +35,6 @@
 #define MISC_H_
 
 /*================== Includes =============================================*/
-
 #include "general.h"
 
 /*================== Macros and Definitions ===============================*/
@@ -51,6 +50,7 @@ extern uint8_t *U32ToHexascii(uint8_t *destptr, uint32_t *dataptr);
 extern uint8_t *U16ToHexascii(uint8_t *destptr, uint16_t *dataptr);
 extern uint8_t *U8ToHexascii(uint8_t *destptr, uint8_t *dataptr);
 extern uint8_t *I32ToDecascii(uint8_t *destptr, int32_t *dataptr);
+extern uint8_t *U16ToDecascii(uint8_t *destptr, uint16_t *dataptr, uint8_t minDigits);
 
 /*================== Function Implementations =============================*/
 

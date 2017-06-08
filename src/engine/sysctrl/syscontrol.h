@@ -7,7 +7,7 @@
  * 1.  Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
  * 2.  Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
  * 3.  Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote products derived from this software without specific prior written permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  * We kindly request you to use one or more of the following phrases to refer to foxBMS in your hardware, software, documentation or advertising materials:
@@ -55,7 +55,6 @@
  * The substates and their meaning is explained in the function SYSCTRL_StateControl().
  */
 
-
 #ifndef SYS_CONTROL_H_
 #define SYS_CONTROL_H_
 
@@ -102,7 +101,9 @@ typedef enum {
     SYSCTRL_STATE_IDLE                                      = 8,    /*!< BmsState_STATE_NormalOperation_State_ParkIdle                          */
     SYSCTRL_STATE_STANDBY                                   = 20,   /*!<                                                                        */
     SYSCTRL_STATE_NORMAL                                    = 9,    /*!< BmsState_STATE_NormalOperation_State_Drive_Precharge                   */
-    SYSCTRL_STATE_NORMAL_OPERATION                          = 10,   /*!< BmsState_STATE_NormalOperation_State_Drive_StateDrive                  */
+#if BS_SEPARATE_POWERLINES == 1
+    SYSCTRL_STATE_NORMAL_CHARGE                             = 10,   /*!< BmsState_STATE_NormalOperation_State_Drive_StateDrive                  */
+#endif // BS_SEPARATE_POWERLINES == 1
     BmsState_STATE_NormalOperation_State_Charge_Precharge   = 11,   /*!< BmsState_STATE_NormalOperation_State_Charge_State_Precharge_Charger    */ // TODO Review: enum names have to be in upper case
     BmsState_STATE_NormalOperation_State_Charge_Charge      = 12,   /*!< BmsState_STATE_NormalOperation_State_Charge_State_Charge               */  // TODO Review: enum names have to be in upper case
     BmsState_STATE_ManualOperation_State_ErrorChecking      = 13,   /*!< BmsState_STATE_ManualOperation_State_ErrorChecking                     */  // TODO Review: enum names have to be in upper case
@@ -173,25 +174,27 @@ typedef enum {
  */
 // TODO Review: same as above
 typedef enum {
- SYSCTRL_STATE_REQ_NOREQUEST = SYSCTRL_STATE_UNINITIALIZED ,
- BmsState_STATE_REQ_NormalOperation = BmsState_STATE_NormalOperation, // TODO Review: enum names have to be in upper case
- BmsState_STATE_REQ_NormalOperation_State_Drive = BmsState_STATE_NormalOperation_State_Drive, // TODO Review: enum names have to be in upper case
- BmsState_STATE_REQ_NormalOperation_State_Charge = BmsState_STATE_NormalOperation_State_Charge, // TODO Review: enum names have to be in upper case
- BmsState_STATE_REQ_ManualOperation = BmsState_STATE_ManualOperation, // TODO Review: enum names have to be in upper case
- SYSCTRL_STATE_REQ_AWAKE = SYSCTRL_STATE_AWAKE,
- // BmsState_STATE_REQ_GoForSleep = BmsState_STATE_GoForSleep,
- SYSCTRL_STATE_REQ_SLEEP = SYSCTRL_STATE_SLEEP,
- SYSCTRL_STATE_REQ_STANDBY = SYSCTRL_STATE_STANDBY,
- // SYSCTRL_STATE_REQ_NORMAL_PRECHARGE = SYSCTRL_STATE_NORMAL_PRECHARGE,
- SYSCTRL_STATE_REQ_NORMAL = SYSCTRL_STATE_NORMAL,
- BmsState_STATE_REQ_NormalOperation_State_Charge_Precharge = BmsState_STATE_NormalOperation_State_Charge_Precharge, // TODO Review: enum names have to be in upper case
- BmsState_STATE_REQ_NormalOperation_State_Charge_Charge = BmsState_STATE_NormalOperation_State_Charge_Charge, // TODO Review: enum names have to be in upper case
- BmsState_STATE_REQ_ManualOperation_State_ErrorChecking = BmsState_STATE_ManualOperation_State_ErrorChecking, // TODO Review: enum names have to be in upper case
- BmsState_STATE_REQ_ManualOperation_State_Diagnostics = BmsState_STATE_ManualOperation_State_Diagnostics, // TODO Review: enum names have to be in upper case
- BmsState_STATE_REQ_ManualOperation_State_Bootloader = BmsState_STATE_ManualOperation_State_Bootloader, // TODO Review: enum names have to be in upper case
- BmsState_STATE_REQ_AwakeState_Check = BmsState_STATE_AwakeState_Check, // TODO Review: enum names have to be in upper case
- SYSCTRL_STATE_REQ_ERROR = SYSCTRL_STATE_ERROR
-
+    SYSCTRL_STATE_REQ_NOREQUEST = SYSCTRL_STATE_UNINITIALIZED ,
+    BmsState_STATE_REQ_NormalOperation = BmsState_STATE_NormalOperation, // TODO Review: enum names have to be in upper case
+    BmsState_STATE_REQ_NormalOperation_State_Drive = BmsState_STATE_NormalOperation_State_Drive, // TODO Review: enum names have to be in upper case
+    BmsState_STATE_REQ_NormalOperation_State_Charge = BmsState_STATE_NormalOperation_State_Charge, // TODO Review: enum names have to be in upper case
+    BmsState_STATE_REQ_ManualOperation = BmsState_STATE_ManualOperation, // TODO Review: enum names have to be in upper case
+    SYSCTRL_STATE_REQ_AWAKE = SYSCTRL_STATE_AWAKE,
+    // BmsState_STATE_REQ_GoForSleep = BmsState_STATE_GoForSleep,
+    SYSCTRL_STATE_REQ_SLEEP = SYSCTRL_STATE_SLEEP,
+    SYSCTRL_STATE_REQ_STANDBY = SYSCTRL_STATE_STANDBY,
+    // SYSCTRL_STATE_REQ_NORMAL_PRECHARGE = SYSCTRL_STATE_NORMAL_PRECHARGE,
+    SYSCTRL_STATE_REQ_NORMAL = SYSCTRL_STATE_NORMAL,
+#if BS_SEPARATE_POWERLINES == 1
+    SYSCTRL_STATE_REQ_NORMAL_CHARGE = SYSCTRL_STATE_NORMAL_CHARGE,
+#endif // BS_SEPARATE_POWERLINES == 1
+    BmsState_STATE_REQ_NormalOperation_State_Charge_Precharge = BmsState_STATE_NormalOperation_State_Charge_Precharge, // TODO Review: enum names have to be in upper case
+    BmsState_STATE_REQ_NormalOperation_State_Charge_Charge = BmsState_STATE_NormalOperation_State_Charge_Charge, // TODO Review: enum names have to be in upper case
+    BmsState_STATE_REQ_ManualOperation_State_ErrorChecking = BmsState_STATE_ManualOperation_State_ErrorChecking, // TODO Review: enum names have to be in upper case
+    BmsState_STATE_REQ_ManualOperation_State_Diagnostics = BmsState_STATE_ManualOperation_State_Diagnostics, // TODO Review: enum names have to be in upper case
+    BmsState_STATE_REQ_ManualOperation_State_Bootloader = BmsState_STATE_ManualOperation_State_Bootloader, // TODO Review: enum names have to be in upper case
+    BmsState_STATE_REQ_AwakeState_Check = BmsState_STATE_AwakeState_Check, // TODO Review: enum names have to be in upper case
+SYSCTRL_STATE_REQ_ERROR = SYSCTRL_STATE_ERROR
 } SYSCTRL_STATEMACH_REQ_e;
 
 
@@ -266,4 +269,4 @@ extern SYSCTRL_VCUPRESENCE_e SYSCTRL_GetVCUPresent(void);
 
 /*================== Function Implementations =============================*/
 
-#endif // SYS_CONTROL_H_
+#endif /* SYS_CONTROL_H_ */

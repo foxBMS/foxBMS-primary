@@ -7,7 +7,7 @@
  * 1.  Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
  * 2.  Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
  * 3.  Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote products derived from this software without specific prior written permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  * We kindly request you to use one or more of the following phrases to refer to foxBMS in your hardware, software, documentation or advertising materials:
@@ -30,8 +30,8 @@
  * @brief   Database module header
  *
  * Provides interfaces to database module
+ *
  */
-
 
 #ifndef DATABASE_H_
 #define DATABASE_H_
@@ -40,16 +40,9 @@
 // FIXME circular include
 #include "database_cfg.h"
 
+
 /*================== Macros and Definitions ===============================*/
-
-/*================== Constant and Variable Definitions ====================*/
-
-/**
- * type definition for structure of queue messages for accessing database
- * pointer to send data,
- * datablock ID
- *
- */
+// FIXME doxygen comments
 typedef struct
 {
     // FIXME what is the intention of this union? isn't it dangerous if someone expects a pointer to and accesses via .u32ptr, but there is a value stored in value?
@@ -59,21 +52,22 @@ typedef struct
         uint32_t                *u32ptr;    /*  reference by uint32_t pointer */
         void                   *voidptr;    /*  reference by general pointer */
     } value;
-    DATA_BLOCK_ID_TYPE_e        blockID;            /* definition of used message data type */
+    DATA_BLOCK_ID_TYPE_e        blockID;    /* definition of used message data type */
+    DATA_BLOCK_ACCESS_TYPE_e    accesstype; /* read or write access type */
 } DATA_QUEUE_MESSAGE_s;
 
-/**
- * type definition for structure of DATA_BLOCK_ACCESS_s with
- *  pointer to datablock which is enabled for read access,
- *  pointer to datablock which is enabled for write access,
- *  nr_of_buffer not used
- */
+
 typedef struct
 {
     void                                 *RDptr;
     void                                 *WRptr;
-    DATA_BLOCK_CONSISTENCY_TYPE_e  nr_of_buffer;    // FIXME really needed in future?
+    DATA_BLOCK_CONSISTENCY_TYPE_e  nr_of_buffer;    // todo really needed?
+
 } DATA_BLOCK_ACCESS_s;
+
+/*================== Constant and Variable Definitions ====================*/
+
+
 
 /*================== Function Prototypes ==================================*/
 /**
@@ -109,4 +103,4 @@ extern void * DATA_GetTablePtrBeginCritical(DATA_BLOCK_ID_TYPE_e  blockID);
 /*================== Function Implementations =============================*/
 
 
-#endif   // DATABASE_H_
+#endif /* DATABASE_H_ */

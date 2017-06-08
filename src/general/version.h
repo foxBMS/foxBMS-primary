@@ -35,12 +35,13 @@
 #define VERSION_H_
 
 /*================== Includes =============================================*/
-#include  "general.h"
+#include <stdint.h>
 
 
 /*================== Macros and Definitions ===============================*/
 extern uint32_t _sflash1[];
 extern uint32_t _eflash1[];
+extern uint32_t _jumpadressvectable[];
 
 /**
  * @brief   Software Version Number
@@ -78,15 +79,16 @@ typedef struct
 /*0x18*/    uint8_t  Version[16];               /*Version: "V0.4.0"*/
 /*0x28*/    uint8_t  Project[16];               /*Project: "foxBMS"*/
 /*0x38*/    VER_BUILDVARIANT_e  BuildVariant;   /*BuildVariant*/
-/*0x39*/    uint8_t  dummy_u8_1;
-/*0x3A*/    uint8_t  dummy_u8_2;
-/*0x3B*/    uint8_t  dummy_u8_3;
-/*0x3C*/    uint32_t dummy_1;
+/*0x39*/    uint8_t  bootloaderVersion[3];      /* Required bootloader version */
+/*0x3C*/    uint8_t  enableFlashChecksum;
+/*0x3D*/    uint8_t  enableBootloader;
+/*0x3E*/    uint8_t dummy_1;
+/*0x3F*/    uint8_t dummy_5;
 /*0x40*/    uint32_t dummy_2;
 /*0x44*/    uint32_t dummy_4;       /* number of memory ranges for checksum calculation, addresses in the following */
 /*0x48*/    uint32_t startaddress;  /* the address at which Checksum-Test starts (Start-Address of Application SW)  */
 /*0x4C*/    uint32_t endaddress;    /* end address of first memory range */
-/*0x50*/    uint32_t dummy_00a;
+/*0x50*/    uint32_t jumpadressvectable;
             uint32_t dummy_00b;
 /*0x58*/    uint32_t dummy_01a;
             uint32_t dummy_01b;

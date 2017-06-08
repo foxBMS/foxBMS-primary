@@ -7,7 +7,7 @@
  * 1.  Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
  * 2.  Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
  * 3.  Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote products derived from this software without specific prior written permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  * We kindly request you to use one or more of the following phrases to refer to foxBMS in your hardware, software, documentation or advertising materials:
@@ -27,10 +27,11 @@
  * @ingroup DRIVERS
  * @prefix  CAN
  *
- * @brief Header for the driver for the CAN module.
+ * @brief   Header for the driver for the CAN module
  *
  * Provides the interfaces for initialization, receive
  * and transmit handling
+ *
  */
 
 #ifndef CAN_IF_H_
@@ -40,17 +41,18 @@
 #include "can_cfg.h"
 
 /*================== Macros and Definitions ===============================*/
+
+#define CAN0_USE_TX_BUFFER       CAN0_USE_TRANSMIT_BUFFER
+#define CAN0_USE_RX_BUFFER       CAN0_USE_RECEIVE_BUFFER
+
+#define CAN0_TX_BUFFER_LENGTH    CAN0_TRANSMIT_BUFFER_LENGTH
+#define CAN0_RX_BUFFER_LENGTH    CAN0_RECEIVE_BUFFER_LENGTH
+
 #define CAN1_USE_TX_BUFFER       CAN1_USE_TRANSMIT_BUFFER
 #define CAN1_USE_RX_BUFFER       CAN1_USE_RECEIVE_BUFFER
 
 #define CAN1_TX_BUFFER_LENGTH    CAN1_TRANSMIT_BUFFER_LENGTH
 #define CAN1_RX_BUFFER_LENGTH    CAN1_RECEIVE_BUFFER_LENGTH
-
-#define CAN2_USE_TX_BUFFER       CAN2_USE_TRANSMIT_BUFFER
-#define CAN2_USE_RX_BUFFER       CAN2_USE_RECEIVE_BUFFER
-
-#define CAN2_TX_BUFFER_LENGTH    CAN2_TRANSMIT_BUFFER_LENGTH
-#define CAN2_RX_BUFFER_LENGTH    CAN2_RECEIVE_BUFFER_LENGTH
 
 typedef enum {
     CAN_ERROR_NONE = HAL_CAN_ERROR_NONE, /*!< No error             */
@@ -67,7 +69,7 @@ typedef enum {
 
 typedef enum {
     CAN_NODE1 = 0, /* CAN1 */
-    CAN_NODE2 = 1, /* CAN2 */
+    CAN_NODE0 = 1, /* CAN0 */
 } CAN_NodeTypeDef_e;
 
 typedef struct CAN_ERROR {

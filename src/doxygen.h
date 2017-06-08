@@ -23,32 +23,35 @@
 /**
  * @file    doxygen.h
  * @author  foxBMS Team
- * @date    11.11.15
- * @ingroup -none-
- * @prefix  -none-
+ * @date    11.11.2015 (date of creation)
+ * @ingroup none
+ * @prefix  none
  *
  * @brief   Mainpage and Module-list for generating of documents with doxygen
-*/
+ *
+ */
 
 #ifndef DOXYGEN_H_
 #define DOXYGEN_H_
-
 
 /**
  * @mainpage Source Code Documentation
  *
  *
  * This manual describes the functions and variables used in the foxBMS software.
- * Three sections can be found:
+ * Four sections can be found:
  *
+ *  - Common Interfaces
  *  - Modules
  *  - Data structures
  *  - Files
  *
  *  They can be browsed with the navigation bar on the left.
  *
- * Direct access to the modules:
+ * Direct access to the API:
+ * - @ref API_PAGE
  *
+ * Direct access to the source modules:
  * - @ref APPLICATION
  * - @ref APPLICATION_CONF
  * - @ref ENGINE
@@ -61,21 +64,6 @@
  * - @ref UTIL_CONF
  * - @ref OS
  *
- *
- * <h2>Documentation License</h2>
- *
- * &copy; 2010-2016, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V. All rights reserved.
- *
- * This work is licensed under the Creative Commons Attribution 4.0 International License. To view a copy of this license, visit http://creativecommons.org/licenses/by/4.0/.
- *
- * We kindly request you to use one or more of the following phrases to refer to foxBMS in your hardware, software, documentation or advertising materials:
- *
- *
- * &Prime;This product uses parts of foxBMS&reg;&Prime;
- *
- * &Prime;This product includes parts of foxBMS&reg;&Prime;
- *
- * &Prime;This product is derived from foxBMS&reg;&Prime;
  *
  * @defgroup APPLICATION   Applications
  * Contains low priority custom and user tasks
@@ -110,6 +98,26 @@
  * @defgroup OS   Operating System
  * Contains functions related to the operating system
  *
+ *
  */
 
+/**
+ * @page API_PAGE User Interfaces (API)
+ *
+ * foxBMS software provides the following user interfaces:
+ *
+ *  Reference:
+ * - @ref API_OS
+ * - @ref API_DIAG
+ *
+ * @defgroup API_OS     Operating System Interfaces
+ * Contains the provided interfaces to FreeRTOS in the foxBMS software
+ *
+ * @defgroup API_DIAG   Diagnosis Interfaces
+ * Contains the provided interfaces to diagnostis module
+ *
+ * @defgroup API        All Interfaces
+ * Contains a list of all interfaces in the foxBMS software
+ *
+ */
 #endif /* DOXYGEN_H_ */

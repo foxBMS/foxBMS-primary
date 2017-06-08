@@ -23,12 +23,28 @@ RM := rm -rf
 
 # all .o and .d files created during compilation process are placed into a subfolder structure below this folder
 OBJDIR := \
-	objs
+	gnubuild/objs
 
 # components like HAL and FreeRTOS are very unlikely to be modified therefore we build libraries to save some time during compilation
 # library files will be placed into this subfolder during compilation process	
 LIBDIR := \
-	libs
+	gnubuild/libs
+
+ELFFILE := \
+	gnubuild/foxbms.elf
+	
+MAPFILE := \
+	gnubuild/foxbms.map
+	
+BINFILE := \
+	gnubuild/foxbms.bin
+
+#HEXFILE := \
+#	gnubuild/foxbms.hex
+
+#LISTFILE := \
+#	gnubuild/foxbms.lst
+
 	
 # all desired compiler flags can be applied here
 CFLAGS := \
@@ -38,14 +54,15 @@ CFLAGS := \
 	-mfpu=fpv4-sp-d16         \
 	-O0                       \
 	-fmessage-length=0        \
+	-fno-common 		  \
 	-fsigned-char             \
 	-ffunction-sections       \
 	-fdata-sections           \
 	-ffreestanding            \
 	-fno-move-loop-invariants \
 	-Wall                     \
-	-g3                       \
-	-std=gnu11                \
+	-g                       \
+	-std=c99                  \
 	-DSTM32F429xx             \
 	-DDEBUG                   \
 	-DUSE_FULL_ASSERT         \
@@ -57,18 +74,19 @@ CFLAGS := \
 # all assembler flags passed through GCC can be applied here
 ASMFLAGS := \
 	-mcpu=cortex-m4 			\
-	-mthumb -mlittle-endian 	\
+	-mthumb -mlittle-endian 		\
 	-mfloat-abi=softfp 			\
 	-mfpu=fpv4-sp-d16 			\
-	-O0							\
+	-O0					\
 	-fmessage-length=0 			\
+	-fno-common 				\
 	-fsigned-char 				\
-	-ffunction-sections 		\
+	-ffunction-sections 			\
 	-fdata-sections 			\
 	-ffreestanding 				\
 	-fno-move-loop-invariants	\
 	-Wall						\
-	-g3 						\
+	-g 						\
 	-x assembler 				\
 	-DSTM32F429xx 				\
 	-DDEBUG 					\
@@ -94,11 +112,12 @@ SUBDIRS := \
 	src/module/irq									\
 	src/module/io									\
 	src/module/eeprom								\
+	src/module/intermcu								\
 	src/module/dma									\
 	src/module/mcu									\
 	src/module/contactor							\
 	src/module/config								\
-	src/module/com									\
+	src/application/com             						\
 	src/module/rtc									\
 	src/module/utils								\
 	src/module/timer								\
@@ -106,20 +125,18 @@ SUBDIRS := \
 	src/module/adc									\
 	src/module/chksum								\
 	src/module/watchdog								\
-	src/module/bal									\
+	src/application/bal      							\
 	src/hal/STM32F4xx_HAL_Driver/Src				\
 	src/general										\
 	src/general/config								\
 	src/engine/task									\
 	src/engine/sysctrl								\
-	src/engine/sof									\
-	src/engine/soc									\
 	src/application/sox								\
 	src/module/isoguard								\
 	src/engine/diag									\
 	src/engine/database								\
 	src/engine/config								\
-	src/engine/bmsctrl								\
+	src/application/bmsctrl								\
 	src/application/task							\
 	src/application/config
 
@@ -130,7 +147,7 @@ INCDIRS := \
 	-I"./src/application/task"                         \
 	-I"./src/module/adc"                               \
 	-I"./src/module/can"                               \
-	-I"./src/module/com"                               \
+	-I"./src/application/com"                          \
 	-I"./src/module/config"                            \
 	-I"./src/module/contactor"                         \
 	-I"./src/module/cpuload"                           \
@@ -140,19 +157,18 @@ INCDIRS := \
 	-I"./src/module/uart"                              \
 	-I"./src/module/timer"                             \
 	-I"./src/module/eeprom"							   \
+	-I"./src/module/intermcu"						   \
 	-I"./src/module/utils"                             \
 	-I"./src/module/rtc"                               \
 	-I"./src/module/chksum"                            \
 	-I"./src/module/cansignal"                         \
 	-I"./src/module/watchdog"                          \
-	-I"./src/module/bal"                               \
-	-I"./src/engine/bmsctrl"                           \
+	-I"./src/application/bal"                          \
+	-I"./src/application/bmsctrl"                      \
 	-I"./src/engine/config"                            \
 	-I"./src/engine/database"                          \
 	-I"./src/engine/diag"                              \
 	-I"./src/module/isoguard"                          \
-	-I"./src/application/soc"                          \
-	-I"./src/application/sof"                          \
 	-I"./src/application/sox"                          \
 	-I"./src/engine/sysctrl"                           \
 	-I"./src/engine/task"                              \
@@ -219,9 +235,9 @@ OBJS := \
 OBJS_HAL := \
 	$(call FILTER,/hal/, $(OBJS))
 
-# create list of all FreeRTOS objects for later use
-OBJS_FRTOS := \
-	$(call FILTER,/FreeRTOS/, $(OBJS))
+# create list of all FreeRTOS and os objects for later use
+OBJS_OS := \
+	$(call FILTER,/os/, $(OBJS))
 
 # remove HAL objects from common objects list, they will be linked into an extra library
 OBJS := \
@@ -229,7 +245,7 @@ OBJS := \
 
 # remove FreeRTOS objects from common objects list, they will be linked into an extra library
 OBJS := \
-	$(call FILTER_OUT,/FreeRTOS/, $(OBJS))
+	$(call FILTER_OUT,/os/, $(OBJS))
 	
 # add linker script to common object list, needed during linking process
 OBJS += \
@@ -260,11 +276,11 @@ $(LIBDIR)/libHAL.a: $(OBJS_HAL)
 	arm-none-eabi-gcc-ar rcs $@ $^
 
 # process FreeRTOS object files, link them into a library and place this library into $(LIBDIR) folder
-$(LIBDIR)/libFRTOS.a: $(OBJS_FRTOS)
+$(LIBDIR)/libOS.a: $(OBJS_OS)
 	arm-none-eabi-gcc-ar rcs $@ $^
 
 # add inputs and outputs from these tool invocations to the build variables
-SECONDARY_FLASH := \
+SECONDARY_HEX := \
 	foxbms.hex \
 	
 SECONDARY_BIN := \
@@ -280,38 +296,39 @@ SECONDARY_SIZE := \
 all: foxbms.elf secondary-outputs
 
 # linker invocation starts here, using the provided flags, objects files and libraries
-foxbms.elf: buildrepo buildrepo_lib $(OBJS) $(USER_OBJS) $(LIBDIR)/libHAL.a $(LIBDIR)/libFRTOS.a
+foxbms.elf: buildrepo buildrepo_lib $(OBJS) $(USER_OBJS) $(LIBDIR)/libHAL.a $(LIBDIR)/libOS.a
 	@echo 'Building target: $@'
 	@echo 'Invoking: Cross ARM C++ Linker'
-	arm-none-eabi-g++ -mcpu=cortex-m4 -mthumb -mlittle-endian -mfloat-abi=softfp -mfpu=fpv4-sp-d16 -O0 -fmessage-length=0 -fsigned-char -ffunction-sections -fdata-sections -ffreestanding -fno-move-loop-invariants -Wall -g3 -T "src/STM32F429ZIT6_FLASH.ld" -Xlinker --gc-sections -Wl,-Map,"foxbms.map" --specs=nano.specs -o "foxbms.elf" $(OBJS) $(USER_OBJS) $(LIBDIR)/libHAL.a $(LIBDIR)/libFRTOS.a
+	arm-none-eabi-g++ -mcpu=cortex-m4 -mthumb -mlittle-endian -mfloat-abi=softfp -mfpu=fpv4-sp-d16 -O0 -fmessage-length=0 -fsigned-char -ffunction-sections -fdata-sections -ffreestanding -fno-move-loop-invariants -Wall -g3 -T "src/STM32F429ZIT6_FLASH.ld" -Xlinker --gc-sections -Wl,-Map,$(MAPFILE) --specs=nano.specs -o $(ELFFILE) $(OBJS) $(USER_OBJS) $(LIBDIR)/libHAL.a $(LIBDIR)/libOS.a
 	@echo 'Finished building target: $@'
 	@echo ' '
 
 # hex file generation starts here, using objcopy
 foxbms.hex: foxbms.elf
 	@echo 'Invoking: Cross ARM GNU Create Flash Image'
-	arm-none-eabi-objcopy -O ihex "foxbms.elf" "foxbms.hex"
+	arm-none-eabi-objcopy -O ihex $(ELFFILE) gnubuild/$(SECONDARY_HEX)
 	@echo 'Finished building: $@'
 	@echo ' '
 
 # generate listing of the corresponding assembler code for debugging purpose
 foxbms.lst: foxbms.elf
 	@echo 'Invoking: Cross ARM GNU Create Listing'
-	arm-none-eabi-objdump --source --all-headers --demangle --line-numbers --wide "foxbms.elf" > "foxbms.lst"
+	arm-none-eabi-objdump --source --all-headers --demangle --line-numbers --wide $(ELFFILE) > gnubuild/$(SECONDARY_LIST)
 	@echo 'Finished building: $@'
 	@echo ' '
 
 # print out infos regarding ram, flash, bss consumption, useful for debugging
 foxbms.siz: foxbms.elf
 	@echo 'Invoking: Cross ARM GNU Print Size'
-	arm-none-eabi-size --format=berkeley $(OBJS) "foxbms.elf"
+	arm-none-eabi-size --format=berkeley $(ELFFILE) $(OBJS) $(OBJS_HAL) $(OBJS_OS)
 	@echo 'Finished building: $@'
 	@echo ' '
 
 # bin file generation starts here, using objcopy (currently disabled due inconvenient memory layout in the linker script to prevent generation of 9xx MB file)
 foxbms.bin: foxbms.elf
 	@echo 'Create binary'
-#	arm-none-eabi-objcopy -O binary "foxbms.elf" "foxbms.bin"
+	arm-none-eabi-objcopy -O binary $(ELFFILE) $(BINFILE)
+	@echo 'Finished building: $@'
 	@echo ' '
 	
 # helper function which generates need subfolder for storing the generated library files
@@ -342,21 +359,22 @@ clean:
 		$(CC_DEPS)			\
 		$(C++_DEPS)			\
 		$(OBJS)				\
+		$(LIBDIR)				\
 		$(C_UPPER_DEPS)		\
 		$(CXX_DEPS)			\
-		$(SECONDARY_FLASH)	\
+		$(SECONDARY_HEX)	\
 		$(SECONDARY_BIN)	\
-		$(SECONDARY_LIST)	\
-		$(SECONDARY_SIZE)	\
+		gnubuild/$(SECONDARY_LIST)	\
+		gnubuild/$(SECONDARY_SIZE)	\
 		$(ASM_DEPS)			\
 		$(S_UPPER_DEPS)		\
 		$(C_DEPS)			\
 		$(CPP_DEPS)			\
-		foxbms.elf			\
-		foxbms.map
+		$(ELFFILE)			\
+		$(MAPFILE)
 	-@echo ' '
 
 # secondary targets, responsible for tool invocations for additional outputs (see above)
-secondary-outputs: $(SECONDARY_FLASH) $(SECONDARY_BIN) $(SECONDARY_LIST) $(SECONDARY_SIZE)
+secondary-outputs: $(SECONDARY_HEX) $(SECONDARY_BIN) $(SECONDARY_LIST) $(SECONDARY_SIZE)
 
 .PHONY: all clean dependents x

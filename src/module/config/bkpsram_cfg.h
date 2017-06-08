@@ -7,7 +7,7 @@
  * 1.  Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
  * 2.  Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
  * 3.  Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote products derived from this software without specific prior written permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  * We kindly request you to use one or more of the following phrases to refer to foxBMS in your hardware, software, documentation or advertising materials:
@@ -23,19 +23,20 @@
 /**
  * @file    bkpsram_cfg.h
  * @author  foxBMS Team
- * @date    02.03.2016
+ * @date    02.03.2016 (date of creation)
  * @ingroup DRIVERS_CONF
  * @prefix  BKP
  *
  * @brief   Headers for the configuration for static backup RAM.
  *
  */
+
 #ifndef BKSPSRAM_CFG_H_
 #define BKSPSRAM_CFG_H_
+
 /*================== Includes =============================================*/
-#include "general.h"
+
 #include "sox.h"
-#include "contactor.h"
 #include "diag.h"
 #include "main.h"
 
@@ -55,6 +56,22 @@
  */
 #define BKP_SRAM_ENABLE
 
+
+
+/**
+ * Operating hours-Timer
+ */
+typedef struct {
+    uint8_t  Timer_1ms;   /*!< milliseconds       */
+    uint8_t  Timer_10ms;  /*!< 10*milliseconds    */
+    uint8_t  Timer_100ms; /*!< 100*milliseconds   */
+    uint8_t  Timer_sec;   /*!< seconds            */
+    uint8_t  Timer_min;   /*!< minutes            */
+    uint8_t  Timer_h;     /*!< hours              */
+    uint16_t Timer_d;     /*!< days               */
+} BKPSRAM_OPERATING_HOURS_s;
+
+
 /**
  * state of charge voltages, since soc is voltage dependent, three different values are calculated, min, max and mean,
  * number of opening/closing events of the contactors,
@@ -63,6 +80,7 @@
 typedef struct {
     SOX_SOC_s nvsoc;
     DIAG_CONTACTOR_s contactors_count;
+    BKPSRAM_OPERATING_HOURS_s operating_hours;
     uint32_t checksum;
 } BKPSRAM_CH_1_s;
 
@@ -88,7 +106,21 @@ extern void BKPSRAM_Set_contactorcnt(DIAG_CONTACTOR_s *ptr);
 */
 extern void BKPSRAM_Get_contactorcnt(DIAG_CONTACTOR_s *ptr);
 
-/*================== Function Implementations =============================*/
+/**
+ * @brief   increments the operating hours timer os_operating_hours
+ *
+ * The operating_hours is a runtime-counter, counting the operating time since the last manual(!) reset of the timer.
+ *
+ * @return  void
+ */
+extern void BKPSRAM_OperatingHoursTrigger(void);
 
+/**
+ * @brief   saves operating hours data into the bkpsram_ch_1 struct
+ *
+ * @return  void
+ */
+extern void BKPSRAM_SetOperatingHours(void);
+/*================== Function Implementations =============================*/
 
 #endif /* BKSPSRAM_CFG_H_ */

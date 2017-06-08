@@ -27,12 +27,19 @@
  * @ingroup DRIVERS_CONF
  * @prefix  UART
  *
- * @brief   Configuration for the UART.
+ * @brief   Configuration for the UART
  *
  */
 
-
 /*================== Includes =============================================*/
+/* recommended include order of header files:
+ * 
+ * 1.    include general.h
+ * 2.    include module's own header
+ * 3...  other headers
+ *
+ */
+#include "general.h"
 #include "uart_cfg.h"
 
 /*================== Macros and Definitions ===============================*/

@@ -38,8 +38,9 @@
 #define CONTACTOR_CFG_H_
 
 /*================== Includes =============================================*/
-#include "general.h"
+#include "batterysystem_cfg.h"
 #include "io_cfg.h"
+
 
 /*================== Macros and Definitions ===============================*/
 
@@ -51,8 +52,7 @@
 
 /*fox
  * defines the number of  trigger calls, after the state of a
- * contactor with no feedback pin
- * is assumed to be in its requested state..
+ * contactor with no feedback pin is assumed to be in its requested state.
  *
  * @var     trigger counter for contactor state
  * @type    int
@@ -61,6 +61,10 @@
  * @units   ms
  * @level   advanced
  * @group   CONTACTOR
+ */
+/**
+ * defines the number of  trigger calls, after the state of a
+ * contactor with no feedback pin is assumed to be in its requested state.
  */
 #define CONT_HAS_NO_FEEDBACK_SWICHTING_TIME 100
 
@@ -75,6 +79,10 @@
  * @level   advanced
  * @group   CONTACTOR
  */
+/**
+ * defines the maximum time after the requested state has to be the
+ *  current state of a contactor
+ */
 #define CONT_MAXIUMUM_ALLOWED_CONTACTOR_SWITCHING_TIME 100
 
 /*fox
@@ -87,6 +95,10 @@
  * @level   advanced
  * @group   CONTACTOR
  */
+/**
+ * defines the number of bad countings of opening contactors at too
+ * high current
+ */
 #define CONT_NUMBER_OF_BAD_COUNTINGS 10
 
 /*fox
@@ -94,7 +106,7 @@
  * negative side of the contactor at which a damaging of the
  * contactor occurs. If this limit is the exceeded the contacor
  * module makes an entry in the diagnosis module indicating a
- * switching off of the contactors under a bad  condition
+ * switching off of the contactors under a bad  condition.
  *
  * @var     bad switch off current pos
  * @type    float
@@ -104,6 +116,13 @@
  * @unit    mA
  * @group   CONTACTOR
  */
+/**
+ * This macro describes the limiting current from the the positive to
+ * negative side of the contactor at which a damaging of the
+ * contactor occurs. If this limit is the exceeded the contacor
+ * module makes an entry in the diagnosis module indicating a
+ * switching off of the contactors under a bad  condition.
+ */
 #define BAD_SWITCHOFF_CURRENT_POS 1000.0
 
 /*fox
@@ -111,7 +130,7 @@
  * positive side of the contactor at which a damaging of the
  * contactor occurs. If this limit is the exceeded the contacor
  * module makes an entry in the diagnosis module indicating a
- * switching off of the contactors under a bad  condition
+ * switching off of the contactors under a bad  condition.
  *
  * @var     bad switch off current neg
  * @type    float
@@ -120,6 +139,13 @@
  * @level   advanced
  * @unit    mA
  * @group   CONTACTOR
+ */
+/**
+ * This macro describes the limiting current from the the negative to
+ * positive side of the contactor at which a damaging of the
+ * contactor occurs. If this limit is the exceeded the contacor
+ * module makes an entry in the diagnosis module indicating a
+ * switching off of the contactors under a bad  condition.
  */
 #define BAD_SWITCHOFF_CURRENT_NEG -1000.0
 
@@ -143,40 +169,41 @@
  * Every contactor consists of 1 control pin and 1 feedback pin
  * counting together as 1 contactor.
  * E.g. if you have 1 contactor your define has to be:
- *      #define CONT_INTERLOCK_CONTROL       PIN_MCU_0_INTERLOCK_CONTROL
- *      #define CONT_INTERLOCK_FEEDBACK      PIN_MCU_0_INTERLOCK_FEEDBACK
+ *      #define CONT_INTERLOCK_CONTROL       IO_PIN_MCU_0_INTERLOCK_CONTROL
+ *      #define CONT_INTERLOCK_FEEDBACK      IO_PIN_MCU_0_INTERLOCK_FEEDBACK
  */
-#define CONT_INTERLOCK_CONTROL                  PIN_MCU_0_INTERLOCK_CONTROL
-#define CONT_INTERLOCK_FEEDBACK                 PIN_MCU_0_INTERLOCK_FEEDBACK
+#define CONT_INTERLOCK_CONTROL                  IO_PIN_MCU_0_INTERLOCK_CONTROL
+#define CONT_INTERLOCK_FEEDBACK                 IO_PIN_MCU_0_INTERLOCK_FEEDBACK
 
-#define CONT_PLUS_MAIN_CONTROL                  PIN_MCU_0_CONTACTOR_0_CONTROL
-#define CONT_PLUS_MAIN_FEEDBACK                 PIN_MCU_0_CONTACTOR_0_FEEDBACK
+#define CONT_PLUS_MAIN_CONTROL                  IO_PIN_MCU_0_CONTACTOR_0_CONTROL
+#define CONT_PLUS_MAIN_FEEDBACK                 IO_PIN_MCU_0_CONTACTOR_0_FEEDBACK
 
-#define CONT_PLUS_PRECHARGE_CONTROL             PIN_MCU_0_CONTACTOR_1_CONTROL
-#define CONT_PLUS_PRECHARGE_FEEDBACK            PIN_MCU_0_CONTACTOR_1_FEEDBACK
+#define CONT_PLUS_PRECHARGE_CONTROL             IO_PIN_MCU_0_CONTACTOR_1_CONTROL
+#define CONT_PLUS_PRECHARGE_FEEDBACK            IO_PIN_MCU_0_CONTACTOR_1_FEEDBACK
 
-#define CONT_MINUS_MAIN_CONTROL                 PIN_MCU_0_CONTACTOR_2_CONTROL
-#define CONT_MINUS_MAIN_FEEDBACK                PIN_MCU_0_CONTACTOR_2_FEEDBACK
+#define CONT_MINUS_MAIN_CONTROL                 IO_PIN_MCU_0_CONTACTOR_2_CONTROL
+#define CONT_MINUS_MAIN_FEEDBACK                IO_PIN_MCU_0_CONTACTOR_2_FEEDBACK
 
+#if BS_SEPARATE_POWERLINES == 1
+#define CONT_CHARGE_PLUS_MAIN_CONTROL           IO_PIN_MCU_0_CONTACTOR_3_CONTROL
+#define CONT_CHARGE_PLUS_MAIN_FEEDBACK          IO_PIN_MCU_0_CONTACTOR_3_FEEDBACK
+
+#define CONT_CHARGE_PLUS_PRECHARGE_CONTROL      IO_PIN_MCU_0_CONTACTOR_4_CONTROL
+#define CONT_CHARGE_PLUS_PRECHARGE_FEEDBACK     IO_PIN_MCU_0_CONTACTOR_4_FEEDBACK
+
+#define CONT_CHARGE_MINUS_MAIN_CONTROL          IO_PIN_MCU_0_CONTACTOR_5_CONTROL
+#define CONT_CHARGE_MINUS_MAIN_FEEDBACK         IO_PIN_MCU_0_CONTACTOR_5_FEEDBACK
+#endif // BS_SEPARATE_POWERLINES == 1
 /*
  * additional possible contactors from the io definition
-#define CONT_X0_CONTROL                         PIN_MCU_0_CONTACTOR_3_CONTROL
-#define CONT_X0_FEEDBACK                        PIN_MCU_0_CONTACTOR_3_FEEDBACK
+#define CONT_X3_CONTROL                         IO_PIN_MCU_0_CONTACTOR_6_CONTROL
+#define CONT_X3_FEEDBACK                        IO_PIN_MCU_0_CONTACTOR_6_FEEDBACK
 
-#define CONT_X1_CONTROL                         PIN_MCU_0_CONTACTOR_4_CONTROL
-#define CONT_X1_FEEDBACK                        PIN_MCU_0_CONTACTOR_4_FEEDBACK
+#define CONT_X4_CONTROL                         IO_PIN_MCU_0_CONTACTOR_7_CONTROL
+#define CONT_X4_FEEDBACK                        IO_PIN_MCU_0_CONTACTOR_7_FEEDBACK
 
-#define CONT_X2_CONTROL                         PIN_MCU_0_CONTACTOR_5_CONTROL
-#define CONT_X2_FEEDBACK                        PIN_MCU_0_CONTACTOR_5_FEEDBACK
-
-#define CONT_X3_CONTROL                         PIN_MCU_0_CONTACTOR_6_CONTROL
-#define CONT_X3_FEEDBACK                        PIN_MCU_0_CONTACTOR_6_FEEDBACK
-
-#define CONT_X4_CONTROL                         PIN_MCU_0_CONTACTOR_7_CONTROL
-#define CONT_X4_FEEDBACK                        PIN_MCU_0_CONTACTOR_7_FEEDBACK
-
-#define CONT_X5_CONTROL                         PIN_MCU_0_CONTACTOR_8_CONTROL
-#define CONT_X5_FEEDBACK                        PIN_MCU_0_CONTACTOR_8_FEEDBACK
+#define CONT_X5_CONTROL                         IO_PIN_MCU_0_CONTACTOR_8_CONTROL
+#define CONT_X5_FEEDBACK                        IO_PIN_MCU_0_CONTACTOR_8_FEEDBACK
 
 */
 
@@ -196,9 +223,12 @@ typedef enum {
  * the contactor_cfg[] array
  */
 typedef enum {
-    CONT_PLUS_MAIN      = 0,    /*!< Main contactor in the positive path of the powerline      */
-    CONT_PLUS_PRECHARGE = 1,    /*!< Precharge contactor in the positive path of the powerline */
-    CONT_MINUS_MAIN     = 2,    /*!< Main contactor in the negative path of the powerline      */
+    CONT_PLUS_MAIN              = 0,    /*!< Main contactor in the positive path of the powerline      */
+    CONT_PLUS_PRECHARGE         = 1,    /*!< Precharge contactor in the positive path of the powerline */
+    CONT_MINUS_MAIN             = 2,    /*!< Main contactor in the negative path of the powerline      */
+    CONT_CHARGE_PLUS_MAIN       = 3,    /*!< Main contactor in the positive charge path of the powerline      */
+    CONT_CHARGE_PLUS_PRECHARGE  = 4,    /*!< Precharge contactor in the positive charge path of the powerline */
+    CONT_CHARGE_MINUS_MAIN      = 5,    /*!< Main contactor in the negative charge path of the powerline      */
 } CONT_NAMES_e;
 
 /**
@@ -210,27 +240,45 @@ typedef enum {
     CONT_FEEDBACK_TYPE_DONT_CARE    = 0xFF  /*!< Feedback line of the contactor is not used         */
 } CONT_FEEDBACK_ELECTRICAL_CONTACT_e;
 
+/**
+ * typedef to store the time stamp when a contactor was set to a certain set value.
+ * This is later used in typedef CONT_STATES_s.
+ */
 typedef struct {
     boolean setvalue;
     uint32_t timestamp;
 } CONT_STATE_SET_s;
 
+/**
+ * typedef to store the time stamp when a contactor state was set to the expected value based on the request.
+ * This is later used in typedef CONT_STATES_s.
+ */
 typedef struct {
     CONT_SWITCH_e feedback;
     uint32_t timestamp;
 } CONT_STATE_EXPECTATION_s;
 
+/**
+ * typedef to store the time stamp of the last time the feedback line of the contactor was measured.
+ * This is later used in typedef CONT_STATES_s.
+ */
 typedef struct {
     CONT_SWITCH_e feedback;
     uint32_t timestamp;
 } CONT_STATE_MEASUREMENT_s;
 
+/**
+ * struct to sum up all contactor conditions (setvalue, expectation and measurement)
+ */
 typedef struct {
     CONT_STATE_SET_s set;
     CONT_STATE_EXPECTATION_s expectation;
     CONT_STATE_MEASUREMENT_s measurement;
 } CONT_STATES_s;
 
+/**
+ * Represents the hardware configuration of the contactor
+ */
 typedef struct {
     IO_PORTS_e control_pin;
     IO_PORTS_e feedback_pin;
@@ -239,8 +287,8 @@ typedef struct {
 
 extern CONT_CFG_s cont_interlock_cfg;
 extern CONT_STATES_s cont_interlock_state;
-extern CONT_CFG_s cont_contactors_cfg [NR_OF_CONTACTORS];
-extern CONT_STATES_s cont_contactor_states[NR_OF_CONTACTORS];
+extern CONT_CFG_s cont_contactors_cfg [BS_NR_OF_CONTACTORS];
+extern CONT_STATES_s cont_contactor_states[BS_NR_OF_CONTACTORS];
 
 extern const uint8_t cont_contactors_cfg_length;
 extern const uint8_t cont_contactors_states_length;

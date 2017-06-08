@@ -7,7 +7,7 @@
  * 1.  Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
  * 2.  Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
  * 3.  Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote products derived from this software without specific prior written permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  * We kindly request you to use one or more of the following phrases to refer to foxBMS in your hardware, software, documentation or advertising materials:
@@ -27,15 +27,25 @@
  * @ingroup DRIVERS
  * @prefix  SPI
  *
- * @brief Driver for the serial peripheral interface module (encapsulation of some HAL functions).
+ * @brief   Driver for the serial peripheral interface module (encapsulation of some HAL functions)
  *
  */
 
 /*================== Includes =============================================*/
+/* recommended include order of header files:
+ * 
+ * 1.    include general.h
+ * 2.    include module's own header
+ * 3...  other headers
+ *
+ */
+#include "general.h"
 #include "spi.h"
+
 #include "dma.h"
 #include "mcu.h"
 #include "io.h"
+#include "intermcu.h"
 
 /*================== Macros and Definitions ===============================*/
 
@@ -43,8 +53,7 @@
 const uint8_t spi_cmdDummy[1]={0x00};
 
 /*================== Function Prototypes ==================================*/
-static void SPI_SetCS(uint8_t busID);
-static void SPI_UnsetCS(uint8_t busID);
+
 
 /*================== Function Implementations =============================*/
 
@@ -100,18 +109,16 @@ void SPI_Init(SPI_HandleTypeDef *hspi) {
 }
 
 
-void HAL_SPI_TxRxCpltCallback(SPI_HandleTypeDef *hspi)
-{
+void HAL_SPI_TxRxCpltCallback(SPI_HandleTypeDef *hspi) {
     if (hspi  ==  &spi_devices[0])        // Iso-SPI Main
     {
         SPI_UnsetCS(1);
     }
     if (hspi  ==  &spi_devices[1])        // Eeprom
     {
-        IO_WritePin(PIN_MCU_0_DATA_STORAGE_EEPROM_SPI_NSS, IO_PIN_SET);
+        IO_WritePin(IO_PIN_MCU_0_DATA_STORAGE_EEPROM_SPI_NSS, IO_PIN_SET);
 
     }
-
 
 }
 
@@ -125,21 +132,27 @@ void HAL_SPI_TxCpltCallback(SPI_HandleTypeDef *hspi)
 
     if (hspi  ==  &spi_devices[1])        // Eeprom
     {
-        IO_WritePin(PIN_MCU_0_DATA_STORAGE_EEPROM_SPI_NSS, IO_PIN_SET);
+        IO_WritePin(IO_PIN_MCU_0_DATA_STORAGE_EEPROM_SPI_NSS, IO_PIN_SET);
+    }
+}
+
+void HAL_SPI_RxCpltCallback(SPI_HandleTypeDef *hspi) {
+    if(hspi == &spi_devices[2]){
+
+         uint8_t spiState = IMC_readByte();
+         if(spiState == 0x99){
+             IO_WritePin(IO_PIN_MCU_0_DEBUG_LED_0, SET);
+                 }
+         if(spiState == 0x66) {
+             IO_WritePin(IO_PIN_MCU_0_DEBUG_LED_0, RESET);
+         }
+         IMC_enableInterrupt();
     }
 }
 
 
-/**
- * @brief sets Chip Select low to start SPI transmission.
- *
- * This function sets CS low in case CS is driven by software.
- *
- * @param   busID      selects which CS pin has to be set low
- *
- * @return  none(void)
- */
-static void SPI_SetCS(uint8_t busID) {
+
+void SPI_SetCS(uint8_t busID) {
 
     switch(busID) {
         case 1:
@@ -176,17 +189,8 @@ static void SPI_SetCS(uint8_t busID) {
 
 }
 
-/**
- * @brief   sets Chip Select high to end SPI transmission.
- *
- * This function sets CS high in case CS is driven by software.
- * It is typically called in the callback routine of SPI transmission.
- *
- * @param   busID      selects which CS pin has to be set high
- *
- * @return none(void)
- */
-static void SPI_UnsetCS(uint8_t busID) {
+
+void SPI_UnsetCS(uint8_t busID) {
 
     switch(busID) {
         case 1:

@@ -41,7 +41,7 @@
 
 /*================== Macros and Definitions ===============================*/
 #define RXBUF_LENGTH    0x100    /* 256 Byte */
-#define TXBUF_LENGTH    0x200    /* 512 Byte */
+#define TXBUF_LENGTH    0x300    /* 768 Byte */
 
 #define ACK_SYMBOL  0x06
 #define NAK_SYMBOL  0x15
@@ -58,9 +58,10 @@
     #define DEBUG_PRINTF(x)             /* keep macro empty */
 #endif
 
-
+#define UART_COM_RECEIVEBUFFER_LENGTH    100
 /*================== Constant and Variable Definitions ====================*/
-
+extern char uart_com_receivedbyte[UART_COM_RECEIVEBUFFER_LENGTH];
+extern uint8_t uart_com_receive_slot;
 
 /*================== Function Prototypes ==================================*/
 

@@ -7,7 +7,7 @@
  * 1.  Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
  * 2.  Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
  * 3.  Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote products derived from this software without specific prior written permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  * We kindly request you to use one or more of the following phrases to refer to foxBMS in your hardware, software, documentation or advertising materials:
@@ -60,14 +60,17 @@
  * typedef for thread priority
  */
 typedef enum  {
-  OS_PRIORITY_IDLE          = osPriorityIdle,           /*!< priority: idle (lowest)                                          */
-  OS_PRIORITY_LOW           = osPriorityLow,            /*!< priority: low                                                    */
-  OS_PRIORITY_BELOW_NORMAL  = osPriorityBelowNormal,    /*!< priority: below normal                                           */
-  OS_PRIORITY_NORMAL        = osPriorityNormal,         /*!< priority: normal (default)                                       */
-  OS_PRIORITY_ABOVENORMAL   = osPriorityAboveNormal,    /*!< priority: above normal                                           */
-  OS_PRIORITY_HIGH          = osPriorityHigh,           /*!< priority: high                                                   */
-  OS_PRIORITY_REALTIME      = osPriorityRealtime,       /*!< priority: realtime (highest)                                     */
-  OS_PRIORITY_ERROR         = osPriorityError           /*!< system cannot determine priority or thread has illegal priority  */
+  OS_PRIORITY_IDLE           = osPriorityIdle,           /*!< priority: idle (lowest)        */
+  OS_PRIORITY_LOW            = osPriorityLow,            /*!< priority: low                  */
+  OS_PRIORITY_BELOW_NORMAL   = osPriorityBelowNormal,    /*!< priority: below normal         */
+  OS_PRIORITY_NORMAL         = osPriorityNormal,         /*!< priority: normal (default)     */
+  OS_PRIORITY_ABOVE_NORMAL   = osPriorityAboveNormal,    /*!< priority: above normal         */
+  OS_PRIORITY_HIGH           = osPriorityHigh,           /*!< priority: high                 */
+  OS_PRIORITY_ABOVE_HIGH     = osPriorityRealtime,       /*!< priority: above high           */
+  OS_PRIORITY_VERY_HIGH      = osPriorityRealtime+1,       /*!< priority: very high          */
+  OS_PRIORITY_BELOW_REALTIME = osPriorityRealtime+2,       /*!< priority: below realtime     */
+  OS_PRIORITY_REALTIME       = osPriorityRealtime+3,       /*!< priority: realtime (highest) */
+  OS_PRIORITY_ERROR          = osPriorityError           /*!< system cannot determine priority or thread has illegal priority  */
 } OS_PRIORITY_e;
 
 /**
@@ -75,19 +78,22 @@ typedef enum  {
  */
 typedef enum {
     OS_OFF                            = 0,    /*!< */
-    OS_ENG_CREATE_MUTEX               = 1,    /*!< */
-    OS_ENG_CREATE_EVENT               = 2,    /*!< */
-    OS_ENG_CREATE_TASKS               = 3,    /*!< */
-    OS_APPL_CREATE_MUTEX              = 4,    /*!< */
-    OS_APPL_CREATE_EVENT              = 5,    /*!< */
-    OS_APPL_CREATE_TASKS              = 6,    /*!< */
-    OS_INIT_PREOS                     = 7,    /*!< */
-    OS_INIT_OSRESOURCES               = 8,    /*!< */
-    OS_INIT_OSSTARTKERNEL             = 9,    /*!< */
-    OS_RUNNING                        = 10,   /*!< */
-    OS_EEPR_INIT                      = 11,   /*!< */
-    OS_SYSCTRL_INIT                   = 12,   /*!< */
-    OS_SYSTEM_RUNNING                 = 13,   /*!< system is running  */
+    OS_ENG_CREATE_QUEUES              = 1,    /*!< */
+    OS_ENG_CREATE_MUTEX               = 2,    /*!< */
+    OS_ENG_CREATE_EVENT               = 3,    /*!< */
+    OS_ENG_CREATE_TASKS               = 4,    /*!< */
+    OS_APPL_CREATE_MUTEX              = 5,    /*!< */
+    OS_APPL_CREATE_EVENT              = 6,    /*!< */
+    OS_APPL_CREATE_TASKS              = 7,    /*!< */
+    OS_INIT_PREOS                     = 8,    /*!< */
+    OS_INIT_OSRESOURCES               = 9,    /*!< */
+    OS_INIT_OSSTARTKERNEL             = 10,    /*!< */
+    OS_RUNNING                        = 11,   /*!< */
+    OS_EEPR_INIT                      = 12,   /*!< */
+    OS_SYSCTRL_INIT                   = 13,   /*!< */
+    OS_SYSTEM_RUNNING                 = 14,   /*!< system is running  */
+    OS_SAFETY_FEATURE_ENABLED         = 15,
+    OS_SAFETY_FEATURE_DISABLED        = 16,
     OS_INIT_OS_FATALERROR_SCHEDULE    = 0x80, /*!< error in scheduler */
 } OS_BOOT_STATE_e;
 
@@ -125,9 +131,10 @@ typedef struct {
 } BMS_Task_Definition_s;
 
 /*================== Constant and Variable Definitions ====================*/
-extern OS_BOOT_STATE_e os_boot;
+extern volatile OS_BOOT_STATE_e os_boot;
+extern volatile OS_BOOT_STATE_e os_safety_state;
 extern uint32_t os_schedulerstarttime;
-extern OS_TIMER_s os_timer;
+extern volatile  OS_TIMER_s os_timer;
 
 extern osMutexId ENG_Mutexes[];
 extern EventGroupHandle_t ENG_Events[];
@@ -214,6 +221,25 @@ extern void OS_TSK_Cyclic_10ms(void);
  */
 extern void OS_TSK_Cyclic_100ms(void);
 
+
+/**
+ * @brief   cyclic and event driven handler.
+ *
+ * Task configurations (cycle and delay time) are specified by eng_tskdef_eventhandler.
+ *
+ * @return   void
+ */
+extern void OS_TSK_EventHandler(void);
+
+
+/**
+ * @brief   cyclic diagnosis task.
+ *
+ * Task configurations (cycle and delay time) are specified by eng_tskdef_diagnosis.
+ *
+ * @return   void
+ */
+extern void OS_TSK_Diagnosis(void);
 /*================== Function Implementations =============================*/
 
 #endif /* OS_H_ */

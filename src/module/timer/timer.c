@@ -7,7 +7,7 @@
  * 1.  Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
  * 2.  Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
  * 3.  Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote products derived from this software without specific prior written permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  * We kindly request you to use one or more of the following phrases to refer to foxBMS in your hardware, software, documentation or advertising materials:
@@ -27,13 +27,21 @@
  * @ingroup DRIVERS
  * @prefix  TIM
  *
- * @brief Driver to enable/disable/change the peripheral timers.
+ * @brief   Driver to enable/disable/change the peripheral timers
  *
  * Source file to enable/disable/change peripheral timers.
  */
 
 
 /*================== Includes =============================================*/
+/* recommended include order of header files:
+ * 
+ * 1.    include general.h
+ * 2.    include module's own header
+ * 3...  other headers
+ *
+ */
+#include "general.h"
 #include "timer.h"
 
 /*================== Macros and Definitions ===============================*/
@@ -49,6 +57,10 @@
 void TIM_Init(void) {
     TIM_PWM_OUT_Init();
     TIM_PWM_IC_Init();
+
+#if BUILD_MODULE_ENABLE_SAFETY_FEATURES == 1
+    TIM_CyclicInterrupt_Init();
+#endif
 }
 
 
@@ -166,6 +178,23 @@ void TIM_PWM_IC_Init(void) {
     HAL_TIM_IC_Start(&htim9, TIM_CHANNEL_2);    // Timer-Enable Channel 2
 }
 
+
+void TIM_CyclicInterrupt_Init(void) {
+
+    __TIM3_CLK_ENABLE();
+
+    HAL_TIM_Base_Init(&htim3);
+
+    HAL_TIM_Base_Start_IT(&htim3);
+}
+
+void TIM_IRQHandler(void) {
+
+    // Clear pending interrupt flag
+    __HAL_TIM_CLEAR_IT(&htim3, TIM_IT_UPDATE);
+// TODO do something here: Real-time interrupt
+
+}
 
 void TIM_PWM_SetFrequency(TIM_HandleTypeDef *htim, uint32_t frequency) {
     float period = 0.0;

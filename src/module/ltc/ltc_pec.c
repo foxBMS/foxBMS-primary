@@ -65,9 +65,17 @@ Copyright 2013 Linear Technology Corp. (LTC)
 ***********************************************************/
 
 /*================== Includes =============================================*/
-
+/* recommended include order of header files:
+ * 
+ * 1.    include general.h
+ * 2.    include module's own header
+ * 3...  other headers
+ *
+ */
 #include "general.h"
 #include "ltc_pec.h"
+
+#include <stdint.h>
 
 /*================== Constant and Variable Definitions ====================*/
 

@@ -36,14 +36,23 @@
  */
 
 /*================== Includes =============================================*/
+/* recommended include order of header files:
+ * 
+ * 1.    include general.h
+ * 2.    include module's own header
+ * 3...  other headers
+ *
+ */
+#include "general.h"
 #include "uart.h"
-#include "com.h"
-#include "cmsis_os.h"
+
+#include "os.h"
 
 /*================== Macros and Definitions ===============================*/
 
 #define MSG_NOT_BUSY    0
 #define MSG_BUSY        1
+
 
 /*================== Constant and Variable Definitions ====================*/
 
@@ -57,6 +66,12 @@ uint8_t *rdpoi_rxbuf=&rxbuf[0];
 
 uint8_t *wrpoi_txbuf=&txbuf[0];
 uint8_t *rdpoi_txbuf=&txbuf[0];
+
+
+/*================== Constant and Variable Definitions ====================*/
+
+char uart_com_receivedbyte[UART_COM_RECEIVEBUFFER_LENGTH];
+uint8_t uart_com_receive_slot;
 
 /*================== Function Prototypes ==================================*/
 
@@ -90,81 +105,127 @@ void UART_Init(/*UART_HandleTypeDef *uart_cfg*/ void)
 
 void HAL_UART_CustomIRQHandler(UART_HandleTypeDef *huart)
 {
+    uint32_t isrflags   = READ_REG(huart->Instance->SR);
+    uint32_t cr1its     = READ_REG(huart->Instance->CR1);
+    uint32_t cr3its     = READ_REG(huart->Instance->CR3);
+    uint32_t errorflags = 0x00U;
+    uint32_t dmarequest = 0x00U;
 
-      uint32_t tmp1 = 0;
-      uint32_t tmp2 = 0;
+   /* If no error occurs */
+   errorflags = (isrflags & (uint32_t)(USART_SR_PE | USART_SR_FE | USART_SR_ORE | USART_SR_NE));
+   if(errorflags == RESET)
+   {
+     /* UART in mode Receiver -------------------------------------------------*/
+     if(((isrflags & USART_SR_RXNE) != RESET) && ((cr1its & USART_CR1_RXNEIE) != RESET))
+     {
+       UART_IntRx(); //@todo use general handler according to HAL-Interface:  UART_Receive_IT(huart);
+       return;
+     }
+   }
 
-      tmp1 = __HAL_UART_GET_FLAG(huart, UART_FLAG_PE);
-      tmp2 = __HAL_UART_GET_IT_SOURCE(huart, UART_IT_PE);
-      /* UART parity error interrupt occurred ------------------------------------*/
-      if((tmp1 != RESET) && (tmp2 != RESET))
-      {
-        __HAL_UART_CLEAR_PEFLAG(huart);
+   /* If some errors occur */
+   if((errorflags != RESET) && ((cr3its & (USART_CR3_EIE | USART_CR1_PEIE)) != RESET))
+   {
+     /* UART parity error interrupt occurred ----------------------------------*/
+     if(((isrflags & USART_SR_PE) != RESET) && ((cr1its & USART_CR1_PEIE) != RESET))
+     {
+       huart->ErrorCode |= HAL_UART_ERROR_PE;
+     }
 
-        huart->ErrorCode |= HAL_UART_ERROR_PE;
-      }
+     /* UART noise error interrupt occurred -----------------------------------*/
+     if(((isrflags & USART_SR_NE) != RESET) && ((cr3its & USART_CR3_EIE) != RESET))
+     {
+       huart->ErrorCode |= HAL_UART_ERROR_NE;
+     }
 
-      tmp1 = __HAL_UART_GET_FLAG(huart, UART_FLAG_FE);
-      tmp2 = __HAL_UART_GET_IT_SOURCE(huart, UART_IT_ERR);
-      /* UART frame error interrupt occurred -------------------------------------*/
-      if((tmp1 != RESET) && (tmp2 != RESET))
-      {
-        __HAL_UART_CLEAR_FEFLAG(huart);
+     /* UART frame error interrupt occurred -----------------------------------*/
+     if(((isrflags & USART_SR_FE) != RESET) && ((cr3its & USART_CR3_EIE) != RESET))
+     {
+       huart->ErrorCode |= HAL_UART_ERROR_FE;
+     }
 
-        huart->ErrorCode |= HAL_UART_ERROR_FE;
-      }
+     /* UART Over-Run interrupt occurred --------------------------------------*/
+     if(((isrflags & USART_SR_ORE) != RESET) && ((cr3its & USART_CR3_EIE) != RESET))
+     {
+       huart->ErrorCode |= HAL_UART_ERROR_ORE;
+     }
 
-      tmp1 = __HAL_UART_GET_FLAG(huart, UART_FLAG_NE);
-      tmp2 = __HAL_UART_GET_IT_SOURCE(huart, UART_IT_ERR);
-      /* UART noise error interrupt occurred -------------------------------------*/
-      if((tmp1 != RESET) && (tmp2 != RESET))
-      {
-        __HAL_UART_CLEAR_NEFLAG(huart);
+     /* Call UART Error Call back function if need be --------------------------*/
+     if(huart->ErrorCode != HAL_UART_ERROR_NONE)
+     {
+       /* UART in mode Receiver -----------------------------------------------*/
+       if(((isrflags & USART_SR_RXNE) != RESET) && ((cr1its & USART_CR1_RXNEIE) != RESET))
+       {
+           UART_IntRx(); //@todo use general handler according to HAL-Interface:  UART_Receive_IT(huart);
+       }
 
-        huart->ErrorCode |= HAL_UART_ERROR_NE;
-      }
+       /* If Overrun error occurs, or if any error occurs in DMA mode reception,
+          consider error as blocking */
+       dmarequest = HAL_IS_BIT_SET(huart->Instance->CR3, USART_CR3_DMAR);
+       if(((huart->ErrorCode & HAL_UART_ERROR_ORE) != RESET) || dmarequest)
+       {
+         /* Blocking error : transfer is aborted
+            Set the UART state ready to be able to start again the process,
+            Disable Rx Interrupts, and disable Rx DMA request, if ongoing */
+//@todo         UART_EndRxTransfer(huart);
 
-      tmp1 = __HAL_UART_GET_FLAG(huart, UART_FLAG_ORE);
-      tmp2 = __HAL_UART_GET_IT_SOURCE(huart, UART_IT_ERR);
-      /* UART Over-Run interrupt occurred ----------------------------------------*/
-      if((tmp1 != RESET) && (tmp2 != RESET))
-      {
-        __HAL_UART_CLEAR_OREFLAG(huart);
+         /* Disable the UART DMA Rx request if enabled */
+         if(HAL_IS_BIT_SET(huart->Instance->CR3, USART_CR3_DMAR))
+         {
+           CLEAR_BIT(huart->Instance->CR3, USART_CR3_DMAR);
 
-        huart->ErrorCode |= HAL_UART_ERROR_ORE;
-      }
+           /* Abort the UART DMA Rx channel */
+           if(huart->hdmarx != NULL)
+           {
+             /* Set the UART DMA Abort callback :
+                will lead to call HAL_UART_ErrorCallback() at end of DMA abort procedure */
+//@todo      huart->hdmarx->XferAbortCallback = UART_DMAAbortOnError;
+             if(HAL_DMA_Abort_IT(huart->hdmarx) != HAL_OK)
+             {
+               /* Call Directly XferAbortCallback function in case of error */
+//@todo        huart->hdmarx->XferAbortCallback(huart->hdmarx);
+                 UART_HandleTypeDef* huartptr = ( UART_HandleTypeDef* )((DMA_HandleTypeDef* )(huart->hdmarx))->Parent;
+                 huartptr->RxXferCount = 0;
+                 huartptr->TxXferCount = 0;
+                 HAL_UART_ErrorCallback(huartptr);
+             }
+           }
+           else
+           {
+             /* Call user error callback */
+             HAL_UART_ErrorCallback(huart);
+           }
+         }
+         else
+         {
+           /* Call user error callback */
+           HAL_UART_ErrorCallback(huart);
+         }
+       }
+       else
+       {
+         /* Non Blocking error : transfer could go on.
+            Error is notified to user through user error callback */
+         HAL_UART_ErrorCallback(huart);
+         huart->ErrorCode = HAL_UART_ERROR_NONE;
+       }
+     }
+     return;
+   } /* End if some error occurs */
 
-      tmp1 = __HAL_UART_GET_FLAG(huart, UART_FLAG_RXNE);
-      tmp2 = __HAL_UART_GET_IT_SOURCE(huart, UART_IT_RXNE);
-      /* UART in mode Receiver ---------------------------------------------------*/
-      if((tmp1 != RESET) && (tmp2 != RESET))
-      {
-          UART_IntRx(); //TODO akdere: UART_Receive_IT(huart);
-      }
+   /* UART in mode Transmitter ------------------------------------------------*/
+   if(((isrflags & USART_SR_TXE) != RESET) && ((cr1its & USART_CR1_TXEIE) != RESET))
+   {
+     UART_IntTx(); //@todo use general handler according to HAL-Interface: UART_Transmit_IT(huart);
+     return;
+   }
 
-      tmp1 = __HAL_UART_GET_FLAG(huart, UART_FLAG_TXE);
-      tmp2 = __HAL_UART_GET_IT_SOURCE(huart, UART_IT_TXE);
-      /* UART in mode Transmitter ------------------------------------------------*/
-      if((tmp1 != RESET) && (tmp2 != RESET))
-      {
-          UART_IntTx(); //TODO akdere: UART_Transmit_IT(huart);
-      }
-
-      tmp1 = __HAL_UART_GET_FLAG(huart, UART_FLAG_TC);
-      tmp2 = __HAL_UART_GET_IT_SOURCE(huart, UART_IT_TC);
-      /* UART in mode Transmitter end --------------------------------------------*/
-      if((tmp1 != RESET) && (tmp2 != RESET))
-      {
-          UART_IntRxComp(); //TODO akdere: UART_EndTransmit_IT(huart);
-      }
-
-      if(huart->ErrorCode != HAL_UART_ERROR_NONE)
-      {
-        /* Set the UART state ready to be able to start again the process */
-        huart->State = HAL_UART_STATE_READY;
-
-        HAL_UART_ErrorCallback(huart);
-      }
+   /* UART in mode Transmitter end --------------------------------------------*/
+   if(((isrflags & USART_SR_TC) != RESET) && ((cr1its & USART_CR1_TCIE) != RESET))
+   {
+     UART_IntRxComp(); //@todo use general handler according to HAL-Interface:  UART_EndTransmit_IT(huart);
+     return;
+   }
 }
 
 /**
@@ -188,8 +249,11 @@ static void UART_IntRx(void)
     //check overwrite of read pointer
 
     // todo: this is just a very simple debug/demonstration implementation for decoder
-    *(com_receivedbyte + com_receive_slot) = *rdpoi_rxbuf;
-    com_receive_slot++;
+    if(uart_com_receive_slot < UART_COM_RECEIVEBUFFER_LENGTH-1)
+    {
+    *(uart_com_receivedbyte + uart_com_receive_slot) = *rdpoi_rxbuf;
+    uart_com_receive_slot++;
+    }
 
     /*pointer handling of ringbuffer*/
     if(++rdpoi_rxbuf >= &rxbuf[RXBUF_LENGTH])

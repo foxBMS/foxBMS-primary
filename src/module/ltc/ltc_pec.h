@@ -73,6 +73,7 @@ void generate_crc15_table()
 #ifndef LTC_PEC_H_
 #define LTC_PEC_H_
 
+
 /*================== Includes =============================================*/
 
 /*================== Macros and Definitions ===============================*/

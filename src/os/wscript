@@ -1,5 +1,3 @@
-# -*- Mode: python; py-indent-offset: 4; indent-tabs-mode: nil; coding:
-# utf-8; -*-
 # @copyright &copy; 2010 - 2016, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V. All rights reserved.
 #
 # BSD 3-Clause License
@@ -18,52 +16,25 @@
 #
 # &Prime;This product is derived from foxBMS&reg;&Prime;
 
+"""WAF script for building "foxbms-stmhal" library.
+location of this wscript:
+    /src/os/wscript
+
+library output:
+    /build/src/os/libfoxbms-os.a
+
+"""
+
 from waflib import Logs, Utils, Context
 import os
 
 def build(bld):
-    srcs = bld.path.ant_glob('**/*.c')
-    includes = ' '.join([
-            '.',
-            os.path.join(bld.bldnode.abspath()),
-            os.path.join(bld.srcnode.abspath(), 'src', 'application', 'sox'), 
-            os.path.join(bld.srcnode.abspath(), 'src', 'application', 'config'), 
-            os.path.join(bld.srcnode.abspath(), 'src', 'application', 'task'), 
-            os.path.join(bld.srcnode.abspath(), 'src', 'engine', 'config'), 
-            os.path.join(bld.srcnode.abspath(), 'src', 'engine', 'database'), 
-            os.path.join(bld.srcnode.abspath(), 'src', 'engine', 'task'), 
-            os.path.join(bld.srcnode.abspath(), 'src', 'engine', 'sysctrl'), 
-            os.path.join(bld.srcnode.abspath(), 'src', 'engine', 'diag'),
-            os.path.join(bld.srcnode.abspath(), 'src', 'general'),
-            os.path.join(bld.srcnode.abspath(), 'src', 'general', 'config'), 
-            os.path.join(bld.srcnode.abspath(), 'src', 'general', 'includes'), 
-            os.path.join(bld.srcnode.abspath(), 'src', 'hal', 'CMSIS', 'Device', 'ST', 'STM32F4xx', 'Include'), 
-            os.path.join(bld.srcnode.abspath(), 'src', 'hal', 'CMSIS', 'Include'), 
-            os.path.join(bld.srcnode.abspath(), 'src', 'hal', 'STM32F4xx_HAL_Driver', 'Inc'), 
-            os.path.join(bld.srcnode.abspath(), 'src', 'hal', 'STM32F4xx_HAL_Driver', 'Inc', 'Legacy'), 
-            os.path.join(bld.srcnode.abspath(), 'src', 'os'), 
-            os.path.join(bld.srcnode.abspath(), 'src', 'os', 'FreeRTOS', 'Source', 'CMSIS_RTOS'), 
-            os.path.join(bld.srcnode.abspath(), 'src', 'os', 'FreeRTOS', 'Source', 'include'), 
-            os.path.join(bld.srcnode.abspath(), 'src', 'os', 'FreeRTOS', 'Source', 'portable', 'GCC', 'ARM_CM4F'), 
-            os.path.join(bld.srcnode.abspath(), 'src', 'module', 'mcu'),
-            os.path.join(bld.srcnode.abspath(), 'src', 'module', 'can'), 
-            os.path.join(bld.srcnode.abspath(), 'src', 'module', 'cansignal'), 
-            os.path.join(bld.srcnode.abspath(), 'src', 'module', 'eeprom'),
-            os.path.join(bld.srcnode.abspath(), 'src', 'module', 'contactor'),
-            os.path.join(bld.srcnode.abspath(), 'src', 'module', 'io'),
-            os.path.join(bld.srcnode.abspath(), 'src', 'module', 'utils'),
-            os.path.join(bld.srcnode.abspath(), 'src', 'module', 'config'),
-            os.path.join(bld.srcnode.abspath(), 'src', 'module', 'utils'),
-            os.path.join(bld.srcnode.abspath(), 'src', 'module', 'rtc'),              
-            os.path.join(bld.srcnode.abspath(), 'src', 'module', 'mcu'),               
-            os.path.join(bld.env.generalincludes)])
+    """Directories listed in dir_build_list are built, when the waf function
+    "build" is called.
+    """
+    freertos_path = os.path.join(bld.top_dir, 'FreeRTOS')
+    dir_build_list = [freertos_path]
+    for dir in dir_build_list:
+        bld.recurse(dir)
 
-
-    bld.stlib(
-              target='foxbms-os',
-              source=srcs,
-              includes = includes
-              )
-
-
-# vim: set ft=python : 
+# vim: set ft=python :

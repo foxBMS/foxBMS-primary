@@ -7,7 +7,7 @@
  * 1.  Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
  * 2.  Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
  * 3.  Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote products derived from this software without specific prior written permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  * We kindly request you to use one or more of the following phrases to refer to foxBMS in your hardware, software, documentation or advertising materials:
@@ -23,15 +23,16 @@
 /**
  * @file    eepr.h
  * @author  foxBMS Team
- * @date    27.11.2012
+ * @date    27.11.2012 (date of creation)
  * @ingroup DRIVERS
  * @prefix  EEPR
  *
- * @brief Headers for the driver for the storage in the EEPROM memory.
+ * @brief   Headers for the driver for the storage in the EEPROM memory
  *
  * Header file driver of external EEPROM device
  *
  */
+
 #ifndef EEPR_H_
 #define EEPR_H_
 
@@ -126,7 +127,7 @@ typedef struct {
  *
  * @return  void
 */
-extern void EEPR_StateTrigger(void);
+extern void EEPR_Trigger(void);
 
 /**
  * @brief   manually trigger for state changes
@@ -136,7 +137,7 @@ extern void EEPR_StateTrigger(void);
  * @return  retVal      DIAG_EEPR_OK if request triggered, DIAG_EEPR_BUSY if EEPR_StateTrigger() is
  *                      actually running, otherwise DIAG_EEPR_ERROR
 */
-extern EEPR_RETURNTYPE_e EEPR_StateRequest(EEPR_STATE_e state_req);
+extern EEPR_RETURNTYPE_e EEPR_SetStateRequest(EEPR_STATE_e state_req);
 
 /**
  * @brief   returns actual state of EEPROM driver
@@ -145,7 +146,7 @@ extern EEPR_RETURNTYPE_e EEPR_StateRequest(EEPR_STATE_e state_req);
 */
 extern EEPR_STATE_e EEPR_GetState(void);
 
-// FIXME function not called, check if needed?
+// FIXME function not called, is it important? throw out?
 /**
  * @brief   control of EEPROM Data management
  *
@@ -153,8 +154,9 @@ extern EEPR_STATE_e EEPR_GetState(void);
 */
 extern void EEPR_DataCtrl(void);
 
+// FIXME where is data stored? byteptr doesn't exist
 /**
- * @brief   reads "byte_len" of bytes from EEPROM memory starting at "address" and saving data in globla variable eepr_cmd_read[]
+ * @brief   reads "byte_len" of bytes from EEPROM memory starting at "address" and saving data in "byteptr"
  *
  * @param   EeprAddr  starting address of EEPROM where to read data
  * @param   byte_len  length of bytes that are to be read
@@ -162,17 +164,21 @@ extern void EEPR_DataCtrl(void);
 */
 extern uint8_t EEPR_ReadMemory(uint16_t EeprAddr, uint16_t byte_len);
 
+// FIXME brief section is confusing
 /**
- * @brief   max. time for reading of eeprom data (depending on data length)
+ * @brief   max. time for reading of eeprom data calculates the 16-bit sum-of-bytes
+ *          checksum over byte_len of bytes by starting at *dataptr
  *
  * @return  readtime in ms
 */
 extern uint16_t EEPR_GetReadTime(void);
 
+// FIXME brief section is confusing
 /**
- * @brief   max. time for writing of eeprom data (depending on data length)
+ * @brief   max. time for writing of eeprom data calculates the 16-bit sum-of-bytes
+ *          checksum over byte_len of bytes by starting at *dataptr
  *
- * @return  writetime in ms
+ * @return  readtime in ms
 */
 extern uint16_t EEPR_GetWriteTime(void);
 

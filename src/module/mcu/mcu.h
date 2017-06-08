@@ -7,7 +7,7 @@
  * 1.  Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
  * 2.  Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
  * 3.  Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote products derived from this software without specific prior written permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  * We kindly request you to use one or more of the following phrases to refer to foxBMS in your hardware, software, documentation or advertising materials:
@@ -24,10 +24,10 @@
  * @file    mcu.h
  * @author  foxBMS Team
  * @date    22.11.2015 (date of creation)
- * @ingroup DRIVERS *
+ * @ingroup DRIVERS
  * @prefix  MCU
  *
- * @brief Headers for the functions for the MCU to manage time and interrupts.
+ * @brief   Headers for the functions for the MCU to manage time and interrupts
  *
  * Header file provides interfaces to set boot information, to disable/enable all interrupts,
  * to wait a designated time and and to get the a timestamp based on the os systick.
@@ -38,10 +38,13 @@
 #define MCU_H_
 
 /*================== Includes =============================================*/
-#include "general.h"
-#include "stm32f4xx_hal.h"
 
 /*================== Macros and Definitions ===============================*/
+typedef struct {
+    uint32_t off0;
+    uint32_t off32;
+    uint32_t off64;
+}MCU_DeviceID_s;
 
 /*================== Constant and Variable Definitions ====================*/
 
@@ -96,6 +99,13 @@ extern uint32_t MCU_GetTimeBase(void);
  * @return  time stamp in ms, based on the OS time.
  */
 extern uint32_t MCU_GetTimeStamp(void);
+
+/**
+ * @brief   Get unique device ID
+ *
+ * @return  void
+ */
+extern void MCU_GetDeviceID(MCU_DeviceID_s * deviceID);
 
 /*================== Function Implementations =============================*/
 #endif /* MCU_H_ */

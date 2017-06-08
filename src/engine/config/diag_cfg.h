@@ -7,7 +7,7 @@
  * 1.  Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
  * 2.  Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
  * 3.  Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote products derived from this software without specific prior written permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  * We kindly request you to use one or more of the following phrases to refer to foxBMS in your hardware, software, documentation or advertising materials:
@@ -34,21 +34,24 @@
  *
  * Furthermore are the diag error log settings be configured here..
  */
+
 #ifndef DIAG_CFG_H_
 #define DIAG_CFG_H_
 
 /*================== Includes =============================================*/
-#include "general.h"
+
 #include "diag_id_cfg.h"
 #include "rtc.h"
+// FIXME throw out or leave in?
+//#include "contactor.h"
 
 /*================== Macros and Definitions ===============================*/
 // FIXME comment on this
 #define DIAG_DATA_IS_VALID                  RTC_BKPDIAG_DATAVALID_VARIABLE
-
+// FIXME First = 0, fifth = 5,...? should be sixth or 4!
 #define DIAG_ERROR_SENSITIVITY_HIGH         (0)    // logging at first event
-#define DIAG_ERROR_SENSITIVITY_MID          (5)    // logging at sixth event
-#define DIAG_ERROR_SENSITIVITY_LOW          (10)   // logging at eleventh event
+#define DIAG_ERROR_SENSITIVITY_MID          (5)    // logging at fifth event
+#define DIAG_ERROR_SENSITIVITY_LOW          (10)    // logging at tenth event
 
 /**
  * Number of errors that can be logged
@@ -112,11 +115,32 @@
  /**
   * Measurement trustworthy or not, hysteresis to ground error flag
   */
-#define DIAG_CH_ISOMETER_MEAS_VALID         DIAG_ID_38
+#define DIAG_CH_ISOMETER_MEAS_INVALID       DIAG_ID_38
 
-#define DIAG_CH_LTC_SPI                     DIAG_ID_40            //
-#define DIAG_CH_COM_LTC_PEC                 DIAG_ID_41            //
-#define DIAG_CH_LTC_MUX                     DIAG_ID_42            //
+/**
+ * Cell voltage limits violated
+ */
+#define DIAG_CH_CELLVOLTAGE_OVERVOLTAGE     DIAG_ID_39
+#define DIAG_CH_CELLVOLTAGE_UNDERVOLTAGE    DIAG_ID_40
+
+/**
+ *  Temperature limits violated
+ */
+#define DIAG_CH_TEMP_MIN_VIOLATE            DIAG_ID_41
+#define DIAG_CH_TEMP_MAX_VIOLATE            DIAG_ID_42
+
+/**
+ * Overcurrent
+ */
+#define DIAG_CH_OVERCURRENT_CHARGE          DIAG_ID_43
+#define DIAG_CH_OVERCURRENT_DISCHARGE       DIAG_ID_44
+
+
+
+
+#define DIAG_CH_LTC_SPI                     DIAG_ID_45            //
+#define DIAG_CH_COM_LTC_PEC                 DIAG_ID_46            //
+#define DIAG_CH_LTC_MUX                     DIAG_ID_47            //
 
 
 /* Communication events: 48-63*/
@@ -154,11 +178,12 @@ typedef enum {
  * failure codes FC
  */
 typedef enum {
-    DIAG_GENERAL_TYPE   = 0x00,     /*!< FC 0x00 - 0x2F */
-    DIAG_CELLMON_TYPE   = 0x01,     /*!< FC not used */
-    DIAG_COM_TYPE       = 0x02,     /*!< FC not used */
-    DIAG_ADC_TYPE       = 0x04,     /*!< FC not used */
-    DIAG_CONT_TYPE      = 0x08      /*!< FC 0x40 - 0x4F */
+    DIAG_GENERAL_TYPE   = 0x00,     /*!< FC 0x00 - 0x1F */
+    DIAG_CELLMON_TYPE   = 0x01,     /*!< FC 0x20 - 0x3F */
+    DIAG_COM_TYPE       = 0x02,     /*!< FC 0x40 - 0x5F */
+    DIAG_ADC_TYPE       = 0x04,     /*!< FC 0x60 - 0x7F */
+    //FIXME which failure codes for following group?
+    DIAG_CONT_TYPE      = 0x08      /*!< FC             */
 } DIAG_TYPE_e;
 
 /**
@@ -178,6 +203,15 @@ typedef enum {
     DIAG_SYSMON_CYCLICTASK  = 0x00,     /*!< */
     DIAG_SYSMON_RESERVED    = 0x01      /*!< */
 } DIAG_SYSMON_TYPE_e;
+
+/**
+ * diagnosis handling type for system monitoring
+ */
+typedef enum {
+    DIAG_SYSMON_HANDLING_DONOTHING             = 0x00,     /*!< */
+    DIAG_SYSMON_HANDLING_SWITCHOFFCONTACTOR    = 0x01      /*!< */
+} DIAG_SYSMON_HANDLING_TYPE_e;
+
 
 /**
  * @brief   symbolic names for diagnosis
@@ -200,11 +234,21 @@ typedef enum {
     DIAG_SYSMON_LTC_ID              = 2,    /*!< diag entry for ltc                     */
     DIAG_SYSMON_ISOGUARD_ID         = 3,    /*!< diag entry for ioguard                 */
     DIAG_SYSMON_CANS_ID             = 4,    /*!< diag entry for can                     */
-    DIAG_SYSMON_APPL_CYCLIC_10ms    = 5,    /*!< diag entry for application 10ms task   */
-    DIAG_SYSMON_APPL_CYCLIC_100ms   = 6,    /*!< diag entry for application 100ms task  */
-    DIAG_SYSMON_BMSCTRL_ID          = 7,    /*!< diag entry for bmscontrol              */
-    DIAG_SYSMON_MODULE_ID_MAX       = 8     /*!< end marker do not delete               */
+    DIAG_SYSMON_APPL_CYCLIC_1ms     = 5,    /*!< diag entry for application 10ms task   */
+    DIAG_SYSMON_APPL_CYCLIC_10ms    = 6,    /*!< diag entry for application 10ms task   */
+    DIAG_SYSMON_APPL_CYCLIC_100ms   = 7,    /*!< diag entry for application 100ms task  */
+    DIAG_SYSMON_BMSCTRL_ID          = 8,    /*!< diag entry for bmscontrol              */
+    DIAG_SYSMON_MODULE_ID_MAX       = 9     /*!< end marker do not delete               */
 } DIAG_SYSMON_MODULE_ID_e;
+
+// FIXME doxygen comment
+// FIXME is DIAG_CODE_s an appropriate name for this?
+typedef struct {
+    uint32_t GENERALmsk;
+    uint32_t CELLMONmsk;
+    uint32_t COMmsk;
+    uint32_t ADCmsk;
+} DIAG_CODE_s;
 
 
 /**
@@ -212,6 +256,7 @@ typedef enum {
 */
 typedef struct {
     DIAG_CH_ID_e id;                        /*!< diagnosis event id diag_id */
+    uint8_t description[24];
     DIAG_TYPE_e type;                       /*!< diagnosis group of diag event */
     uint8_t thresholds;                     /*!< threshold for number of events which will be tolerated before generating a notification in both direction (OK or NOT OK)
                                              *   threshold=0: reports the value at first occurence, threshold=1:reports the value at second occurence*/
@@ -242,11 +287,12 @@ typedef struct {
  * Channel configuration of one system monitoring channel
  */
 typedef struct {
-    DIAG_SYSMON_MODULE_ID_e id;                     /*!< the diag type by its symbolic name         */
-    DIAG_SYSMON_TYPE_e type;                        /*!< error type, general or special             */
-    uint16_t threshold;                             /*!< max. delay time in ms                      */
-    DIAG_TYPE_RECORDING_e enablerecording;          /*!< enabled if set to DIAG_RECORDING_ENABLED   */
-    DIAG_ENABLE_STATE_e state;                      /*!< */
+    DIAG_SYSMON_MODULE_ID_e id;                     /*!< the diag type by its symbolic name            */
+    DIAG_SYSMON_TYPE_e type;                        /*!< system monitoring types: cyclic or special    */
+    uint16_t threshold;                             /*!< max. delay time in ms                         */
+    DIAG_TYPE_RECORDING_e enablerecording;          /*!< enabled if set to DIAG_RECORDING_ENABLED      */
+    DIAG_SYSMON_HANDLING_TYPE_e handlingtype;       /*!< type of handling of system monitoring errors  */
+    DIAG_ENABLE_STATE_e state;                      /*!< enable or disable system monitoring           */
     void (*callbackfunc)(DIAG_SYSMON_MODULE_ID_e);  /*!< */
 } DIAG_SYSMON_CH_CFG_s;
 
@@ -262,8 +308,10 @@ extern DIAG_DEV_s diag_dev;
  */
 extern DIAG_SYSMON_CH_CFG_s diag_sysmon_ch_cfg[];
 
+// FIXME why is it in header at all? and why is it in code at all? not used
+extern DIAG_CODE_s diag_mask;
 /*================== Function Prototypes ==================================*/
 
 /*================== Function Implementations =============================*/
 
-#endif   // DIAG_CFG_H_
+#endif /* DIAG_CFG_H_ */

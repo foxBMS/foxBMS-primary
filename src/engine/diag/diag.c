@@ -35,14 +35,23 @@
  */
 
 /*================== Includes =============================================*/
-#include "cmsis_os.h"
+/* recommended include order of header files:
+ * 
+ * 1.    include general.h
+ * 2.    include module's own header
+ * 3...  other headers
+ *
+ */
+#include "general.h"
 #include "diag.h"
+
+#include "os.h"
 #include "rtc.h"
-#include "com.h"
 #include "mcu.h"
 #include "bkpsram.h"
 #include "syscontrol.h"
 #include "misc.h"
+#include "uart.h"
 
 /*================== Macros and Definitions ===============================*/
 
@@ -52,8 +61,13 @@ static DIAG_DEV_s  *diag_devptr;
 static uint32_t diagsysmonTimestamp = 0;
 static uint8_t diag_locked = 0;
 
+// FIXME unused
+// FIXME do you really want to have global variables?
+DIAG_CODE_s diag_err;
+DIAG_CODE_s diag_warn;
+DIAG_OCCURRENCE_COUNTERS_s diag_occurrence_counters;
 
-
+//uint32_t diag_error;
 
 DIAG_SYSMON_NOTIFICATION_s diag_sysmon[DIAG_SYSMON_MODULE_ID_MAX];
 DIAG_SYSMON_NOTIFICATION_s diag_sysmon_last[DIAG_SYSMON_MODULE_ID_MAX];
@@ -195,7 +209,7 @@ void DIAG_PrintErrors(void) {
      * printed again. Maybe tmp save rdptr and set again at end of function. But when is the
      * diag memory cleared then? */
 
-    uint8_t buf[9] = {0, 0, 0, 0, 0, 0, 0, 0, 0};
+    uint8_t buf[24] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
 
     if(diag_entry_rdptr == diag_entry_wrptr)
     {
@@ -206,11 +220,11 @@ void DIAG_PrintErrors(void) {
     {
         DEBUG_PRINTF((const uint8_t * )"DIAG error entries:");
         DEBUG_PRINTF((const uint8_t * )"\r\n");
-        DEBUG_PRINTF((const uint8_t * )"Date and Time:      Error Code/Item");
+        DEBUG_PRINTF((const uint8_t * )"Date and Time:      Error Code/Item   Status     Description");
         DEBUG_PRINTF((const uint8_t * )"\r\n");
     }
     uint8_t c = 0;
-    while(diag_entry_rdptr != diag_entry_wrptr && c < 6)
+    while(diag_entry_rdptr != diag_entry_wrptr && c < 7)
     {
 
         if( diag_entry_rdptr >= &diag_memory[DIAG_FAIL_ENTRY_LENGTH]) {
@@ -233,7 +247,19 @@ void DIAG_PrintErrors(void) {
 
         DEBUG_PRINTF((const uint8_t * )" / ");
         DEBUG_PRINTF(U8ToDecascii(buf, &diag_entry_rdptr->item,2));
+        DEBUG_PRINTF((const uint8_t * )"      ");
 
+        if(diag_entry_rdptr->event == DIAG_EVENT_OK)
+            DEBUG_PRINTF((const uint8_t * )"cleared     ");
+        else if(diag_entry_rdptr->event == DIAG_EVENT_NOK)
+            DEBUG_PRINTF((const uint8_t * )"occurred    ");
+        else
+            DEBUG_PRINTF((const uint8_t * )"reset       ");
+
+        for(uint8_t i = 0; i < 24; i++)
+            buf[i] = diag_devptr->ch_cfg[diag.id2ch[diag_entry_rdptr->event_id]].description[i];
+
+        DEBUG_PRINTF((const uint8_t *)buf);
         DEBUG_PRINTF((const uint8_t * )"\r\n");
 
         diag_entry_rdptr++;
@@ -243,7 +269,7 @@ void DIAG_PrintErrors(void) {
 
     // More entries in diag buffer
     if(diag_entry_rdptr != diag_entry_wrptr)
-        DEBUG_PRINTF((const uint8_t * )"Please repeat command. Additional error entries in DIAG buffer available!\n");
+        DEBUG_PRINTF((const uint8_t * )"Please repeat command. Additional error entries in DIAG buffer available!\r\n");
 
 }
 
@@ -262,7 +288,7 @@ void DIAG_PrintContactorInfo(void)
     DEBUG_PRINTF((const uint8_t * )"Contactor switching entries:");
     DEBUG_PRINTF((const uint8_t * )"\r\n");
 
-    for(uint8_t i = 0; i < NR_OF_CONTACTORS; i++) {
+    for(uint8_t i = 0; i < BS_NR_OF_CONTACTORS; i++) {
         DEBUG_PRINTF((const uint8_t * )"Contactor ");
         DEBUG_PRINTF(U8ToDecascii(buf, &i, 2));
         DEBUG_PRINTF((const uint8_t * )"\r\nOpening switches: ");
@@ -345,7 +371,7 @@ static uint8_t DIAG_EntryWrite(uint8_t eventID, DIAG_EVENT_e event, uint8_t item
     uint8_t c;
     RTC_Time_s currTime;
     RTC_Date_s currDate;
-    uint8_t buf[9] = {0, 0, 0, 0, 0, 0, 0, 0, 0};
+    uint8_t buf[25] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}; // max. description length = 24 + 1 to identify end of array
 
     if(diag_locked)
         return ret_val;    // only locked when clearing the diagnosis memory
@@ -387,8 +413,8 @@ static uint8_t DIAG_EntryWrite(uint8_t eventID, DIAG_EVENT_e event, uint8_t item
     diag_entry_wrptr->Val3 = diag_fc.Val3;
     ++diag_entry_wrptr;
 
-    ++diag.errcntreported;                // counts of (new) diagnosis entry records which is still not been read by external Tool
-                                    // which will reset this value to 0 after having read all new entries which means <acknowledged by user>
+    ++diag.errcntreported;         // counts of (new) diagnosis entry records which is still not been read by external Tool
+                                   // which will reset this value to 0 after having read all new entries which means <acknowledged by user>
     ++diag.errcnttotal;            // total counts of diagnosis entry records
 
     diag.entry_event[eventID] = event;
@@ -399,6 +425,14 @@ static uint8_t DIAG_EntryWrite(uint8_t eventID, DIAG_EVENT_e event, uint8_t item
     DEBUG_PRINTF(U8ToDecascii(buf, &eventID,3));
     DEBUG_PRINTF((const uint8_t * )"/");
     DEBUG_PRINTF(U8ToDecascii(buf, &item_nr,2));
+    DEBUG_PRINTF((const uint8_t * )" ");
+
+    // Copy error description  in buffer, maximum description length = 24 characters
+    for(uint8_t i = 0; i < 24; i++)
+        buf[i] = diag_devptr->ch_cfg[diag.id2ch[eventID]].description[i];
+
+    DEBUG_PRINTF((const uint8_t *)buf);
+
     if(event==DIAG_EVENT_OK)
         DEBUG_PRINTF((const uint8_t * )" cleared");
     else if (event==DIAG_EVENT_NOK)
@@ -502,7 +536,7 @@ static DIAG_RETURNTYPE_e DIAG_GeneralHandler(DIAG_CH_ID_e diag_ch_id, DIAG_EVENT
     {
         if(diag.err_enableflag[err_enable_idx] & err_enable_bitmask)
         {
-            if ((*u8ptr_threshcounter) == 0)
+            if (((*u8ptr_threshcounter) == 0) && (*u32ptr_errCodemsk == 0))
             {
                 ;   // everything ok, nothing to be handled
             }
@@ -510,7 +544,7 @@ static DIAG_RETURNTYPE_e DIAG_GeneralHandler(DIAG_CH_ID_e diag_ch_id, DIAG_EVENT
             {
                 (*u8ptr_threshcounter)--;   // Error did not occur, decrement Error-Counter
             }
-            else if ((*u8ptr_threshcounter) == 1)
+            else if ((*u8ptr_threshcounter) <= 1)
             {   // Error did not occur, now decrement to zero and clear Error- or Warning-Flag and make recording if enabled
                 *u32ptr_errCodemsk &= ~err_enable_bitmask;      // ERROR:   clear corresponding bit in errflag[idx]
                 *u32ptr_warnCodemsk &= ~err_enable_bitmask;     // WARNING: clear corresponding bit in warnflag[idx]
@@ -602,7 +636,7 @@ static DIAG_RETURNTYPE_e DIAG_ContHandler(DIAG_CH_ID_e eventID, uint8_t cont_nr,
         retVal = DIAG_HANDLER_RETURN_OK;
     }
     else if(eventID == DIAG_CH_CONTACTOR_DAMAGED) {
-        if (NULL == openingCur) {
+        if (NULL_PTR == openingCur) {
             retVal = DIAG_HANDLER_INVALID_DATA;
         }
         else {
@@ -625,7 +659,7 @@ static DIAG_RETURNTYPE_e DIAG_ContHandler(DIAG_CH_ID_e eventID, uint8_t cont_nr,
                 /* More errors reported than entries available. Read entries to free buffer space */
 
                 diagContactor.errcntreported = DIAG_FAIL_ENTRY_CONTACTOR_LENGTH;
-                // TODO: perhaps do something?
+                // todo: perhaps do something?
             }
             else {
                 /* Write error entry */
@@ -684,36 +718,44 @@ void DIAG_SysMon(void)
     diagsysmonTimestamp = localTimer;
 
     /* check modules */
-    for (module_id = 0; module_id < DIAG_SYSMON_MODULE_ID_MAX; module_id++) {
+    for (module_id = 0; module_id < DIAG_SYSMON_MODULE_ID_MAX; module_id++)
+    {
 
         if((diag_sysmon_ch_cfg[module_id].type == DIAG_SYSMON_CYCLICTASK) &&
-           (diag_sysmon_ch_cfg[module_id].state == DIAG_ENABLED)     ) {
-
-            if(diag_sysmon[module_id].timestamp -  diag_sysmon_last[module_id].timestamp <  1) {
+           (diag_sysmon_ch_cfg[module_id].state == DIAG_ENABLED)     )
+        {
+            if(diag_sysmon[module_id].timestamp -  diag_sysmon_last[module_id].timestamp <  1)
+            {
                 // module not running
-                if(++diag_sysmon_cnt[module_id] >= diag_sysmon_ch_cfg[module_id].threshold) {     //TODO configurable timeouts !
+                if(++diag_sysmon_cnt[module_id] >= diag_sysmon_ch_cfg[module_id].threshold)
+                {     //@todo configurable timeouts !
+                    if(diag_sysmon_ch_cfg[module_id].enablerecording == DIAG_RECORDING_ENABLED)
+                        DIAG_Handler(DIAG_CH_SYSTEMMONITORING_TIMEOUT,DIAG_EVENT_NOK,module_id, NULL);
 
-                    DIAG_Handler(DIAG_CH_SYSTEMMONITORING_TIMEOUT,DIAG_EVENT_NOK,module_id, NULL);
-
-                    // system not working trustfully, switch off contactors!
-                    SYSCTRL_SetStateRequest(SYSCTRL_STATE_REQ_ERROR);
-                    CONT_SwitchAllContactorsOff();
+                    if(diag_sysmon_ch_cfg[module_id].handlingtype == DIAG_SYSMON_HANDLING_SWITCHOFFCONTACTOR)
+                    {   // system not working trustfully, switch off contactors!
+                        SYSCTRL_SetStateRequest(SYSCTRL_STATE_REQ_ERROR);
+                        CONT_SwitchAllContactorsOff();
+                    }
                     diag_sysmon_cnt[module_id] = 0;
 
-                    // TODO: call callback function if error occurred
-                }
-
-            } else {
-                // module running
-
-                diag_sysmon_cnt[module_id] = 0;
-
-                if(diag_sysmon[module_id].state != 0) {
-                    /* check state of module */
-                    // TODO: do something now!
+                    // @todo: call callback function if error occurred
+                    diag_sysmon_ch_cfg[module_id].callbackfunc(module_id);
                 }
             }
-        } else {
+            else
+            {
+                // module running
+                diag_sysmon_cnt[module_id] = 0;
+
+                if(diag_sysmon[module_id].state != 0)
+                {
+                    /* check state of module */
+                    // @todo: do something now!
+                }
+            }
+        } else
+        {
             // if Sysmon type != cyclic task (not used at the moment)
         }
 

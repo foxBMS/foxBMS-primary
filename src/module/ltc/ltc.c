@@ -7,7 +7,7 @@
  * 1.  Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
  * 2.  Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
  * 3.  Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote products derived from this software without specific prior written permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  * We kindly request you to use one or more of the following phrases to refer to foxBMS in your hardware, software, documentation or advertising materials:
@@ -33,7 +33,16 @@
 
 
 /*================== Includes =============================================*/
+/* recommended include order of header files:
+ * 
+ * 1.    include general.h
+ * 2.    include module's own header
+ * 3...  other headers
+ *
+ */
 #include "general.h"
+#include "database.h"
+
 #include "ltc.h"
 #include "mcu.h"
 #include "diag.h"
@@ -59,7 +68,7 @@ static DATA_BLOCK_BALANCING_FEEDBACK_s ltc_balancing_feedback;
 static DATA_BLOCK_BALANCING_CONTROL_s ltc_balancing_control;
 
 
-static LTC_ERRORTABLE_s LTC_ErrorTable[NR_OF_MODULES]; // init in LTC_ResetErrorTable-function
+static LTC_ERRORTABLE_s LTC_ErrorTable[BS_NR_OF_MODULES]; // init in LTC_ResetErrorTable-function
 
 
 static LTC_STATE_s ltc_state = {
@@ -203,7 +212,7 @@ static void LTC_Initialize_Database(void) {
     ltc_minmax.voltage_module_number_max = 0;
     ltc_minmax.voltage_cell_number_min = 0;
     ltc_minmax.voltage_cell_number_max = 0;
-    for (i=0; i<NR_OF_BAT_CELLS;i++) {
+    for (i=0; i<BS_NR_OF_BAT_CELLS;i++) {
         ltc_cellvoltage.voltage[i] = 0;
     }
 
@@ -215,7 +224,7 @@ static void LTC_Initialize_Database(void) {
     ltc_minmax.temperature_module_number_max = 0;
     ltc_minmax.temperature_sensor_number_min = 0;
     ltc_minmax.temperature_sensor_number_max = 0;
-    for (i=0; i<NR_OF_TEMP_SENSORS;i++) {
+    for (i=0; i<BS_NR_OF_TEMP_SENSORS;i++) {
         ltc_celltemperature.temperature[i] = 0;
     }
 
@@ -223,7 +232,7 @@ static void LTC_Initialize_Database(void) {
     ltc_balancing_feedback.timestamp = 0;
     ltc_balancing_control.state = 0;
     ltc_balancing_control.timestamp = 0;
-    for (i=0; i<NR_OF_BAT_CELLS;i++) {
+    for (i=0; i<BS_NR_OF_BAT_CELLS;i++) {
         ltc_balancing_feedback.value[i] = 0;
         ltc_balancing_control.value[i] = 0;
     }
@@ -278,33 +287,33 @@ static void LTC_SaveVoltages(void) {
     uint8_t cell_number_min = 0;
     uint8_t cell_number_max = 0;
 
-    for (i=0;i<NR_OF_MODULES;i++) {
-        for (j=0;j<NR_OF_BAT_CELLS_PER_MODULE;j++) {
+    for (i=0;i<BS_NR_OF_MODULES;i++) {
+        for (j=0;j<BS_NR_OF_BAT_CELLS_PER_MODULE;j++) {
 
             val_ui = *((uint16_t *)(&LTC_CellVoltages[2*j+i*LTC_NUMBER_OF_LTC_PER_MODULE*24]));        // raw values
             val_fl = ((float)(val_ui))*100e-6*1000.0;        // Unit V -> in mV
-            ltc_cellvoltage.voltage[i*(NR_OF_BAT_CELLS_PER_MODULE)+j]=(uint16_t)(val_fl);
+            ltc_cellvoltage.voltage[i*(BS_NR_OF_BAT_CELLS_PER_MODULE)+j]=(uint16_t)(val_fl);
         }
     }
 
     max = min = ltc_cellvoltage.voltage[0];
     mean = 0;
-    for (i=0;i<NR_OF_MODULES;i++) {
-        for (j=0;j<NR_OF_BAT_CELLS_PER_MODULE;j++) {
-            mean += ltc_cellvoltage.voltage[i*(NR_OF_BAT_CELLS_PER_MODULE)+j];
-            if (ltc_cellvoltage.voltage[i*(NR_OF_BAT_CELLS_PER_MODULE)+j] < min) {
-                min = ltc_cellvoltage.voltage[i*(NR_OF_BAT_CELLS_PER_MODULE)+j];
+    for (i=0;i<BS_NR_OF_MODULES;i++) {
+        for (j=0;j<BS_NR_OF_BAT_CELLS_PER_MODULE;j++) {
+            mean += ltc_cellvoltage.voltage[i*(BS_NR_OF_BAT_CELLS_PER_MODULE)+j];
+            if (ltc_cellvoltage.voltage[i*(BS_NR_OF_BAT_CELLS_PER_MODULE)+j] < min) {
+                min = ltc_cellvoltage.voltage[i*(BS_NR_OF_BAT_CELLS_PER_MODULE)+j];
                 module_number_min = i;
                 cell_number_min = j;
             }
-            if (ltc_cellvoltage.voltage[i*(NR_OF_BAT_CELLS_PER_MODULE)+j] > max) {
-                max = ltc_cellvoltage.voltage[i*(NR_OF_BAT_CELLS_PER_MODULE)+j];
+            if (ltc_cellvoltage.voltage[i*(BS_NR_OF_BAT_CELLS_PER_MODULE)+j] > max) {
+                max = ltc_cellvoltage.voltage[i*(BS_NR_OF_BAT_CELLS_PER_MODULE)+j];
                 module_number_max = i;
                 cell_number_max = j;
             }
         }
     }
-    mean /= (NR_OF_BAT_CELLS);
+    mean /= (BS_NR_OF_BAT_CELLS);
 
     DATA_GetTable(&ltc_minmax, DATA_BLOCK_ID_MINMAX);
     ltc_cellvoltage.state++;
@@ -365,7 +374,7 @@ static void LTC_SaveTemperatures_SaveBalancingFeedback(void) {
         if (muxseqptr->muxCh != 0xff) {
 
             if (muxseqptr->muxID <= 1) {    // muxID 0 or 1, // typically temperature multiplexer type
-                for (i=0;i<NR_OF_MODULES;i++)
+                for (i=0;i<BS_NR_OF_MODULES;i++)
                 {
                     val_ui=*((uint16_t *)(&LTC_MultiplexerVoltages[2*((LTC_NUMBER_OF_LTC_PER_MODULE*i*LTC_N_MUX_CHANNELS_PER_LTC)+muxseqptr->muxID*LTC_N_MUX_CHANNELS_PER_MUX+muxseqptr->muxCh)]));        // raw values, all mux on all LTCs
                     val_fl = ((float)(val_ui))*100e-6;        // Unit -> in V
@@ -376,27 +385,27 @@ static void LTC_SaveTemperatures_SaveBalancingFeedback(void) {
                     else {
                         sensor_idx = ltc_muxsensortemperatur_cfg[muxseqptr->muxCh+8];
                     }
-                    if (sensor_idx >= NR_OF_TEMP_SENSORS_PER_MODULE)
+                    if (sensor_idx >= BS_NR_OF_TEMP_SENSORS_PER_MODULE)
                         return;
 
                     val_si = (int16_t)(LTC_Convert_MuxVoltages_to_Temperatures(val_fl));
-                    ltc_celltemperature.temperature[i*(NR_OF_TEMP_SENSORS_PER_MODULE)+sensor_idx]=val_si;
+                    ltc_celltemperature.temperature[i*(BS_NR_OF_TEMP_SENSORS_PER_MODULE)+sensor_idx]=val_si;
 
                 }
             }
 
             if (muxseqptr->muxID >= 2 && muxseqptr->muxID <= 3) // muxID 2 or 3
             {    // typically balancing multiplexer type
-                for (i=0;i<NR_OF_MODULES;i++) {
+                for (i=0;i<BS_NR_OF_MODULES;i++) {
                     if(muxseqptr->muxID == 2)
                         ch_idx = 0 + muxseqptr->muxCh;    // channel index 0..7
                     else
                         ch_idx = 8 + muxseqptr->muxCh;    // channel index 8..15
 
-                    if (ch_idx < NR_OF_BAT_CELLS_PER_MODULE) {
+                    if (ch_idx < BS_NR_OF_BAT_CELLS_PER_MODULE) {
                         val_ui=*((uint16_t *)(&LTC_MultiplexerVoltages[2*(LTC_NUMBER_OF_LTC_PER_MODULE*i*LTC_N_MUX_CHANNELS_PER_LTC+muxseqptr->muxID*LTC_N_MUX_CHANNELS_PER_MUX+muxseqptr->muxCh)]));        // raw values, all mux on all LTCs
                         val_fl = ((float)(val_ui))*100e-6*1000.0;        // Unit -> in V -> in mV
-                        ltc_balancing_feedback.value[i*(NR_OF_BAT_CELLS_PER_MODULE)+ch_idx] = (uint16_t)(val_fl);
+                        ltc_balancing_feedback.value[i*(BS_NR_OF_BAT_CELLS_PER_MODULE)+ch_idx] = (uint16_t)(val_fl);
                     }
                 }
 
@@ -410,22 +419,22 @@ static void LTC_SaveTemperatures_SaveBalancingFeedback(void) {
 
     mean = 0;
     max = min = ltc_celltemperature.temperature[0];
-    for (i=0;i<NR_OF_MODULES;i++) {
-        for (j=0;j<NR_OF_TEMP_SENSORS_PER_MODULE;j++) {
-            mean += ltc_celltemperature.temperature[i*(NR_OF_TEMP_SENSORS_PER_MODULE)+j];
-            if (ltc_celltemperature.temperature[i*(NR_OF_TEMP_SENSORS_PER_MODULE)+j] < min) {
-                min = ltc_celltemperature.temperature[i*(NR_OF_TEMP_SENSORS_PER_MODULE)+j];
+    for (i=0;i<BS_NR_OF_MODULES;i++) {
+        for (j=0;j<BS_NR_OF_TEMP_SENSORS_PER_MODULE;j++) {
+            mean += ltc_celltemperature.temperature[i*(BS_NR_OF_TEMP_SENSORS_PER_MODULE)+j];
+            if (ltc_celltemperature.temperature[i*(BS_NR_OF_TEMP_SENSORS_PER_MODULE)+j] < min) {
+                min = ltc_celltemperature.temperature[i*(BS_NR_OF_TEMP_SENSORS_PER_MODULE)+j];
                 module_number_min = i;
                 sensor_number_min = j;
             }
-            if (ltc_celltemperature.temperature[i*(NR_OF_TEMP_SENSORS_PER_MODULE)+j] > max) {
-                max = ltc_celltemperature.temperature[i*(NR_OF_TEMP_SENSORS_PER_MODULE)+j];
+            if (ltc_celltemperature.temperature[i*(BS_NR_OF_TEMP_SENSORS_PER_MODULE)+j] > max) {
+                max = ltc_celltemperature.temperature[i*(BS_NR_OF_TEMP_SENSORS_PER_MODULE)+j];
                 module_number_max = i;
                 sensor_number_max = j;
             }
         }
     }
-    mean /= (NR_OF_TEMP_SENSORS);
+    mean /= (BS_NR_OF_TEMP_SENSORS);
 
     DATA_GetTable(&ltc_minmax, DATA_BLOCK_ID_MINMAX);
     ltc_celltemperature.previous_timestamp = ltc_celltemperature.timestamp;
@@ -1760,7 +1769,7 @@ static uint8_t LTC_I2CCheckACK(uint8_t *DataBufferSPI_RX, int mux) {
     uint8_t mux_error = 0;
     uint16_t i = 0;
 
-    for(i=0;i<NR_OF_MODULES;i++) {
+    for(i=0;i<BS_NR_OF_MODULES;i++) {
         if (mux == 0){
             if (DataBufferSPI_RX[4+1+LTC_NUMBER_OF_LTC_PER_MODULE*i*8]!=0x07) {    // ACK = 0xX7
                 LTC_ErrorTable[i].mux0=1;
@@ -1880,9 +1889,9 @@ static STD_RETURN_TYPE_e LTC_BalanceControl(void) {
     LTC_Get_BalancingControlValues();
 
 
-    for (j=0;j<NR_OF_MODULES;j++) {
+    for (j=0;j<BS_NR_OF_MODULES;j++) {
 
-        i=NR_OF_MODULES-j-1;
+        i=BS_NR_OF_MODULES-j-1;
 
         // FC = disable all pull-downs
         ltc_tmpTXbuffer[0+(i)*6]=0xFC;
@@ -1892,40 +1901,40 @@ static STD_RETURN_TYPE_e LTC_BalanceControl(void) {
         ltc_tmpTXbuffer[4+(i)*6]=0x00;
         ltc_tmpTXbuffer[5+(i)*6]=0x00;
 
-        if (ltc_balancing_control.value[j*(NR_OF_BAT_CELLS_PER_MODULE)+0] == 1) {
+        if (ltc_balancing_control.value[j*(BS_NR_OF_BAT_CELLS_PER_MODULE)+0] == 1) {
             ltc_tmpTXbuffer[4+(i)*6]|=0x01;
         }
-        if (ltc_balancing_control.value[j*(NR_OF_BAT_CELLS_PER_MODULE)+1] == 1) {
+        if (ltc_balancing_control.value[j*(BS_NR_OF_BAT_CELLS_PER_MODULE)+1] == 1) {
             ltc_tmpTXbuffer[4+(i)*6]|=0x02;
         }
-        if (ltc_balancing_control.value[j*(NR_OF_BAT_CELLS_PER_MODULE)+2] == 1) {
+        if (ltc_balancing_control.value[j*(BS_NR_OF_BAT_CELLS_PER_MODULE)+2] == 1) {
             ltc_tmpTXbuffer[4+(i)*6]|=0x04;
         }
-        if (ltc_balancing_control.value[j*(NR_OF_BAT_CELLS_PER_MODULE)+3] == 1) {
+        if (ltc_balancing_control.value[j*(BS_NR_OF_BAT_CELLS_PER_MODULE)+3] == 1) {
             ltc_tmpTXbuffer[4+(i)*6]|=0x08;
         }
-        if (ltc_balancing_control.value[j*(NR_OF_BAT_CELLS_PER_MODULE)+4] == 1) {
+        if (ltc_balancing_control.value[j*(BS_NR_OF_BAT_CELLS_PER_MODULE)+4] == 1) {
             ltc_tmpTXbuffer[4+(i)*6]|=0x10;
         }
-        if (ltc_balancing_control.value[j*(NR_OF_BAT_CELLS_PER_MODULE)+5] == 1) {
+        if (ltc_balancing_control.value[j*(BS_NR_OF_BAT_CELLS_PER_MODULE)+5] == 1) {
             ltc_tmpTXbuffer[4+(i)*6]|=0x20;
         }
-        if (ltc_balancing_control.value[j*(NR_OF_BAT_CELLS_PER_MODULE)+6] == 1) {
+        if (ltc_balancing_control.value[j*(BS_NR_OF_BAT_CELLS_PER_MODULE)+6] == 1) {
             ltc_tmpTXbuffer[4+(i)*6]|=0x40;
         }
-        if (ltc_balancing_control.value[j*(NR_OF_BAT_CELLS_PER_MODULE)+7] == 1) {
+        if (ltc_balancing_control.value[j*(BS_NR_OF_BAT_CELLS_PER_MODULE)+7] == 1) {
             ltc_tmpTXbuffer[4+(i)*6]|=0x80;
         }
-        if (ltc_balancing_control.value[j*(NR_OF_BAT_CELLS_PER_MODULE)+8] == 1) {
+        if (ltc_balancing_control.value[j*(BS_NR_OF_BAT_CELLS_PER_MODULE)+8] == 1) {
             ltc_tmpTXbuffer[5+(i)*6]|=0x01;
         }
-        if (ltc_balancing_control.value[j*(NR_OF_BAT_CELLS_PER_MODULE)+9] == 1) {
+        if (ltc_balancing_control.value[j*(BS_NR_OF_BAT_CELLS_PER_MODULE)+9] == 1) {
             ltc_tmpTXbuffer[5+(i)*6]|=0x02;
         }
-        if (ltc_balancing_control.value[j*(NR_OF_BAT_CELLS_PER_MODULE)+10] == 1) {
+        if (ltc_balancing_control.value[j*(BS_NR_OF_BAT_CELLS_PER_MODULE)+10] == 1) {
             ltc_tmpTXbuffer[5+(i)*6]|=0x04;
         }
-        if (ltc_balancing_control.value[j*(NR_OF_BAT_CELLS_PER_MODULE)+11] == 1) {
+        if (ltc_balancing_control.value[j*(BS_NR_OF_BAT_CELLS_PER_MODULE)+11] == 1) {
             ltc_tmpTXbuffer[5+(i)*6]|=0x08;
         }
 
@@ -1949,7 +1958,7 @@ static void LTC_ResetErrorTable(void) {
     uint16_t i = 0;
     uint16_t j = 0;
 
-    for (i=0;i<NR_OF_MODULES;i++) {
+    for (i=0;i<BS_NR_OF_MODULES;i++) {
         for (j=0;j<LTC_NUMBER_OF_LTC_PER_MODULE;j++) {
         LTC_ErrorTable[i].LTC[j]=0;
         }

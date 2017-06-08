@@ -95,12 +95,16 @@
 
 /*CMSIS uses 7 priorities [-3,-2,-1,0,1,2,3]
  * note: lowest CMSIS priority  osPriorityIdle=-3 is higher than freeRTOS idle task
- * vApplicationIdleHook() enabled by configUSE_IDLE_HOOK */
-#define configMAX_PRIORITIES                (  7 )
+ * vApplicationIdleHook() enabled by configUSE_IDLE_HOOK
+ * Default configuration to meet the CMSIS specification is:
+ * #define configMAX_PRIORITIES                (  7 )
+ * To seperate the BMS Engine and Applications tasks this configuration is increased
+*/
+#define configMAX_PRIORITIES                (7 + 3)
 
 #define configMINIMAL_STACK_SIZE            ( ( uint16_t ) 128 )
 #define configTOTAL_HEAP_SIZE               ( ( size_t ) ( 15 * 1024 ) )
-#define configMAX_TASK_NAME_LEN             ( 16 )
+#define configMAX_TASK_NAME_LEN             ( 20 )
 #define configUSE_TRACE_FACILITY            1
 #define configUSE_16_BIT_TICKS              0
 #define configIDLE_SHOULD_YIELD             1

@@ -7,7 +7,7 @@
  * 1.  Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
  * 2.  Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
  * 3.  Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote products derived from this software without specific prior written permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  * We kindly request you to use one or more of the following phrases to refer to foxBMS in your hardware, software, documentation or advertising materials:
@@ -23,11 +23,11 @@
 /**
  * @file    io_cfg.h
  * @author  foxBMS Team
- * @date    26.08.2015
+ * @date    26.08.2015 (date of creation)
  * @ingroup DRIVERS_CONF
  * @prefix  IO
  *
- * @brief Headers for the configuration for the driver for the I/O ports (pins).
+ * @brief   Headers for the configuration for the driver for the I/O ports (pins).
  *
  * ==============================================================================
  *                  Configuration of the GPIOs
@@ -52,9 +52,9 @@
 
 #ifndef IO_CFG_H_
 #define IO_CFG_H_
+
 /*================== Includes =============================================*/
-#include "general.h"
-#include "stm32f4xx.h"
+#include "mcu_cfg.h"
 #include "io_package_cfg.h"
 #if FOXBMS_BOARD == 1
 #include "io_mcu0_cfg.h"
@@ -76,7 +76,7 @@
  * Enables pin locking globally. If this macro is not defined, pin locking
  * can not be activated.
  */
-#define IO_PIN_LOCKING
+//#define IO_PIN_LOCKING
 
 /*================== Constant and Variable Definitions ====================*/
 /**
@@ -126,7 +126,6 @@ typedef enum {
 typedef enum {
     IO_ALTERNATE_AF0_RTC_50Hz   = GPIO_AF0_RTC_50Hz,    /*!< Real-time Clock 50Hz                                       */
     IO_ALTERNATE_AF0_MCO        = GPIO_AF0_MCO,         /*!< Microcontroller clock output, (MCO1 and MCO2)              */
-    IO_ALTERNATE_AF0_TAMPER     = GPIO_AF0_TAMPER,      /*!< Tamper (TAMPER_1 and TAMPER_2)                             */
     IO_ALTERNATE_AF0_SWJ        = GPIO_AF0_SWJ,         /*!< Serial Wire Debug or JTAG                                  */
     IO_ALTERNATE_AF0_TRACE      = GPIO_AF0_TRACE,       /*!< Trace                                                      */
 
@@ -152,16 +151,13 @@ typedef enum {
     IO_ALTERNATE_AF5_SPI4       = GPIO_AF5_SPI4,        /*!< Serial Peripheral Interface Bus 4                          */
     IO_ALTERNATE_AF5_SPI5       = GPIO_AF5_SPI5,        /*!< Serial Peripheral Interface Bus 5                          */
     IO_ALTERNATE_AF5_SPI6       = GPIO_AF5_SPI6,        /*!< Serial Peripheral Interface Bus 6                          */
-    IO_ALTERNATE_AF5_I2S3ext    = GPIO_AF5_I2S3ext,     /*!< Inter-IC Sound 3                                           */
 
     IO_ALTERNATE_AF6_SPI3       = GPIO_AF6_SPI3,        /*!< Serial Peripheral Interface Bus 3                          */
-    IO_ALTERNATE_AF6_I2S2ext    = GPIO_AF6_I2S2ext,     /*!< Inter-IC Sound 2                                           */
     IO_ALTERNATE_AF6_SAI1       = GPIO_AF6_SAI1,        /*!< Serial Audio Interface 1                                   */
 
     IO_ALTERNATE_AF7_USART1     = GPIO_AF7_USART1,      /*!< Universal Synchronous/Asynchronous Receiver Transmitter 1  */
     IO_ALTERNATE_AF7_USART2     = GPIO_AF7_USART2,      /*!< Universal Synchronous/Asynchronous Receiver Transmitter 2  */
     IO_ALTERNATE_AF7_USART3     = GPIO_AF7_USART3,      /*!< Universal Synchronous/Asynchronous Receiver Transmitter 3  */
-    IO_ALTERNATE_AF7_I2S3ext    = GPIO_AF7_I2S3ext,     /*!< Inter-IC Sound 3                                           */
 
     IO_ALTERNATE_AF8_UART4      = GPIO_AF8_UART4,       /*!< Universal Asynchronous Receiver Transmitter 4              */
     IO_ALTERNATE_AF8_UART5      = GPIO_AF8_UART5,       /*!< Universal Asynchronous Receiver Transmitter 5              */
@@ -170,11 +166,10 @@ typedef enum {
     IO_ALTERNATE_AF8_UART8      = GPIO_AF8_UART8,       /*!< Universal Asynchronous Receiver Transmitter 3              */
 
     IO_ALTERNATE_AF9_CAN1       = GPIO_AF9_CAN1,        /*!< Controller Area Network Bus 1                              */
-    IO_ALTERNATE_AF9_CAN2       = GPIO_AF9_CAN2,        /*!< Controller Area Network Bus 2                              */
+    IO_ALTERNATE_AF9_CAN0       = GPIO_AF9_CAN2,        /*!< Controller Area Network Bus 2                              */
     IO_ALTERNATE_AF9_TIM12      = GPIO_AF9_TIM12,       /*!< TIM12                                                      */
     IO_ALTERNATE_AF9_TIM13      = GPIO_AF9_TIM13,       /*!< TIM13                                                      */
     IO_ALTERNATE_AF9_TIM14      = GPIO_AF9_TIM14,       /*!< TIM14                                                      */
-    IO_ALTERNATE_AF9_LTDC       = GPIO_AF9_LTDC,        /*!< LCD-TFT                                                    */
 
     IO_ALTERNATE_AF10_OTG_FS    = GPIO_AF10_OTG_FS,     /*!< USB On-the-go FS                                           */
     IO_ALTERNATE_AF10_OTG_HS    = GPIO_AF10_OTG_HS,     /*!< USB On-the-go HS                                           */
@@ -187,7 +182,6 @@ typedef enum {
 
     IO_ALTERNATE_AF13_DCMI      = GPIO_AF13_DCMI,       /*!< Dublin Core                                                */
 
-    IO_ALTERNATE_AF14_LTDC      = GPIO_AF14_LTDC,       /*!< LCD-TFT                                                    */
 
     IO_ALTERNATE_AF15_EVENTOUT  = GPIO_AF15_EVENTOUT,   /*!< Eventout                                                   */
 

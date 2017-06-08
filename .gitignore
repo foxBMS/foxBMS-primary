@@ -1,0 +1,7 @@
+*[wW]orkspace*
+Packages
+build
+*.pyc
+*.log
+.lock-waf_*
+waf-*-*

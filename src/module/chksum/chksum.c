@@ -40,8 +40,18 @@
 
 
 /*================== Includes =============================================*/
+/* recommended include order of header files:
+ * 
+ * 1.    include general.h
+ * 2.    include module's own header
+ * 3...  other headers
+ *
+ */
+#include "general.h"
 #include "chksum.h"
-#include "stm32f4xx.h"
+
+#include "mcu_cfg.h"
+#include "version.h"
 
 
 /*================== Macros and Definitions ===============================*/
@@ -49,12 +59,10 @@
 
 
 /*================== Constant and Variable Definitions ====================*/
-
 CHK_STATUS_s chk_status;
 
 
 /*================== Function Prototypes ==================================*/
-
 uint32_t CHK_modulo32addition(uint8_t* data, uint32_t len);
 uint32_t CHK_crc32(uint8_t* data, uint32_t len);
 

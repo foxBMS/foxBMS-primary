@@ -7,7 +7,7 @@
  * 1.  Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
  * 2.  Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
  * 3.  Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote products derived from this software without specific prior written permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  * We kindly request you to use one or more of the following phrases to refer to foxBMS in your hardware, software, documentation or advertising materials:
@@ -23,15 +23,23 @@
 /**
  * @file    eepr_cfg.c
  * @author  foxBMS Team
- * @date    23.02.2016
+ * @date    23.02.2016 (date of creation)
  * @ingroup DRIVERS_CONF,EXT_PER
  * @prefix  EEPR
  *
- * @brief Configuration for the driver for the storage in the EEPROM memory.
+ * @brief   Configuration for the driver for the storage in the EEPROM memory
  *
  */
 
 /*================== Includes =============================================*/
+/* recommended include order of header files:
+ * 
+ * 1.    include general.h
+ * 2.    include module's own header
+ * 3...  other headers
+ *
+ */
+#include "general.h"
 #include "eepr_cfg.h"
 #include "mcu.h"
 #include "spi.h"
@@ -59,6 +67,7 @@ const EEPR_CALIB_FRAME_s defaultcalibdata = {
     .Block.data.calib.u_temperature_min  = 0,
     .Block.data.calib.current_max        = 0,
     .Block.data.calib.current_max        = 0,
+    .Block.data.calib.operating_hours = { 0,0,0,0,0,0,0 },
 };
 
 // write buffer for calibration data in eeprom
@@ -116,7 +125,7 @@ EEPR_RETURNTYPE_e SPI_SendData(uint8_t* data, uint16_t length, uint16_t receiveo
     EEPR_RETURNTYPE_e retVal = EEPR_ERROR;
     HAL_StatusTypeDef eepr_spi_halstate = HAL_ERROR;
 
-    IO_WritePin(PIN_MCU_0_DATA_STORAGE_EEPROM_SPI_NSS, IO_PIN_RESET); // FIXME use chip select/unselect functions fromSPI module!
+    IO_WritePin(IO_PIN_MCU_0_DATA_STORAGE_EEPROM_SPI_NSS, IO_PIN_RESET); // FIXME use chip select/unselect functions fromSPI module!
 
     eepr_spi_halstate = HAL_SPI_TransmitReceive_IT(&spi_devices[1], data, eepr_spi_rxbuf, length);
     eepr_spi_rxoffset = receiveoffset;
@@ -168,6 +177,8 @@ void EEPR_BkpSramDefaultDataRecovery(void) {
 
     bkpsram_ch_1.contactors_count = defaultcalibdata.Block.data.calib.contactors_count;
 
+    bkpsram_ch_1.operating_hours = defaultcalibdata.Block.data.calib.operating_hours;
+
     bkpsram_ch_1.checksum = EEPR_CalcChecksum((uint8_t*)(&bkpsram_ch_1),sizeof(bkpsram_ch_1)-4);
 }
 
@@ -178,6 +189,8 @@ void EEPR_BkpSramDataRecovery(void) {
 
     bkpsram_ch_1.contactors_count = eepr_frame.Block.data.calib.contactors_count;
 
+    bkpsram_ch_1.operating_hours = eepr_frame.Block.data.calib.operating_hours;
+
     bkpsram_ch_1.checksum = EEPR_CalcChecksum((uint8_t*)(&bkpsram_ch_1),sizeof(bkpsram_ch_1)-4);
 }
 
@@ -187,6 +200,8 @@ void EEPR_UpdateEepromData(void) {
     eepr_writebuffer.calib.soc = bkpsram_ch_1.nvsoc;
 
     eepr_writebuffer.calib.contactors_count = bkpsram_ch_1.contactors_count;
+
+    eepr_writebuffer.calib.operating_hours = bkpsram_ch_1.operating_hours;
 
     eepr_writebufferChksum = EEPR_CalcChecksum((uint8_t*)(&eepr_writebuffer), sizeof(struct_CALIB_DATA_s));
 }

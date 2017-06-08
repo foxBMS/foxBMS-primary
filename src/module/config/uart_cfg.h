@@ -35,8 +35,7 @@
 #define UART_CFG_H_
 
 /*================== Includes =============================================*/
-#include "general.h"
-#include "stm32f4xx_hal.h"
+#include "mcu_cfg.h"
 
 /*================== Macros and Definitions ===============================*/
 

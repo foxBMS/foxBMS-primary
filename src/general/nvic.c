@@ -7,7 +7,7 @@
  * 1.  Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
  * 2.  Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
  * 3.  Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote products derived from this software without specific prior written permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  * We kindly request you to use one or more of the following phrases to refer to foxBMS in your hardware, software, documentation or advertising materials:
@@ -27,7 +27,7 @@
  * @ingroup GENERAL
  * @prefix  NVIC
  *
- * @brief Functions for setting and enabling interrupts
+ * @brief   Functions for setting and enabling interrupts
  *
  * The MCU has 16 interrupt priority levels:
  * Priority number 0 means highest (strongest) priority
@@ -59,15 +59,50 @@
  */
 
 /*================== Includes =============================================*/
+/* recommended include order of header files:
+ * 
+ * 1.    include general.h
+ * 2.    include module's own header
+ * 3...  other headers
+ *
+ */
+#include "general.h"
 #include "nvic.h"
+
 #include "diag.h"
+#include "mcu_cfg.h"
 
 /*================== Macros and Definitions ===============================*/
+
+/**
+  * @brief  Sets the specified EXTI line.
+  * @param  __EXTI_LINE__: specifies the EXTI line flag to check.
+  *         This parameter can be GPIO_PIN_x where x can be(0..15)
+  * @retval void
+  */
+#define __NVIC_EXTI_SELECT_LINE(__EXTI_LINE__)          (EXTI->IMR | (__EXTI_LINE__))
+
+/**
+  * @brief  Sets the specified EXTI line to trigger on rising edges.
+  * @param  __EXTI_LINE__: specifies the EXTI line flag to check.
+  *         This parameter can be GPIO_PIN_x where x can be(0..15)
+  * @retval void
+  */
+#define __NVIC_EXTI_SELECT_RISING_EDGE(__EXTI_LINE__)   (EXTI->RTSR | (__EXTI_LINE__))
+
+
+/**
+  * @brief  Sets the specified EXTI line to trigger on falling edges.
+  * @param  __EXTI_LINE__: specifies the EXTI line flag to check.
+  *         This parameter can be GPIO_PIN_x where x can be(0..15)
+  * @retval void
+  */
+#define __NVIC_EXTI_SELECT_FALLING_EDGE(__EXTI_LINE__)   (EXTI->RTSR | (__EXTI_LINE__))
 
 /*================== Constant and Variable Definitions ====================*/
 
 /*================== Function Prototypes ==================================*/
-
+static void NVIC_InitEXTI(void);
 
 /*================== Function Implementations =============================*/
 
@@ -117,13 +152,17 @@ void NVIC_PostOsInit(void) {
 
     }
 
+
     /* Set SysTick_IRQn interrupt priority */
     HAL_NVIC_SetPriority(SysTick_IRQn, 15, 0);
 
-    /* Set Interrupt priority and Enable Interrupts*/
+    /* Set Interrupt priority */
     for (i = 0; i < nvic_cfg_length; i++) {
             HAL_NVIC_SetPriority(nvic_interrupts[i].IRQ, nvic_interrupts[i].Prio, 0);
     }
+
+    /* Initialize external interrupts */
+    NVIC_InitEXTI();
 
     /* Enable Interrupts */
     for (i = 0; i < nvic_cfg_length; i++) {
@@ -152,3 +191,24 @@ void NVIC_DisableInterrupt(IRQn_Type interrupt) {
         }
     }
 }
+
+static void NVIC_InitEXTI(void) {
+    /* TODO:
+     *
+     * SYSCFG_EXTICR4 = 1
+     * EXTI_IMR.MR12 = 1
+     * EXTI_RTSR.TR12/FTSR.TR12 = 1
+     */
+//    uint32_t tmp;
+//    tmp = SYSCFG->EXTICR[3];
+
+    __HAL_RCC_SYSCFG_CLK_ENABLE();
+
+    SYSCFG->EXTICR[3] |= 1;
+    EXTI->IMR = __NVIC_EXTI_SELECT_LINE(GPIO_PIN_12);
+    EXTI->RTSR = __NVIC_EXTI_SELECT_RISING_EDGE(GPIO_PIN_12);
+    EXTI->FTSR = __NVIC_EXTI_SELECT_FALLING_EDGE(GPIO_PIN_12);
+
+}
+
+

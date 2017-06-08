@@ -7,7 +7,7 @@
  * 1.  Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
  * 2.  Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
  * 3.  Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote products derived from this software without specific prior written permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  * We kindly request you to use one or more of the following phrases to refer to foxBMS in your hardware, software, documentation or advertising materials:
@@ -27,7 +27,7 @@
  * @ingroup DRIVERS
  * @prefix  IR155
  *
- * @brief Driver for the isolation monitoring.
+ * @brief   Driver for the isolation monitoring
  *
  * main file of bender isometer IR155 driver
  *
@@ -35,10 +35,18 @@
 
 
 /*================== Includes =============================================*/
+/* recommended include order of header files:
+ * 
+ * 1.    include general.h
+ * 2.    include module's own header
+ * 3...  other headers
+ *
+ */
 #include "general.h"
-#include "rtc.h"
 #include "ir155.h"
+
 #include "diag.h"
+#include "general.h"
 #ifdef IR155_HISTORYENABLE
 #include "mcu.h"    // for timestamp in history struct
 #endif
@@ -113,7 +121,7 @@ void IR155_Init(uint8_t cycleTime) {
     measCycleTime = cycleTime;
 
     /* Set diagnosis message that measurement is not trustworthy */
-    DIAG_Handler(DIAG_CH_ISOMETER_MEAS_VALID, DIAG_EVENT_NOK, 0, NULL);
+    DIAG_Handler(DIAG_CH_ISOMETER_MEAS_INVALID, DIAG_EVENT_NOK, 0, NULL);
 }
 
 
@@ -131,7 +139,7 @@ void IR155_DeInit(void) {
     sig_ir155_dutycycle.PeriodTime = 0;
 
     /* Set diagnosis message that measurement is not trustworthy */
-    DIAG_Handler(DIAG_CH_ISOMETER_MEAS_VALID, DIAG_EVENT_NOK, 0, NULL);
+    DIAG_Handler(DIAG_CH_ISOMETER_MEAS_INVALID, DIAG_EVENT_NOK, 0, NULL);
 }
 
 /**
@@ -416,7 +424,7 @@ STD_RETURN_TYPE_e IR155_MeasureResistance(IR155_STATE_e* state, uint32_t* resist
         if(hysteresisCounter == 0) {
             /* If hysteresis is over, reset diag flag and reset grounderror flag */
             DIAG_Handler(DIAG_CH_ISOMETER_GROUNDERROR, DIAG_EVENT_OK, 0, NULL);
-            DIAG_Handler(DIAG_CH_ISOMETER_MEAS_VALID, DIAG_EVENT_OK, 0, NULL);
+            DIAG_Handler(DIAG_CH_ISOMETER_MEAS_INVALID, DIAG_EVENT_OK, 0, NULL);
 
             isobender_grounderror = 0;
         }

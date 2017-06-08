@@ -2,12 +2,12 @@
   ******************************************************************************
   * @file      startup_stm32f429xx.s
   * @author    MCD Application Team
-  * @version   V2.3.2
-  * @date      26-June-2015 
-  * @brief     STM32F429xx Devices vector table for Atollic TrueSTUDIO toolchain. 
+  * @version   V2.5.0
+  * @date      22-April-2015 
+  * @brief     STM32F429xx Devices vector table for GCC based toolchains. 
   *            This module performs:
   *                - Set the initial SP
-  *                - Set the initial PC  ==  Reset_Handler,
+  *                - Set the initial PC == Reset_Handler,
   *                - Set the vector table entries with the exceptions ISR address
   *                - Branches to main in the C library (which eventually
   *                  calls main()).
@@ -16,7 +16,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT 2015 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -222,10 +222,10 @@ g_pfnVectors:
   .word     DMA2_Stream4_IRQHandler           /* DMA2 Stream 4                */                   
   .word     ETH_IRQHandler                    /* Ethernet                     */                   
   .word     ETH_WKUP_IRQHandler               /* Ethernet Wakeup through EXTI line */                     
-  .word     CAN2_TX_IRQHandler                /* CAN2 TX                      */                          
-  .word     CAN2_RX0_IRQHandler               /* CAN2 RX0                     */                          
-  .word     CAN2_RX1_IRQHandler               /* CAN2 RX1                     */                          
-  .word     CAN2_SCE_IRQHandler               /* CAN2 SCE                     */                          
+  .word     CAN0_TX_IRQHandler                /* CAN0 TX                      */
+  .word     CAN0_RX0_IRQHandler               /* CAN0 RX0                     */
+  .word     CAN0_RX1_IRQHandler               /* CAN0 RX1                     */
+  .word     CAN0_SCE_IRQHandler               /* CAN0 SCE                     */
   .word     OTG_FS_IRQHandler                 /* USB OTG FS                   */                   
   .word     DMA2_Stream5_IRQHandler           /* DMA2 Stream 5                */                   
   .word     DMA2_Stream6_IRQHandler           /* DMA2 Stream 6                */                   
@@ -244,11 +244,11 @@ g_pfnVectors:
   .word     UART7_IRQHandler                  /* UART7                        */      
   .word     UART8_IRQHandler                  /* UART8                        */
   .word     SPI4_IRQHandler                   /* SPI4                         */
-  .word     SPI5_IRQHandler                   /* SPI5                           */
-  .word     SPI6_IRQHandler                   /* SPI6                          */
-  .word     SAI1_IRQHandler                   /* SAI1                          */
-  .word     LTDC_IRQHandler                   /* LTDC_IRQHandler              */
-  .word     LTDC_ER_IRQHandler                /* LTDC_ER_IRQHandler              */
+  .word     SPI5_IRQHandler                   /* SPI5 						  */
+  .word     SPI6_IRQHandler                   /* SPI6						  */
+  .word     SAI1_IRQHandler                   /* SAI1						  */
+  .word     LTDC_IRQHandler                   /* LTDC_IRQHandler			  */
+  .word     LTDC_ER_IRQHandler                /* LTDC_ER_IRQHandler			  */
   .word     DMA2D_IRQHandler                  /* DMA2D                        */
   
 /*******************************************************************************
@@ -286,7 +286,7 @@ g_pfnVectors:
    .thumb_set SysTick_Handler,Default_Handler              
   
    .weak      WWDG_IRQHandler                   
-   .thumb_set WWDG_IRQHandler,Default_Handler      
+   .thumb_set WWDG_IRQHandler,Default_Handler
                   
    .weak      PVD_IRQHandler      
    .thumb_set PVD_IRQHandler,Default_Handler
@@ -310,7 +310,7 @@ g_pfnVectors:
    .thumb_set EXTI1_IRQHandler,Default_Handler
                      
    .weak      EXTI2_IRQHandler         
-   .thumb_set EXTI2_IRQHandler,Default_Handler 
+   .thumb_set EXTI2_IRQHandler,Default_Handler
                  
    .weak      EXTI3_IRQHandler         
    .thumb_set EXTI3_IRQHandler,Default_Handler
@@ -328,7 +328,7 @@ g_pfnVectors:
    .thumb_set DMA1_Stream2_IRQHandler,Default_Handler
                   
    .weak      DMA1_Stream3_IRQHandler               
-   .thumb_set DMA1_Stream3_IRQHandler,Default_Handler 
+   .thumb_set DMA1_Stream3_IRQHandler,Default_Handler
                  
    .weak      DMA1_Stream4_IRQHandler              
    .thumb_set DMA1_Stream4_IRQHandler,Default_Handler
@@ -474,17 +474,17 @@ g_pfnVectors:
    .weak      ETH_WKUP_IRQHandler               
    .thumb_set ETH_WKUP_IRQHandler,Default_Handler
 
-   .weak      CAN2_TX_IRQHandler   
-   .thumb_set CAN2_TX_IRQHandler,Default_Handler
+   .weak      CAN0_TX_IRQHandler
+   .thumb_set CAN0_TX_IRQHandler,Default_Handler
                            
-   .weak      CAN2_RX0_IRQHandler                  
-   .thumb_set CAN2_RX0_IRQHandler,Default_Handler
+   .weak      CAN0_RX0_IRQHandler
+   .thumb_set CAN0_RX0_IRQHandler,Default_Handler
                            
-   .weak      CAN2_RX1_IRQHandler                  
-   .thumb_set CAN2_RX1_IRQHandler,Default_Handler
+   .weak      CAN0_RX1_IRQHandler
+   .thumb_set CAN0_RX1_IRQHandler,Default_Handler
                            
-   .weak      CAN2_SCE_IRQHandler                  
-   .thumb_set CAN2_SCE_IRQHandler,Default_Handler
+   .weak      CAN0_SCE_IRQHandler
+   .thumb_set CAN0_SCE_IRQHandler,Default_Handler
                            
    .weak      OTG_FS_IRQHandler      
    .thumb_set OTG_FS_IRQHandler,Default_Handler
@@ -523,10 +523,10 @@ g_pfnVectors:
    .thumb_set DCMI_IRQHandler,Default_Handler
                                    
    .weak      HASH_RNG_IRQHandler                  
-   .thumb_set HASH_RNG_IRQHandler,Default_Handler   
+   .thumb_set HASH_RNG_IRQHandler,Default_Handler
 
    .weak      FPU_IRQHandler                  
-   .thumb_set FPU_IRQHandler,Default_Handler  
+   .thumb_set FPU_IRQHandler,Default_Handler
 
    .weak      UART7_IRQHandler            
    .thumb_set UART7_IRQHandler,Default_Handler
@@ -555,7 +555,7 @@ g_pfnVectors:
    .weak      DMA2D_IRQHandler            
    .thumb_set DMA2D_IRQHandler,Default_Handler
 
-/************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/        
+/************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/		
  
    
    

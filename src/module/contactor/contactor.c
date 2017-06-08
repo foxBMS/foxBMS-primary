@@ -7,7 +7,7 @@
  * 1.  Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
  * 2.  Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
  * 3.  Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote products derived from this software without specific prior written permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  * We kindly request you to use one or more of the following phrases to refer to foxBMS in your hardware, software, documentation or advertising materials:
@@ -23,7 +23,7 @@
 /**
  * @file    contactor.c
  * @author  foxBMS Team
- * @date    23.09.2015
+ * @date    23.09.2015 (date of creation)
  * @ingroup DRIVERS
  * @prefix  CONT
  *
@@ -37,7 +37,17 @@
  */
 
 /*================== Includes =============================================*/
+/* recommended include order of header files:
+ * 
+ * 1.    include general.h
+ * 2.    include module's own header
+ * 3...  other headers
+ *
+ */
+#include "general.h"
 #include "contactor.h"
+
+#include "database.h"
 #include "io.h"
 #include "diag.h"
 #include "cmsis_os.h"
@@ -61,24 +71,21 @@ static STD_RETURN_TYPE_e CONT_CheckTimeViolation(CONT_NAMES_e contactor);
 
 STD_RETURN_TYPE_e CONT_Init(void) {
     STD_RETURN_TYPE_e retVal = E_NOT_OK;
-    if((NR_OF_CONTACTORS != cont_contactors_cfg_length) ||
-       (NR_OF_CONTACTORS != cont_contactors_states_length)) {
+    if ((BS_NR_OF_CONTACTORS != cont_contactors_cfg_length) ||
+       (BS_NR_OF_CONTACTORS != cont_contactors_states_length)) {
         retVal = E_NOT_OK;  /* configuration error*/
-    }
-    else {
+    } else {
         uint8_t allContactorsOpen = FALSE;
         allContactorsOpen = CONT_CheckForAllContactorsOpen();
         if (TRUE == allContactorsOpen) {
             retVal = E_OK;
-        }
-        else {
+        } else {
             CONT_SwitchAllContactorsOff();
             allContactorsOpen = FALSE;
             allContactorsOpen = CONT_CheckForAllContactorsOpen();
             if (TRUE == allContactorsOpen) {
                 retVal = E_OK;
-            }
-            else {
+            } else {
                 retVal = E_NOT_OK;
             }
         }
@@ -130,7 +137,6 @@ CONT_STATE_EXPECTATION_s CONT_GetInterlockExpectedValue() {
 }
 
 CONT_STATE_MEASUREMENT_s CONT_GetContactorFeedback(CONT_NAMES_e contactor) {
-
     CONT_STATE_MEASUREMENT_s measuredContactorState = {CONT_SWITCH_UNDEF, 0};
     if (CONT_HAS_NO_FEEDBACK == cont_contactors_cfg[contactor].feedback_pin) {
         uint32_t localTimer = osKernelSysTick();
@@ -140,8 +146,7 @@ CONT_STATE_MEASUREMENT_s CONT_GetContactorFeedback(CONT_NAMES_e contactor) {
             measuredContactorState.timestamp = localTimer;
             measuredContactorState.feedback = cont_contactor_states[contactor].expectation.feedback;
         }
-    }
-    else {
+    } else {
         // the contactor has a feedback pin, but it has to be differenced if the feedback pin is normally open or normally closed
         if (CONT_FEEDBACK_NORMALLY_OPEN == cont_contactors_cfg[contactor].feedback_pin_electrical_contact) {
             IO_PIN_STATE_e pinstate = IO_PIN_RESET;
@@ -152,11 +157,9 @@ CONT_STATE_MEASUREMENT_s CONT_GetContactorFeedback(CONT_NAMES_e contactor) {
             taskEXIT_CRITICAL();
             if (IO_PIN_RESET == pinstate) {
                 measuredContactorState.feedback = CONT_SWITCH_ON;
-            }
-            else if (IO_PIN_SET == pinstate) {
+            } else if (IO_PIN_SET == pinstate) {
                 measuredContactorState.feedback = CONT_SWITCH_OFF;
-            }
-            else {
+            } else {
                 measuredContactorState.feedback = CONT_SWITCH_UNDEF;
             }
         }
@@ -169,11 +172,9 @@ CONT_STATE_MEASUREMENT_s CONT_GetContactorFeedback(CONT_NAMES_e contactor) {
             taskEXIT_CRITICAL();
             if (IO_PIN_SET == pinstate) {
                 measuredContactorState.feedback = CONT_SWITCH_ON;
-            }
-            else if (IO_PIN_RESET == pinstate) {
+            } else if (IO_PIN_RESET == pinstate) {
                 measuredContactorState.feedback = CONT_SWITCH_OFF;
-            }
-            else {
+            } else {
                 measuredContactorState.feedback = CONT_SWITCH_UNDEF;
             }
         }
@@ -190,8 +191,7 @@ CONT_STATE_MEASUREMENT_s CONT_GetInterlockFeedback(void) {
     if (IO_PIN_SET == pinstate) {
         measuredInterlockState.feedback = CONT_SWITCH_ON;
         measuredInterlockState.timestamp = osKernelSysTick();
-    }
-    else if (IO_PIN_RESET == pinstate) {
+    } else if (IO_PIN_RESET == pinstate) {
         measuredInterlockState.feedback = CONT_SWITCH_OFF;
         measuredInterlockState.timestamp = osKernelSysTick();
     }
@@ -202,7 +202,7 @@ STD_RETURN_TYPE_e CONT_AcquireContactorAndInterlockFeedbacks(void) {
     STD_RETURN_TYPE_e retVal = E_NOT_OK;
     taskENTER_CRITICAL();
     cont_interlock_state.measurement = CONT_GetInterlockFeedback();
-    for(CONT_NAMES_e i = 0; i < (CONT_NAMES_e) cont_contactors_cfg_length; i++) {
+    for (CONT_NAMES_e i = 0; i < (CONT_NAMES_e) cont_contactors_cfg_length; i++) {
         cont_contactor_states[i].measurement = CONT_GetContactorFeedback(i);
     }
     retVal = E_OK;
@@ -211,7 +211,6 @@ STD_RETURN_TYPE_e CONT_AcquireContactorAndInterlockFeedbacks(void) {
 }
 
 STD_RETURN_TYPE_e CONT_SetContactorState(CONT_NAMES_e contactor, CONT_SWITCH_e requestedContactorState) {
-
     STD_RETURN_TYPE_e retVal = E_NOT_OK;
     uint8_t legalState = FALSE;
     CONT_SWITCH_e currentContactorState = (CONT_GetContactorFeedback(contactor)).feedback;
@@ -223,27 +222,23 @@ STD_RETURN_TYPE_e CONT_SetContactorState(CONT_NAMES_e contactor, CONT_SWITCH_e r
         if (E_OK != CONT_CheckTimeViolation(contactor)) {
             retVal = E_NOT_OK;
         }
-    }
-    else if (currentContactorState != requestedContactorState) {
+    } else if (currentContactorState != requestedContactorState) {
         boolean setValue = FALSE;
         IO_PIN_STATE_e pinstate = IO_PIN_RESET;
 
-        if(requestedContactorState  ==  CONT_SWITCH_ON) {
+        if (requestedContactorState  ==  CONT_SWITCH_ON) {
             setValue = TRUE;
             pinstate = IO_PIN_SET;
             legalState = TRUE;
-        }
-        else if(requestedContactorState  ==  CONT_SWITCH_OFF) {
+        } else if (requestedContactorState  ==  CONT_SWITCH_OFF) {
             setValue = FALSE;
             pinstate = IO_PIN_RESET;
             legalState = TRUE;
-        }
-        else {
+        } else {
             retVal = E_NOT_OK;
             legalState = FALSE;
         }
         if (TRUE == legalState) {
-            taskENTER_CRITICAL();
             /*
              * if the contactors are opened while the current is bigger than
              * BAD_SWITCHOFF_CURRENT_POS or BAD_SWITCHOFF_CURRENT_NEG this is counted
@@ -252,19 +247,18 @@ STD_RETURN_TYPE_e CONT_SetContactorState(CONT_NAMES_e contactor, CONT_SWITCH_e r
              if (requestedContactorState  ==  CONT_SWITCH_OFF) {
                  DATA_GetTable(&cont_current_tab, DATA_BLOCK_ID_CURRENT);
                  float currentAtSwitchOff = cont_current_tab.current;
-                 if ( ((BAD_SWITCHOFF_CURRENT_POS < currentAtSwitchOff) && (0 < currentAtSwitchOff)) ||
-                      ((BAD_SWITCHOFF_CURRENT_NEG > currentAtSwitchOff) && (0 > currentAtSwitchOff))) {
-                     if(DIAG_HANDLER_RETURN_OK != DIAG_Handler(DIAG_CH_CONTACTOR_DAMAGED, DIAG_EVENT_NOK, (uint8_t) contactor, &currentAtSwitchOff)) {
+                 if (((BAD_SWITCHOFF_CURRENT_POS < currentAtSwitchOff) && (0 < currentAtSwitchOff)) ||
+                     ((BAD_SWITCHOFF_CURRENT_NEG > currentAtSwitchOff) && (0 > currentAtSwitchOff))) {
+                     if (DIAG_HANDLER_RETURN_OK != DIAG_Handler(DIAG_CH_CONTACTOR_DAMAGED, DIAG_EVENT_NOK, (uint8_t) contactor, &currentAtSwitchOff)) {
                          /* currently no error handling, just logging */
                      }
-                 }
-                 else {
-                     if(DIAG_HANDLER_RETURN_OK != DIAG_Handler(DIAG_CH_CONTACTOR_OPENING, DIAG_EVENT_OK, (uint8_t) contactor, NULL)) {
+                 } else {
+                     if (DIAG_HANDLER_RETURN_OK != DIAG_Handler(DIAG_CH_CONTACTOR_OPENING, DIAG_EVENT_OK, (uint8_t) contactor, NULL)) {
                          ;
                      }
                 }
              } else {
-                 if(DIAG_HANDLER_RETURN_OK != DIAG_Handler(DIAG_CH_CONTACTOR_CLOSING, DIAG_EVENT_OK, (uint8_t) contactor, NULL)) {
+                 if (DIAG_HANDLER_RETURN_OK != DIAG_Handler(DIAG_CH_CONTACTOR_CLOSING, DIAG_EVENT_OK, (uint8_t) contactor, NULL)) {
                      ;
                  }
              }
@@ -281,11 +275,8 @@ STD_RETURN_TYPE_e CONT_SetContactorState(CONT_NAMES_e contactor, CONT_SWITCH_e r
              cont_contactor_states[contactor].measurement.timestamp = 0;
 
             retVal = E_OK;
-
-            taskEXIT_CRITICAL();
         }
-    }
-    else {
+    } else {
         retVal = E_NOT_OK;
     }
 
@@ -301,17 +292,15 @@ STD_RETURN_TYPE_e CONT_SetInterlockState(CONT_SWITCH_e requstedInterlockState) {
         boolean setValue = FALSE;
         IO_PIN_STATE_e pinstate = IO_PIN_RESET;
 
-        if(requstedInterlockState  ==  CONT_SWITCH_ON) {
+        if (requstedInterlockState  ==  CONT_SWITCH_ON) {
             setValue = TRUE;
             pinstate = IO_PIN_SET;
             legalState = TRUE;
-        }
-        else if(requstedInterlockState  ==  CONT_SWITCH_OFF) {
+        } else if (requstedInterlockState  ==  CONT_SWITCH_OFF) {
             setValue = FALSE;
             pinstate = IO_PIN_RESET;
             legalState = TRUE;
-        }
-        else {
+        } else {
             retVal = E_NOT_OK;
             legalState = FALSE;
         }
@@ -334,8 +323,7 @@ STD_RETURN_TYPE_e CONT_SetInterlockState(CONT_SWITCH_e requstedInterlockState) {
 
             taskEXIT_CRITICAL();
         }
-    }
-    else {
+    } else {
         /*
          * If the interlock is already in the requested state, do nothing.
          */
@@ -351,20 +339,17 @@ STD_RETURN_TYPE_e CONT_SwitchAllContactorsOff(void) {
     uint8_t offCounter = 0;
     STD_RETURN_TYPE_e successfullSet = E_NOT_OK;
 
-    taskENTER_CRITICAL();
-    for(CONT_NAMES_e i = 0; i < (CONT_NAMES_e) cont_contactors_cfg_length; i++) {
+    for (CONT_NAMES_e i = 0; i < (CONT_NAMES_e) cont_contactors_cfg_length; i++) {
         successfullSet = CONT_SetContactorState(i, CONT_SWITCH_OFF);
         if (E_OK == successfullSet) {
             offCounter = offCounter + 1;
         }
         successfullSet = E_NOT_OK;
     }
-    taskEXIT_CRITICAL();
 
-    if (NR_OF_CONTACTORS == offCounter) {
+    if (BS_NR_OF_CONTACTORS == offCounter) {
         retVal = E_OK;
-    }
-    else {
+    } else {
         retVal = E_NOT_OK;
     }
 
@@ -375,7 +360,7 @@ STD_RETURN_TYPE_e CONT_SwitchAllContactorsOff(void) {
 STD_RETURN_TYPE_e CONT_SwitchInterlockOff(void) {
     STD_RETURN_TYPE_e retVal = E_NOT_OK;
     retVal = CONT_SetInterlockState(CONT_SWITCH_OFF);
-    for(CONT_NAMES_e contactor = 0; contactor < (CONT_NAMES_e) cont_contactors_cfg_length; contactor++) {
+    for (CONT_NAMES_e contactor = 0; contactor < (CONT_NAMES_e) cont_contactors_cfg_length; contactor++) {
         cont_contactor_states[contactor].expectation.feedback = CONT_SWITCH_OFF;
         cont_contactor_states[contactor].set.setvalue = FALSE;
         IO_WritePin(cont_contactors_cfg[contactor].control_pin, IO_PIN_RESET);
@@ -405,18 +390,17 @@ static uint8_t CONT_CheckForAllContactorsOpen(void) {
 
     CONT_AcquireContactorAndInterlockFeedbacks();
     uint8_t offCounter = 0;
-    for(CONT_NAMES_e i = 0; i < (CONT_NAMES_e) cont_contactors_cfg_length; i++) {
+    for (CONT_NAMES_e i = 0; i < (CONT_NAMES_e) cont_contactors_cfg_length; i++) {
         if (CONT_SWITCH_OFF == cont_contactor_states[i].measurement.feedback) {
             offCounter = offCounter + 1;
         }
     }
 
-    if (NR_OF_CONTACTORS == offCounter) {
+    if (BS_NR_OF_CONTACTORS == offCounter) {
         retVal = TRUE;
     }
 
     return retVal;
-
 }
 
 /**

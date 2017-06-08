@@ -7,7 +7,7 @@
  * 1.  Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
  * 2.  Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
  * 3.  Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote products derived from this software without specific prior written permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  * We kindly request you to use one or more of the following phrases to refer to foxBMS in your hardware, software, documentation or advertising materials:
@@ -21,21 +21,32 @@
  */
 
 /**
- * @file spi_cfg.c
+ * @file    spi_cfg.c
  * @author  foxBMS Team
- * @date 02.10.2015 (date of creation)
+ * @date    02.10.2015 (date of creation)
  * @ingroup DRIVERS_CONF
  * @prefix  SPI
  *
- * @brief Configuration for the serial peripheral interface module.
+ * @brief   Configuration for the serial peripheral interface module.
  *
  */
 
 /*================== Includes =============================================*/
+/* recommended include order of header files:
+ * 
+ * 1.    include general.h
+ * 2.    include module's own header
+ * 3...  other headers
+ *
+ */
+#include "general.h"
 #include "spi_cfg.h"
+
 #include "dma.h"
+#include "intermcu_cfg.h"
 
 /*================== Macros and Definitions ===============================*/
+
 
 /*================== Constant and Variable Definitions ====================*/
 SPI_HandleTypeDef spi_devices[] = {
@@ -45,11 +56,13 @@ SPI_HandleTypeDef spi_devices[] = {
         .Init.Mode = SPI_MODE_MASTER,
         .Init.Direction = SPI_DIRECTION_2LINES,
         .Init.DataSize = SPI_DATASIZE_8BIT,
-        .Init.CLKPolarity = SPI_POLARITY_LOW,
-        .Init.CLKPhase = SPI_PHASE_1EDGE,
+        .Init.CLKPolarity = SPI_POLARITY_LOW,   // CPOL = 0
+        .Init.CLKPhase = SPI_PHASE_1EDGE,       // CPHA = 0
+        //.Init.CLKPolarity = SPI_POLARITY_HIGH,  // CPOL = 1
+        //.Init.CLKPhase = SPI_PHASE_2EDGE,       // CPHA = 1
         .Init.NSS = SPI_NSS_SOFT,
         .Init.FirstBit = SPI_FIRSTBIT_MSB,
-        .Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_128,
+        .Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_128,    // SPI clock = APB2_CLOCK / 128 = 84 / 128 = 656.25 kHz
         .Init.TIMode = SPI_TIMODE_DISABLED,
         .Init.CRCCalculation = SPI_CRCCALCULATION_DISABLED,
         .Init.CRCPolynomial = 1,
@@ -71,26 +84,23 @@ SPI_HandleTypeDef spi_devices[] = {
         .Init.CRCPolynomial = 1,
     },
     {
-            .Instance = SPI2,
+        .Instance = SPI2,
 #if MCU_MASTER == 1
-            .Init.Mode = SPI_MODE_SLAVE,
-#else
-            .Init.Mode = SPI_MODE_MASTER,
+        .Init.Mode = SPI_MODE_SLAVE,
 #endif
-            .Init.Direction = SPI_DIRECTION_2LINES,
-            .Init.DataSize = SPI_DATASIZE_8BIT,
-            .Init.CLKPolarity = SPI_POLARITY_LOW,
-            .Init.CLKPhase = SPI_PHASE_1EDGE,
+        .Init.Direction = SPI_DIRECTION_2LINES,
+        .Init.DataSize = SPI_DATASIZE_8BIT,
+        .Init.CLKPolarity = SPI_POLARITY_LOW,
+        .Init.CLKPhase = SPI_PHASE_1EDGE,
 #if MCU_MASTER == 1
-            .Init.NSS = SPI_NSS_HARD_INPUT,
-#else
-            .Init.NSS = SPI_NSS_SOFT,
+        //.Init.NSS = SPI_NSS_HARD_INPUT,
+        .Init.NSS = SPI_NSS_SOFT,
 #endif
-            .Init.FirstBit = SPI_FIRSTBIT_MSB,
-            .Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_128,
-            .Init.TIMode = SPI_TIMODE_DISABLED,
-            .Init.CRCCalculation = SPI_CRCCALCULATION_DISABLED,
-            .Init.CRCPolynomial = 1
+        .Init.FirstBit = SPI_FIRSTBIT_MSB,
+        .Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_128,
+        .Init.TIMode = SPI_TIMODE_DISABLED,
+        .Init.CRCCalculation = SPI_CRCCALCULATION_DISABLED,
+        .Init.CRCPolynomial = 1
     },
 };
 
