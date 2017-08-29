@@ -98,26 +98,27 @@ ASMFLAGS := \
 	
 # every subdirectory containing source files must be described here to be considered during compilation process
 SUBDIRS := \
+	../FreeRTOS/Source							\
+	../FreeRTOS/Source/portable/MemMang			\
+	../FreeRTOS/Source/portable/GCC/ARM_CM4F	\
+	../FreeRTOS/Source/CMSIS_RTOS				\
+	../hal/STM32F4xx_HAL_Driver/Src				\
 	src/test										\
 	src/test/usb_cdc_lolevel						\
 	src/os											\
-	src/os/FreeRTOS/Source							\
-	src/os/FreeRTOS/Source/portable/MemMang			\
-	src/os/FreeRTOS/Source/portable/GCC/ARM_CM4F	\
-	src/os/FreeRTOS/Source/CMSIS_RTOS				\
 	src/module/uart									\
 	src/module/spi									\
 	src/module/rcc									\
 	src/module/ltc									\
 	src/module/irq									\
 	src/module/io									\
-	src/module/eeprom								\
+	src/module/nvram								\
 	src/module/intermcu								\
 	src/module/dma									\
 	src/module/mcu									\
 	src/module/contactor							\
 	src/module/config								\
-	src/application/com             						\
+	src/application/com             				\
 	src/module/rtc									\
 	src/module/utils								\
 	src/module/timer								\
@@ -125,8 +126,7 @@ SUBDIRS := \
 	src/module/adc									\
 	src/module/chksum								\
 	src/module/watchdog								\
-	src/application/bal      							\
-	src/hal/STM32F4xx_HAL_Driver/Src				\
+	src/application/bal      						\
 	src/general										\
 	src/general/config								\
 	src/engine/task									\
@@ -136,7 +136,7 @@ SUBDIRS := \
 	src/engine/diag									\
 	src/engine/database								\
 	src/engine/config								\
-	src/application/bmsctrl								\
+	src/application/bmsctrl							\
 	src/application/task							\
 	src/application/config
 
@@ -156,7 +156,7 @@ INCDIRS := \
 	-I"./src/module/spi"                               \
 	-I"./src/module/uart"                              \
 	-I"./src/module/timer"                             \
-	-I"./src/module/eeprom"							   \
+	-I"./src/module/nvram"							   \
 	-I"./src/module/intermcu"						   \
 	-I"./src/module/utils"                             \
 	-I"./src/module/rtc"                               \
@@ -176,15 +176,15 @@ INCDIRS := \
 	-I"./src/general"                                  \
 	-I"./src/general/config"                           \
 	-I"./src/general/includes"                         \
-	-I"./src/hal/CMSIS/Device/ST/STM32F4xx/Include"    \
-	-I"./src/hal/CMSIS/Include"                        \
-	-I"./src/hal/STM32F4xx_HAL_Driver/Inc"             \
+	-I"../hal/CMSIS/Device/ST/STM32F4xx/Include"    \
+	-I"../hal/CMSIS/Include"                        \
+	-I"../hal/STM32F4xx_HAL_Driver/Inc"             \
 	-I"./src/os"                                       \
-	-I"./src/os/FreeRTOS"                              \
-	-I"./src/os/FreeRTOS/Source"                       \
-	-I"./src/os/FreeRTOS/Source/include"               \
-	-I"./src/os/FreeRTOS/Source/CMSIS_RTOS"            \
-	-I"./src/os/FreeRTOS/Source/portable/GCC/ARM_CM4F" \
+	-I"../FreeRTOS"                              \
+	-I"../FreeRTOS/Source"                       \
+	-I"../FreeRTOS/Source/include"               \
+	-I"../FreeRTOS/Source/CMSIS_RTOS"            \
+	-I"../FreeRTOS/Source/portable/GCC/ARM_CM4F" \
 	-I"./src/test"                                     \
 	-I"./src/module/mcu"                               \
 	-I"./src/module/dma"                               \
@@ -220,8 +220,18 @@ FILTER_OUT = $(foreach v,$(2),$(if $(findstring $(1),$(v)),,$(v)))
 FILTER = $(foreach v,$(2),$(if $(findstring $(1),$(v)),$(v),))
 
 # exclude the configuration templates, provided by STM from build (we got our own implementation, duplicates would lead to linker errors!)
-C_SRCS := $(filter-out src/hal/CMSIS/Device/ST/STM32F4xx/Source/Templates/system_stm32f4xx.c, $(C_SRCS))
-C_SRCS := $(filter-out src/hal/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_msp_template.c, $(C_SRCS))
+# or other files which or not part of the project.
+C_SRCS := $(filter-out ../hal/CMSIS/Device/ST/STM32F4xx/Source/Templates/system_stm32f4xx.c, $(C_SRCS))
+C_SRCS := $(filter-out ../hal/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_msp_template.c, $(C_SRCS))
+C_SRCS := $(filter-out ../FreeRTOS/Source/portable/GCC/ARM_CM7/r0p1/port.c, $(C_SRCS))
+C_SRCS := $(filter-out ../FreeRTOS/Source/portable/MemMang/heap_1.c, $(C_SRCS))
+C_SRCS := $(filter-out ../FreeRTOS/Source/portable/MemMang/heap_2.c, $(C_SRCS))
+C_SRCS := $(filter-out ../FreeRTOS/Source/portable/MemMang/heap_3.c, $(C_SRCS))
+C_SRCS := $(filter-out ../FreeRTOS/Source/portable/MemMang/heap_5.c, $(C_SRCS))
+C_SRCS := $(filter-out ../FreeRTOS/Source/portable/MemMang/heap_5.c, $(C_SRCS))
+C_SRCS := $(filter-out src/module/ltc/ltc2.c, $(C_SRCS))
+C_SRCS := $(filter-out src/module/config/ltc2_cfg.c, $(C_SRCS))
+
 
 # create folder/subfolder structure for object/dependency files which gets generated during compilation 
 C_SRCS_DIR := \

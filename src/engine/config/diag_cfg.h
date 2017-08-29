@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2016, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V. All rights reserved.
+ * @copyright &copy; 2010 - 2017, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V. All rights reserved.
  *
  * BSD 3-Clause License
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -43,7 +43,7 @@
 #include "diag_id_cfg.h"
 #include "rtc.h"
 // FIXME throw out or leave in?
-//#include "contactor.h"
+// #include "contactor.h"
 
 /*================== Macros and Definitions ===============================*/
 // FIXME comment on this
@@ -182,7 +182,7 @@ typedef enum {
     DIAG_CELLMON_TYPE   = 0x01,     /*!< FC 0x20 - 0x3F */
     DIAG_COM_TYPE       = 0x02,     /*!< FC 0x40 - 0x5F */
     DIAG_ADC_TYPE       = 0x04,     /*!< FC 0x60 - 0x7F */
-    //FIXME which failure codes for following group?
+    // FIXME which failure codes for following group?
     DIAG_CONT_TYPE      = 0x08      /*!< FC             */
 } DIAG_TYPE_e;
 

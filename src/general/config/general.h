@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2016, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V. All rights reserved.
+ * @copyright &copy; 2010 - 2017, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V. All rights reserved.
  *
  * BSD 3-Clause License
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -152,7 +152,7 @@
 #define XSTR(TESTMACRO) STR(TESTMACRO)
 
 #ifndef BUILD_VERSION
-#define BUILD_VERSION        "    0.1"                /*strlen: 16 (15 + '/0') */
+#define BUILD_VERSION        "    0.5"                /*strlen: 16 (15 + '/0') */
 #endif
 
 #ifndef BUILD_APPNAME
@@ -168,12 +168,12 @@
 //  #pragma message XSTR(BUILD_VENDOR)
 
 /**
- * A variable defined as ``(type) BKP_SRAM (name)`` will be stored in the
- * ram which is backuped by the battery. Therefore as long as the power
+ * A variable defined as ``(type) MEM_BKP_SRAM (name)`` will be stored in the
+ * RAM which is backuped by a button cell. Therefore as long as the power
  * supply is not disconnected, the variable value will be stored during
  * e.g. restarts.
  */
-#define BKP_SRAM    __attribute__((section (".BKP_RAMSection")))
+#define MEM_BKP_SRAM    __attribute__((section (".BKP_RAMSection")))
 
 
 /*================== Constant and Variable Definitions ====================*/

@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2016, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V. All rights reserved.
+ * @copyright &copy; 2010 - 2017, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V. All rights reserved.
  *
  * BSD 3-Clause License
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -74,13 +74,13 @@ DIAG_SYSMON_NOTIFICATION_s diag_sysmon_last[DIAG_SYSMON_MODULE_ID_MAX];
 
 uint32_t diag_sysmon_cnt[DIAG_SYSMON_MODULE_ID_MAX];
 
-DIAG_ERROR_ENTRY_s BKP_SRAM diag_memory[DIAG_FAIL_ENTRY_LENGTH];
-DIAG_ERROR_ENTRY_s BKP_SRAM *diag_entry_wrptr;
-DIAG_ERROR_ENTRY_s BKP_SRAM *diag_entry_rdptr;
+DIAG_ERROR_ENTRY_s MEM_BKP_SRAM diag_memory[DIAG_FAIL_ENTRY_LENGTH];
+DIAG_ERROR_ENTRY_s MEM_BKP_SRAM *diag_entry_wrptr;
+DIAG_ERROR_ENTRY_s MEM_BKP_SRAM *diag_entry_rdptr;
 
-DIAG_CONTACTOR_ERROR_ENTRY_s BKP_SRAM diagContactorErrorMemory[DIAG_FAIL_ENTRY_CONTACTOR_LENGTH];
-DIAG_CONTACTOR_ERROR_ENTRY_s BKP_SRAM *diagContactorError_entry_wrptr;
-DIAG_CONTACTOR_ERROR_ENTRY_s BKP_SRAM *diagContactorError_entry_rdptr;
+DIAG_CONTACTOR_ERROR_ENTRY_s MEM_BKP_SRAM diagContactorErrorMemory[DIAG_FAIL_ENTRY_CONTACTOR_LENGTH];
+DIAG_CONTACTOR_ERROR_ENTRY_s MEM_BKP_SRAM *diagContactorError_entry_wrptr;
+DIAG_CONTACTOR_ERROR_ENTRY_s MEM_BKP_SRAM *diagContactorError_entry_rdptr;
 
 DIAG_FAILURECODE_s diag_fc;
 
@@ -283,7 +283,7 @@ void DIAG_PrintContactorInfo(void)
     int32_t tmp = 0;
     DIAG_CONTACTOR_s diagContactor;
 
-    BKPSRAM_Get_contactorcnt(&diagContactor);
+    NVM_Get_contactorcnt(&diagContactor);
 
     DEBUG_PRINTF((const uint8_t * )"Contactor switching entries:");
     DEBUG_PRINTF((const uint8_t * )"\r\n");
@@ -626,7 +626,7 @@ static DIAG_RETURNTYPE_e DIAG_ContHandler(DIAG_CH_ID_e eventID, uint8_t cont_nr,
     if(diag_locked)
         return retVal;    // only locked when clearing the diagnosis memory
     DIAG_CONTACTOR_s diagContactor;
-    BKPSRAM_Get_contactorcnt(&diagContactor);
+    NVM_Get_contactorcnt(&diagContactor);
     if(eventID == DIAG_CH_CONTACTOR_OPENING) {
         diagContactor.cont_switch_opened[cont_nr]++;
         retVal = DIAG_HANDLER_RETURN_OK;
@@ -693,7 +693,7 @@ static DIAG_RETURNTYPE_e DIAG_ContHandler(DIAG_CH_ID_e eventID, uint8_t cont_nr,
         retVal = DIAG_HANDLER_INVALID_TYPE;
     }
     if ((DIAG_HANDLER_RETURN_ERR_OCCURRED == retVal) || (DIAG_HANDLER_RETURN_OK == retVal)) {
-        BKPSRAM_Set_contactorcnt(&diagContactor);
+        NVM_Set_contactorcnt(&diagContactor);
     }
     return retVal;
 }

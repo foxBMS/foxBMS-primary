@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2016, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V. All rights reserved.
+ * @copyright &copy; 2010 - 2017, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V. All rights reserved.
  *
  * BSD 3-Clause License
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -69,6 +69,7 @@ void ENG_TSK_Cyclic_1ms(void) {
 
     LTC_Ctrl(LTC_HAS_TO_MEASURE);
     LTC_Trigger();
+    EEPR_Trigger();
 
 }
 
@@ -99,7 +100,7 @@ void ENG_TSK_Cyclic_100ms(void) {
     }
 
     if(counter == 255)
-        BKPSRAM_SetOperatingHours();
+        NVM_SetOperatingHours();
 
     counter++;
 }

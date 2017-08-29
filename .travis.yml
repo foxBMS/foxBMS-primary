@@ -32,3 +32,4 @@ before_script:
 script:
   - docker run -it -v $(pwd)/$FOXBMS_SETUP_REPO_NAME:/gitroot -w="/gitroot" $FOXBMS_BUILD_ENV_DOCKER_IMAGE python build.py -p
 ...
+

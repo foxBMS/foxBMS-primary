@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2016, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V. All rights reserved.
+ * @copyright &copy; 2010 - 2017, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V. All rights reserved.
  *
  * BSD 3-Clause License
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -167,7 +167,7 @@ extern void OS_IdleTask(void);
 extern void vApplicationIdleHook(void);
 
 /**
- * @brief   reads EEPROM and initializes the syscontrol module
+ * @brief   reads non-volatile memory and initializes the syscontrol module
  *
  * Start up at scheduler start, called from 1ms-Task before the 1ms cyclic execution
  *
