@@ -27,8 +27,11 @@ before_script:
   - export FOXBMS_CURRENT_REPO_NAME=$(python -c "from __future__ import print_function; import os; print(os.environ['TRAVIS_REPO_SLUG'].split('/')[1], end='')")
   - git clone $FOXBMS_SETUP_REPO_URL $FOXBMS_SETUP_REPO_NAME
   - mkdir $FOXBMS_SETUP_REPO_NAME/$FOXBMS_CURRENT_REPO_NAME && rsync -a --exclude $FOXBMS_SETUP_REPO_NAME . $FOXBMS_SETUP_REPO_NAME/$FOXBMS_CURRENT_REPO_NAME
+  - docker run -it -v $(pwd):/gitroot -w="/gitroot/$FOXBMS_SETUP_REPO_NAME" $FOXBMS_BUILD_ENV_DOCKER_IMAGE git config --global user.email "info@foxbms.org"
+  - docker run -it -v $(pwd):/gitroot -w="/gitroot/$FOXBMS_SETUP_REPO_NAME" $FOXBMS_BUILD_ENV_DOCKER_IMAGE git config --global user.name "The foxBMS Team"
   - docker run -it -v $(pwd):/gitroot -w="/gitroot/$FOXBMS_SETUP_REPO_NAME" $FOXBMS_BUILD_ENV_DOCKER_IMAGE python bootstrap.py -dbd -sr $FOXBMS_CURRENT_REPO_NAME foxBMS-tools FreeRTOS hal
 
 script:
   - docker run -it -v $(pwd)/$FOXBMS_SETUP_REPO_NAME:/gitroot -w="/gitroot" $FOXBMS_BUILD_ENV_DOCKER_IMAGE python build.py -p
 ...
+
