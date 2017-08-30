@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2016, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V. All rights reserved.
+ * @copyright &copy; 2010 - 2017, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V. All rights reserved.
  *
  * BSD 3-Clause License
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -56,7 +56,7 @@
 #define ADC_STOREDATA           2
 
 /*================== Constant and Variable Definitions ====================*/
-static ADC_ChannelConfTypeDef sConfig = {
+static ADC_ChannelConfTypeDef adc_cfg = {
     .Channel = ADC_CHANNEL_VBAT,
     .Rank = 1,
     .SamplingTime = ADC_SAMPLETIME_3CYCLES,
@@ -104,24 +104,24 @@ void ADC_Init(ADC_HandleTypeDef *AdcHandle) {
 void ADC_Ctrl(void) {
     static uint8_t vbat = 0;
 
-    sConfig.Rank = 1;
-    sConfig.SamplingTime = ADC_SAMPLETIME_3CYCLES;
-    sConfig.Offset = 0;
+    adc_cfg.Rank = 1;
+    adc_cfg.SamplingTime = ADC_SAMPLETIME_3CYCLES;
+    adc_cfg.Offset = 0;
 
     /* Alternate ADC conversion between temperature sensor and battery voltage */
     if (adc_conversion_state == ADC_CONVERT) {
         if (vbat == 0) {
             vbat = 1;
-            sConfig.Channel = ADC_CHANNEL_VBAT;
+            adc_cfg.Channel = ADC_CHANNEL_VBAT;
         } else if (vbat == 1) {
             vbat = 0;
-            sConfig.Channel = ADC_CHANNEL_TEMPSENSOR;
+            adc_cfg.Channel = ADC_CHANNEL_TEMPSENSOR;
         }
     }
 
     if (adc_conversion_state == ADC_CONVERT) {
         /* Configure ADC Channel */
-        HAL_ADC_ConfigChannel(&adc_devices[0], &sConfig);
+        HAL_ADC_ConfigChannel(&adc_devices[0], &adc_cfg);
         /* Enable conversion */
         ADC_Convert(&adc_devices[0]);
         adc_conversion_state = ADC_WAITFORCONVERSION;
@@ -160,7 +160,7 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* AdcHandle) {
     HAL_ADC_Stop_IT(AdcHandle);
     raw_voltage = HAL_ADC_GetValue(AdcHandle);
 
-    if (sConfig.Channel == ADC_CHANNEL_VBAT) {
+    if (adc_cfg.Channel == ADC_CHANNEL_VBAT) {
         scaled_voltage = ((float)(raw_voltage)*(ADC_VREF_EXT)*ADC_VBAT_VOLTAGE_DIVIDER)/(ADC_FULL_RANGE);
         adc_tab.vbat = scaled_voltage;
         adc_tab.vbat_previous_timestamp = adc_tab.vbat_timestamp;
@@ -168,7 +168,7 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* AdcHandle) {
         adc_tab.state_vbat++;
     }
 
-    if (sConfig.Channel == ADC_CHANNEL_TEMPSENSOR) {
+    if (adc_cfg.Channel == ADC_CHANNEL_TEMPSENSOR) {
         scaled_voltage = ((float)(raw_voltage)*(1000.0*(float)(ADC_VREF_EXT)))/(ADC_FULL_RANGE);
         scaled_temperature = (scaled_voltage - ADC_V25)/(1000.0*ADC_AVG_SLOPE) + 25.0;
         adc_tab.temperature = scaled_temperature;

@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2016, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V. All rights reserved.
+ * @copyright &copy; 2010 - 2017, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V. All rights reserved.
  *
  * BSD 3-Clause License
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -59,12 +59,12 @@ DATA_BLOCK_SOX_s data_block_sox[SINGLE_BUFFERING];
 /**
  * data block: balancing control
  */
-DATA_BLOCK_BALANCING_CONTROL_s data_table_control_balancing[DOUBLE_BUFFERING];
+DATA_BLOCK_BALANCING_CONTROL_s data_block_control_balancing[DOUBLE_BUFFERING];
 
 /**
  * data block: balancing feedback
  */
-DATA_BLOCK_BALANCING_FEEDBACK_s data_table_feedback_balancing[DOUBLE_BUFFERING];
+DATA_BLOCK_BALANCING_FEEDBACK_s data_block_feedback_balancing[DOUBLE_BUFFERING];
 
 /**
  * data block: current measurement
@@ -122,12 +122,12 @@ DATA_BASE_HEADER_s  data_base_header[] =
             SINGLE_BUFFERING,
     },
     {
-            (void*)(&data_table_control_balancing[0]),
+            (void*)(&data_block_control_balancing[0]),
             sizeof(DATA_BLOCK_BALANCING_CONTROL_s),
             DOUBLE_BUFFERING,
     },
     {
-            (void*)(&data_table_feedback_balancing[0]),
+            (void*)(&data_block_feedback_balancing[0]),
             sizeof(DATA_BLOCK_BALANCING_FEEDBACK_s),
             DOUBLE_BUFFERING,
     },

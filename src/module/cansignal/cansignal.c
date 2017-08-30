@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2016, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V. All rights reserved.
+ * @copyright &copy; 2010 - 2017, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V. All rights reserved.
  *
  * BSD 3-Clause License
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -259,7 +259,7 @@ static void CANS_SetSignalData(CANS_signal_s signal, uint64_t value, uint8_t *da
 static void CANS_ComposeMessage(CAN_NodeTypeDef_e canNode, CANS_messagesTx_e msgIdx, uint8_t dataptr[]) {
     uint32_t i = 0;
     uint32_t muxorIdx = 0;
-    uint8_t nrTxSignals = 0;
+    uint32_t nrTxSignals = 0;
     // find multiplexor if multiplexed signal
 
     CANS_signal_s *cans_signals_tx;
@@ -341,7 +341,7 @@ static void CANS_ParseMessage(CAN_NodeTypeDef_e canNode, CANS_messagesRx_e msgId
                 uint64_t value = 0;
                 CANS_GetSignalData(&value, cans_CAN1_signals_rx[i], dataptr);
                 if(cans_CAN1_signals_rx[i].setter != NULL_PTR) {
-                    cans_CAN1_signals_rx[i].setter(i, &value);
+                    cans_CAN1_signals_rx[i].setter(cans_CAN0_signals_rx_length + i, &value);
                 }
             }
         }

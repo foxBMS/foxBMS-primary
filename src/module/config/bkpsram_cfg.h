@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2016, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V. All rights reserved.
+ * @copyright &copy; 2010 - 2017, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V. All rights reserved.
  *
  * BSD 3-Clause License
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -69,6 +69,7 @@ typedef struct {
     uint8_t  Timer_min;   /*!< minutes            */
     uint8_t  Timer_h;     /*!< hours              */
     uint16_t Timer_d;     /*!< days               */
+    uint16_t reserved[2]; /*!< reserved for future use */
 } BKPSRAM_OPERATING_HOURS_s;
 
 
@@ -78,15 +79,31 @@ typedef struct {
  * checksum over soc data and switching events
  */
 typedef struct {
-    SOX_SOC_s nvsoc;
-    DIAG_CONTACTOR_s contactors_count;
-    BKPSRAM_OPERATING_HOURS_s operating_hours;
+    SOX_SOC_s data;
     uint32_t checksum;
-} BKPSRAM_CH_1_s;
+} BKPSRAM_CH_NVSOC_s;
+
+typedef struct {
+    DIAG_CONTACTOR_s data;
+    uint32_t checksum;
+} BKPSRAM_CH_CONT_COUNT_s;
+
+typedef struct {
+    BKPSRAM_OPERATING_HOURS_s data;
+    uint32_t checksum;
+} BKPSRAM_CH_OP_HOURS_s;
 
 /*================== Constant and Variable Definitions ====================*/
-extern BKPSRAM_CH_1_s BKP_SRAM bkpsram_ch_1;
-extern MAIN_STATUS_s BKP_SRAM main_state;
+extern BKPSRAM_CH_NVSOC_s MEM_BKP_SRAM bkpsram_nvsoc;
+extern BKPSRAM_CH_CONT_COUNT_s MEM_BKP_SRAM bkpsram_contactors_count;
+extern BKPSRAM_CH_OP_HOURS_s MEM_BKP_SRAM bkpsram_operating_hours;
+extern const BKPSRAM_CH_NVSOC_s default_nvsoc;
+extern const BKPSRAM_CH_CONT_COUNT_s default_contactors_count;
+extern const BKPSRAM_CH_OP_HOURS_s default_operating_hours;
+
+extern MAIN_STATUS_s MEM_BKP_SRAM main_state;
+
+
 
 /*================== Function Prototypes ==================================*/
 
@@ -96,7 +113,7 @@ extern MAIN_STATUS_s BKP_SRAM main_state;
  * @param  ptr pointer where the contactor events are stored
  * @return void
 */
-extern void BKPSRAM_Set_contactorcnt(DIAG_CONTACTOR_s *ptr);
+extern void NVM_Set_contactorcnt(DIAG_CONTACTOR_s *ptr);
 
 /**
  * @brief  Gets the number of opening/closing events of the contactors saved in the backup SRAM
@@ -104,7 +121,7 @@ extern void BKPSRAM_Set_contactorcnt(DIAG_CONTACTOR_s *ptr);
  * @param  ptr pointer where the contactor event data should be stored to
  * @return void
 */
-extern void BKPSRAM_Get_contactorcnt(DIAG_CONTACTOR_s *ptr);
+extern STD_RETURN_TYPE_e NVM_Get_contactorcnt(DIAG_CONTACTOR_s *ptr);
 
 /**
  * @brief   increments the operating hours timer os_operating_hours
@@ -113,14 +130,23 @@ extern void BKPSRAM_Get_contactorcnt(DIAG_CONTACTOR_s *ptr);
  *
  * @return  void
  */
-extern void BKPSRAM_OperatingHoursTrigger(void);
+extern void NVM_OperatingHoursTrigger(void);
 
 /**
- * @brief   saves operating hours data into the bkpsram_ch_1 struct
+ * @brief   saves operating hours data into the non-volatile memory (NVM)
  *
  * @return  void
  */
-extern void BKPSRAM_SetOperatingHours(void);
+extern void NVM_SetOperatingHours(void);
+
+/**
+ * @brief  Gets the operating hours from the non-volatile memory (NVM)
+ *
+ * @param  ptr pointer to destination buffer where the stored operating hours are copied
+ * @return STD_RETURN_TYPE_e
+*/
+extern STD_RETURN_TYPE_e NVM_GetOperatingHours(BKPSRAM_OPERATING_HOURS_s *dest_ptr);
+
 /*================== Function Implementations =============================*/
 
 #endif /* BKSPSRAM_CFG_H_ */

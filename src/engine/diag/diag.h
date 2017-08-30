@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2016, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V. All rights reserved.
+ * @copyright &copy; 2010 - 2017, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V. All rights reserved.
  *
  * BSD 3-Clause License
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -128,7 +128,8 @@ typedef struct {
     uint16_t cont_switch_closed[BS_NR_OF_CONTACTORS];
     uint16_t cont_switch_opened[BS_NR_OF_CONTACTORS];
     uint16_t cont_switch_opened_hard_at_current[BS_NR_OF_CONTACTORS];
-    uint16_t errcntreported;                                        /*!<  number of hard switches occurred since last call of DIAG_PrintContactorInfo */
+    uint16_t errcntreported;          /*!<  number of hard switches occurred since last call of DIAG_PrintContactorInfo */
+    uint16_t reserved[11];            /*!< reserved for future use */
 } DIAG_CONTACTOR_s;
 
 // FIXME doxygen comment missing

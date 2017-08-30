@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2016, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V. All rights reserved.
+ * @copyright &copy; 2010 - 2017, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V. All rights reserved.
  *
  * BSD 3-Clause License
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -136,7 +136,7 @@ void OS_TSK_Cyclic_1ms(void) {
         uint32_t currentTime = osKernelSysTick();
 
         OS_TimerTrigger();        // Increment system timer os_timer
-        BKPSRAM_OperatingHoursTrigger(); // Increment operating hours timer
+        NVM_OperatingHoursTrigger(); // Increment operating hours timer
         ENG_TSK_Cyclic_1ms();
 
         osDelayUntil(&currentTime, eng_tskdef_cyclic_1ms.CycleTime);
@@ -225,7 +225,6 @@ void OS_PostOSInit(void) {
     uint16_t timeout_cnt = 0;
     uint8_t err_type = 0;
     STD_RETURN_TYPE_e ret_val = E_NOT_OK;
-    EEPR_RETURNTYPE_e eepr_ret_val = EEPR_ERROR;
 
     os_boot = OS_RUNNING;
 
@@ -237,129 +236,23 @@ void OS_PostOSInit(void) {
 
     os_boot = OS_EEPR_INIT;
 
-    // initialize eeprom driver
-    timeout_cnt = 0;
-    while (EEPR_GetState() != EEPR_IDLE) {
-
-        if (timeout_cnt > 50) {   // timeout: 50ms (normal needed time: 5ms)
-
-           // eeprom not usable, no eeprom data available
-            err_type|=0x01;     // possible reasons: SPI busy, eeprom hardware in busy state or defect
-            break;
-        }
-
-        timeout_cnt++;
-        EEPR_Trigger();
-        osDelay(1);             // wait 1ms for next call of eeprom trigger
-    }
-
-    if(err_type == 0) {
-
-        // read eeprom data
-        eepr_ret_val = EEPR_SetStateRequest(EEPR_READMEMORY);    // Read EEPROM
-        if(eepr_ret_val != EEPR_OK)
-            err_type|=0x02;
-
-        timeout_cnt = 0;
-        while (EEPR_GetState() != EEPR_IDLE) {
-
-            if (timeout_cnt > EEPR_GetReadTime()) {   // timeout (depending on data length)
-
-                err_type|=0x04;
-                DIAG_Handler(DIAG_CH_POSTOSINIT_FAILURE,DIAG_EVENT_NOK,0, NULL); // eeprom data not readable
-                break;
-            }
-
-            timeout_cnt++;
-            EEPR_Trigger();
-            osDelay(1);      //wait 1ms for next call of eeprom trigger
-        }
-    } else {
-
-        DIAG_Handler(DIAG_CH_POSTOSINIT_FAILURE, DIAG_EVENT_NOK, 1, NULL);   // no initialization of eeprom hardware possible
-    }
-
-    if(err_type == 0) {
-        // eeprom has been read succesfully
-
-        if((RTC_NVMRAM_DATAVALID_VARIABLE == 0) || (EEPR_BkpSramCheckChksum() != 0) ) {
-            // NVRAM data corrupt but eeprom data is ok, so do data recovery and overtake data from eeprom
-            EEPR_BkpSramDataRecovery();
-            RTC_NVMRAM_DATAVALID_VARIABLE = 1;      // validate NVNRAM data
-        } else {
-
-           //both areas are valid so take NVRAM data and update eeprom values
-            EEPR_UpdateEepromData();      // do update eeprom data
-            eepr_ret_val = EEPR_SetStateRequest(EEPR_WRITEMEMORY);    // Write EEPROM
-            if(eepr_ret_val != EEPR_OK)
-                err_type|=0x08;
-
-            timeout_cnt = 0;
-            while (EEPR_GetState() != EEPR_IDLE) {
-
-                if (timeout_cnt > EEPR_GetWriteTime()) {   // timeout (depending on data length)
-
-                    err_type|=0x10;
-                    DIAG_Handler(DIAG_CH_POSTOSINIT_FAILURE,DIAG_EVENT_NOK, 2, NULL); // eeprom data not writable
-                    break;
-                }
-
-                timeout_cnt++;
-                EEPR_Trigger();
-                osDelay(1);      //wait 1ms for next call of eeprom trigger
-            }
-        }
-    } else {
-        // no eeprom data available
-
-        if((RTC_NVMRAM_DATAVALID_VARIABLE == 0) || (EEPR_BkpSramCheckChksum() != 0) ) {
-
-            // and NVM data corrupt, so take default values
-            EEPR_BkpSramDefaultDataRecovery();
-            RTC_NVMRAM_DATAVALID_VARIABLE = 1;      // validate NVNRAM data
-        }
-
-        if(err_type == 0x04) {
-
-            //eeprom read error (checksum error)
-            EEPR_UpdateEepromData();      // do update eeprom data
-            eepr_ret_val = EEPR_SetStateRequest(EEPR_WRITEMEMORY);    // Write EEPROM
-            if(eepr_ret_val != EEPR_OK)
-                err_type|=0x08;
-
-            timeout_cnt = 0;
-            while (EEPR_GetState() != EEPR_IDLE) {
-
-                if (timeout_cnt > EEPR_GetWriteTime()) {   // timeout (depending on data length)
-
-                    err_type|=0x10;
-                    DIAG_Handler(DIAG_CH_POSTOSINIT_FAILURE,DIAG_EVENT_NOK,3, NULL); // eeprom data not writable
-                    break;
-                }
-
-                timeout_cnt++;
-                EEPR_Trigger();
-                osDelay(1);      //wait 1ms for next call of eeprom trigger
-            }
-        }
-    }
+    //initialize eeprom driver
+    err_type = EEPR_Init();
+    if(err_type!=0)
+        DIAG_Handler(DIAG_CH_POSTOSINIT_FAILURE, DIAG_EVENT_NOK, err_type, NULL);   //error event in eeprom driver
 
     os_boot = OS_SYSCTRL_INIT;
     // Init SysControl:
     ret_val = SYSCTRL_SetStateRequest(SYSCTRL_STATE_REQ_STANDBY);
-    if(ret_val)
-        err_type|=0x40;
 
     timeout_cnt = 0;
-
     while ((SYSCTRL_GetState() != SYSCTRL_STATE_IDLE) && (SYSCTRL_GetState() != SYSCTRL_STATE_STANDBY)) {
 
         if (timeout_cnt > 20) {   // timeout
 
-            err_type|=0x80;
+            ret_val = E_NOT_OK;
             break;
         }
-
         timeout_cnt++;
         SYSCTRL_Trigger(SYS_MODE_CYCLIC_EVENT);
         osDelay(10);
@@ -367,7 +260,7 @@ void OS_PostOSInit(void) {
 
     if(ret_val) {
 
-         DIAG_Handler(DIAG_CH_POSTOSINIT_FAILURE, DIAG_EVENT_NOK, 3, NULL);
+         DIAG_Handler(DIAG_CH_POSTOSINIT_FAILURE, DIAG_EVENT_NOK, 8, NULL);
     }
 }
 

@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2016, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V. All rights reserved.
+ * @copyright &copy; 2010 - 2017, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V. All rights reserved.
  *
  * BSD 3-Clause License
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -102,7 +102,7 @@ void SOC_Init(void) {
 
     DATA_GetTable(&sox_current_tab, DATA_BLOCK_ID_CURRENT);
     soc_previous_current_timestamp = sox_current_tab.timestamp;
-    soc = EEPR_Get_nvsoc();
+    NVM_Get_soc(&soc);
     sox.soc_mean = soc.mean;
     sox.soc_min = soc.min;
     sox.soc_max = soc.max;
@@ -127,7 +127,7 @@ void SOC_SetValue(float soc_value) {
     soc.mean = soc_value;
     soc.min = soc_value;
     soc.max = soc_value;
-    EEPR_Set_nvsoc(&soc);
+    NVM_Set_soc(&soc);
 
     sox.soc_mean = soc.mean;
     sox.soc_min = soc.min;
@@ -187,7 +187,7 @@ void SOC_Init_Lookup_Table(void) {
         soc.mean = soc_mean;
         soc.min = soc_min;
         soc.max = soc_max;
-        EEPR_Set_nvsoc(&soc);
+        NVM_Set_soc(&soc);
 
         sox.soc_mean = soc_mean;
         sox.soc_min = soc_min;
@@ -199,7 +199,7 @@ void SOC_Init_Lookup_Table(void) {
 
     }
     else {
-        soc = EEPR_Get_nvsoc();
+        NVM_Get_soc(&soc);
         sox.soc_mean = soc.mean;
         sox.soc_min = soc.min;
         sox.soc_max = soc.max;
@@ -228,7 +228,7 @@ void SOC_Ctrl(void) {
         timestep = timestamp - previous_timestamp;
         if (timestep > 0) {
 
-            soc = EEPR_Get_nvsoc();
+            NVM_Get_soc(&soc);
             // Current in charge direction negative means SOC increasing --> BAT naming, not ROB
             //soc_mean = soc_mean - (sox_current_tab.current/*mA*/ /(float)SOX_CELL_CAPACITY /*mAh*/) * (float)(timestep) * (10.0/3600.0); /*milliseconds*/
             deltaSOC = (((sox_current_tab.current)*(float)(timestep)/10))/(3600.0*SOX_CELL_CAPACITY); // ((mA *ms *(1s/1000ms)) / (3600(s/h) *mAh)) *100%
@@ -242,7 +242,7 @@ void SOC_Ctrl(void) {
             if (soc.max > 100.0)  { soc.max = 100.0;  }
             if (soc.max < 0.0)    { soc.max = 0.0;    }
 
-            EEPR_Set_nvsoc(&soc);
+            NVM_Set_soc(&soc);
 
             sox.state++;
             sox.soc_mean = soc.mean;

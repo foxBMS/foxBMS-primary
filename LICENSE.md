@@ -1,5 +1,4 @@
-foxBMS Hardware and Documentation License
-=========================================
+# foxBMS Hardware and Documentation License
 
 Copyright (c) 2010-2017, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 All rights reserved.
@@ -21,8 +20,7 @@ Schottkystrasse 10
 info@foxbms.org    
 www.foxbms.org
 
-foxBMS Software License
-=======================
+# foxBMS Software License
 
 Copyright (c) 2010-2017, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 All rights reserved.

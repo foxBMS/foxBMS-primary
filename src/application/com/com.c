@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2016, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V. All rights reserved.
+ * @copyright &copy; 2010 - 2017, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V. All rights reserved.
  *
  * BSD 3-Clause License
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -117,11 +117,11 @@ void COM_StartupInfo(void) {
 
     /* Print runtime */
     DEBUG_PRINTF((const uint8_t * )"Runtime: ");
-    DEBUG_PRINTF(U8ToDecascii(com_buf, &os_timer.Timer_h, 2));
+    DEBUG_PRINTF(U8ToDecascii(com_buf, (uint8_t *)(&os_timer.Timer_h), 2));
     DEBUG_PRINTF((const uint8_t * )"h ");
-    DEBUG_PRINTF(U8ToDecascii(com_buf, &os_timer.Timer_min, 2));
+    DEBUG_PRINTF(U8ToDecascii(com_buf, (uint8_t *)(&os_timer.Timer_min), 2));
     DEBUG_PRINTF((const uint8_t * )"m ");
-    DEBUG_PRINTF(U8ToDecascii(com_buf, &os_timer.Timer_sec, 2));
+    DEBUG_PRINTF(U8ToDecascii(com_buf, (uint8_t *)(&os_timer.Timer_sec), 2));
     DEBUG_PRINTF((const uint8_t * )"s");
     DEBUG_PRINTF((const uint8_t * )"\r\n");
 }
@@ -307,11 +307,11 @@ void COM_Decoder(void) {
 
             /* Print runtime */
             DEBUG_PRINTF((const uint8_t * )"Runtime: ");
-            DEBUG_PRINTF(U8ToDecascii(com_buf, &os_timer.Timer_h, 2));
+            DEBUG_PRINTF(U8ToDecascii(com_buf, (uint8_t *)(&os_timer.Timer_h), 2));
             DEBUG_PRINTF((const uint8_t * )"h ");
-            DEBUG_PRINTF(U8ToDecascii(com_buf, &os_timer.Timer_min, 2));
+            DEBUG_PRINTF(U8ToDecascii(com_buf, (uint8_t *)(&os_timer.Timer_min), 2));
             DEBUG_PRINTF((const uint8_t * )"m ");
-            DEBUG_PRINTF(U8ToDecascii(com_buf, &os_timer.Timer_sec, 2));
+            DEBUG_PRINTF(U8ToDecascii(com_buf, (uint8_t *)(&os_timer.Timer_sec), 2));
             DEBUG_PRINTF((const uint8_t * )"s");
             DEBUG_PRINTF((const uint8_t * )"\r\n");
 
@@ -328,13 +328,13 @@ void COM_Decoder(void) {
         /* Get operating time */
         if (strcmp(com_receivedbyte, "getoperatingtime") == 0) {
             DEBUG_PRINTF((const uint8_t * )"Operating time: ");
-            DEBUG_PRINTF(U16ToDecascii(com_buf, &bkpsram_ch_1.operating_hours.Timer_d, 3));
+            DEBUG_PRINTF(U16ToDecascii(com_buf, &bkpsram_operating_hours.data.Timer_d, 3));
             DEBUG_PRINTF((const uint8_t * )"d ");
-            DEBUG_PRINTF(U8ToDecascii(com_buf, &bkpsram_ch_1.operating_hours.Timer_h, 2));
+            DEBUG_PRINTF(U8ToDecascii(com_buf, &bkpsram_operating_hours.data.Timer_h, 2));
             DEBUG_PRINTF((const uint8_t * )"h ");
-            DEBUG_PRINTF(U8ToDecascii(com_buf, &bkpsram_ch_1.operating_hours.Timer_min, 2));
+            DEBUG_PRINTF(U8ToDecascii(com_buf, &bkpsram_operating_hours.data.Timer_min, 2));
             DEBUG_PRINTF((const uint8_t * )"m ");
-            DEBUG_PRINTF(U8ToDecascii(com_buf, &bkpsram_ch_1.operating_hours.Timer_sec, 2));
+            DEBUG_PRINTF(U8ToDecascii(com_buf, &bkpsram_operating_hours.data.Timer_sec, 2));
             DEBUG_PRINTF((const uint8_t * )"s\n");
 
             /* Clear received command */

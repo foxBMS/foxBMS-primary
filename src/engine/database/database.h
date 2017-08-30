@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2016, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V. All rights reserved.
+ * @copyright &copy; 2010 - 2017, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V. All rights reserved.
  *
  * BSD 3-Clause License
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -43,26 +43,22 @@
 
 /*================== Macros and Definitions ===============================*/
 // FIXME doxygen comments
-typedef struct
-{
+typedef struct {
     // FIXME what is the intention of this union? isn't it dangerous if someone expects a pointer to and accesses via .u32ptr, but there is a value stored in value?
-    union
-    {
-        uint32_t               u32value;    /*  reference by uint32_t value   */
+    union {
+        uint32_t                u32value;    /*  reference by uint32_t value   */
         uint32_t                *u32ptr;    /*  reference by uint32_t pointer */
-        void                   *voidptr;    /*  reference by general pointer */
+        void                    *voidptr;    /*  reference by general pointer */
     } value;
     DATA_BLOCK_ID_TYPE_e        blockID;    /* definition of used message data type */
     DATA_BLOCK_ACCESS_TYPE_e    accesstype; /* read or write access type */
 } DATA_QUEUE_MESSAGE_s;
 
 
-typedef struct
-{
-    void                                 *RDptr;
-    void                                 *WRptr;
+typedef struct {
+    void                           *RDptr;
+    void                           *WRptr;
     DATA_BLOCK_CONSISTENCY_TYPE_e  nr_of_buffer;    // todo really needed?
-
 } DATA_BLOCK_ACCESS_s;
 
 /*================== Constant and Variable Definitions ====================*/

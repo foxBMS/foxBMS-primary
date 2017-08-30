@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2016, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V. All rights reserved.
+ * @copyright &copy; 2010 - 2017, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V. All rights reserved.
  *
  * BSD 3-Clause License
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -358,10 +358,10 @@ typedef struct {
     float Cutoff_THigh_Charge;
     float Limit_THigh_Charge;
 
-    float Cutoff_Soc_Charge ;
+    float Cutoff_Soc_Charge;
     float Limit_Soc_Charge;
 
-    float Cutoff_Soc_Discha ;
+    float Cutoff_Soc_Discha;
     float Limit_Soc_Discha;
 
     float Cutoff_Voltage_Charge;

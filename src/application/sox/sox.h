@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2016, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V. All rights reserved.
+ * @copyright &copy; 2010 - 2017, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V. All rights reserved.
  *
  * BSD 3-Clause License
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -57,6 +57,10 @@ typedef struct {
     float min;  /*!< minimum SOC    */
     float max;  /*!< maximum SOC    */
     float mean; /*!< mean SOC       */
+    float reserved1;/*!< reserved for future use */
+    float reserved2;/*!< reserved for future use */
+    float reserved3;/*!< reserved for future use */
+    float reserved4;/*!< reserved for future use */
 } SOX_SOC_s;
 
 /*================== Constant and Variable Definitions ====================*/
