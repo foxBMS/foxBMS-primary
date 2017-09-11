@@ -50,6 +50,16 @@
 #include "ltc_pec.h"
 
 /*================== Macros and Definitions ===============================*/
+// LTC COMM definitions
+
+#define LTC_ICOM_START              0x60
+#define LTC_ICOM_STOP               0x10
+#define LTC_ICOM_BLANK              0x00
+#define LTC_ICOM_NO_TRANSMIT        0x70
+#define LTC_FCOM_MASTER_ACK         0x00
+#define LTC_FCOM_MASTER_NACK        0x08
+#define LTC_FCOM_MASTER_NACK_STOP   0x09
+
 /**
  * Saves the last state and the last substate
  */
@@ -2319,63 +2329,41 @@ static void LTC_SetMUXChCommand(uint8_t *DataBufferSPI_TX, uint8_t mux, uint8_t 
 
     uint16_t i = 0;
 
-    for(i=0;i<LTC_N_LTC;i++) {
+    for(i = 0; i < LTC_N_LTC; i++) {
 
-        DataBufferSPI_TX[0+i*6]=0x69;        // 0x6 : LTC6804: ICOM START from Master
-                                            // 9: LTC1380: D15..12 ()
-        if (mux == 0) {
-            DataBufferSPI_TX[1+i*6]=0x08;    // 0x0 : LTC1380: D11..8  (0,A1,A0,/W)
-        }                                    // 8: LTC6804: Master NACK (FCOM)
-        else if (mux == 1) {
-            DataBufferSPI_TX[1+i*6]=0x28;
-        }
-        else if (mux == 2) {
-            DataBufferSPI_TX[1+i*6]=0x48;
-        }
-        else if (mux == 3) {
-            DataBufferSPI_TX[1+i*6]=0x68;
-        }
-        else {
-            DataBufferSPI_TX[1+i*6]=0x08;
+#if SLAVE_BOARD_VERSION == 2
+
+        /* using ADG728 */
+
+        uint8_t address = 0x4C | (mux % 3);
+        uint8_t data = 1 << (channel % 8);
+        if(channel == 0xFF) { // no channel selected, output of multiplexer is high impedance
+            data = 0x00;
         }
 
-        DataBufferSPI_TX[2+i*6]=0x00;        // 0x0 : LTC6804: ICOM Blank (Continue...)
-                                            // 0: LTC1380: D7..4 (dummies)
-        if (channel == 0) {
-            DataBufferSPI_TX[3+i*6]=0x89;    // 0x8 : LTC1380: D3..D0 (EN,C2,C1,C0...enable output of channel)
-        }                                    // 9: LTC6804: Master NACK+STOP (FCOM)
-        else if (channel == 1) {
-            DataBufferSPI_TX[3+i*6]=0x99;
-        }
-        else if (channel == 2) {
-            DataBufferSPI_TX[3+i*6]=0xA9;
-        }
-        else if (channel == 3) {
-            DataBufferSPI_TX[3+i*6]=0xB9;
-        }
-        else if (channel == 4) {
-            DataBufferSPI_TX[3+i*6]=0xC9;
-        }
-        else if (channel == 5) {
-            DataBufferSPI_TX[3+i*6]=0xD9;
-        }
-        else if (channel == 6) {
-            DataBufferSPI_TX[3+i*6]=0xE9;
-        }
-        else if (channel == 7) {
-            DataBufferSPI_TX[3+i*6]=0xF9;
-        }
-        else if (channel == 0xFF) {
-            DataBufferSPI_TX[3+i*6]=0x09;
-        }
-        else {
-            DataBufferSPI_TX[3+i*6]=0x09;
+#else
+
+        /* using LTC1380 */
+
+        uint8_t address = 0x48 | (mux % 4);
+        uint8_t data = 0x80 | (channel % 8);
+        if(channel == 0xFF) { // no channel selected, output of multiplexer is high impedance
+            data = 0x00;
         }
 
-        DataBufferSPI_TX[4+i*6]=0x10;        // 0x1 : ICOM-STOP
-                                            // 0: dummy (Dn)
-        DataBufferSPI_TX[5+i*6]=0x09;        // 0x0 : dummy (Dn)
-                                            // 9: MASTER NACK + STOP (FCOM)
+#endif
+
+        DataBufferSPI_TX[0 + i * 6] = LTC_ICOM_START | (address >> 3);        // 0x6 : LTC6804: ICOM START from Master
+
+        DataBufferSPI_TX[1 + i * 6] = LTC_FCOM_MASTER_NACK | (1 << 4) | (address << 5);
+
+        DataBufferSPI_TX[2 + i * 6] = LTC_ICOM_BLANK | (data >> 4);
+        DataBufferSPI_TX[3 + i * 6] = LTC_FCOM_MASTER_NACK_STOP | (data << 4);
+
+        DataBufferSPI_TX[4 + i * 6] = LTC_ICOM_NO_TRANSMIT;        // 0x1 : ICOM-STOP
+        // 0: dummy (Dn)
+        DataBufferSPI_TX[5 + i * 6] = 0x00;        // 0x0 : dummy (Dn)
+                                                   // 9: MASTER NACK + STOP (FCOM)
     }
 }
 

@@ -44,6 +44,12 @@
  */
 #define LTC_NUMBER_OF_MUX_MEASUREMENTS_PER_CYCLE 1
 
+#if SLAVE_BOARD_VERSION == 1
+#elif SLAVE_BOARD_VERSION == 2
+#else
+#error Please select the slave board version you want to use. Configuration file: \src\module\config\ltc_cfg.h
+#endif
+
 /*================== Constant and Variable Definitions ====================*/
 
 /**
