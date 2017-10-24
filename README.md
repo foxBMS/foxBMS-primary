@@ -1,8 +1,8 @@
 # foxBMS [![Build Status](https://travis-ci.org/foxBMS/foxBMS-primary.svg?branch=master)](https://travis-ci.org/foxBMS/foxBMS-primary)
 
-foxBMS is a free, open and flexible development environment for the design of
-battery management systems. It is the first universal BMS development
-environment.
+foxBMS is a free, open and flexible development environment to design battery
+management systems. It is the first modular open source BMS development
+platform.
 
 ## foxBMS Project Setup
 The foxBMS project consists of several repositories.
@@ -15,10 +15,10 @@ the MCUs (e.g., Python, git, GCC).
 The starting point to get foxBMS is the foxBMS-setup
 repository (https://github.com/foxBMS/foxBMS-setup), which contains
 the general setup files for the foxBMS project. It includes a setup script
-(bootstrap.py) which clones all the other needed repositories. The needed 
+(bootstrap.py) which clones all the other needed repositories. The needed
 documentation will be generated automatically after these repositories have been
-cloned. The generated documentation is found in the directory ./build. 
-After the bootstrap step, the top project directory (foxBMS-setup) structure 
+cloned. The generated documentation is found in the directory ./build.
+After the bootstrap step, the top project directory (foxBMS-setup) structure
 looks like this:
 
  - foxBMS-setup <dir>
@@ -41,7 +41,7 @@ looks like this:
   - wscript <file>
 
 * Directories and files with starting full stop are hidden in Windows in default
-configuration. 
+configuration.
 
 There is a help available by running "python bootstrap.py -h".
 
