@@ -2355,7 +2355,7 @@ static void LTC_SetMUXChCommand(uint8_t *DataBufferSPI_TX, uint8_t mux, uint8_t 
 
         DataBufferSPI_TX[0 + i * 6] = LTC_ICOM_START | (address >> 3);        // 0x6 : LTC6804: ICOM START from Master
 
-        DataBufferSPI_TX[1 + i * 6] = LTC_FCOM_MASTER_NACK | (1 << 4) | (address << 5);
+        DataBufferSPI_TX[1 + i * 6] = LTC_FCOM_MASTER_NACK | (address << 5);
 
         DataBufferSPI_TX[2 + i * 6] = LTC_ICOM_BLANK | (data >> 4);
         DataBufferSPI_TX[3 + i * 6] = LTC_FCOM_MASTER_NACK_STOP | (data << 4);

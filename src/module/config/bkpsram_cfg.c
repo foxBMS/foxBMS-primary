@@ -88,7 +88,7 @@ void NVM_Set_soc(SOX_SOC_s* ptr) {
     bkpsram_nvsoc.data = *ptr;
 
     /* calculate checksum*/
-    bkpsram_nvsoc.checksum = EEPR_CalcChecksum((uint8_t*)(&ptr),sizeof(bkpsram_nvsoc)-4);
+    bkpsram_nvsoc.checksum = EEPR_CalcChecksum((uint8_t*)(ptr),sizeof(bkpsram_nvsoc)-4);
     //@akdere warum wurde hier nicht über die Orignaldaten die checksumme berechnet?, also "ptr"
     //-> macht mehr sinn, geändert.
     /* Enable interrupts */
